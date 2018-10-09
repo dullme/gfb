@@ -18,7 +18,7 @@ class UserController extends ResponseController
 
         $user = User::find(Auth()->user()->id);
 
-        if($user->status = 2){
+        if($user->status == 2){
             return $this->responseError('该卡已激活无需重新激活！');
         }
 
@@ -41,6 +41,10 @@ class UserController extends ResponseController
 
         if(!$user){
             return $this->responseError('用户信息获取失败');
+        }
+
+        if($user->status != 2 ){
+            return $this->responseError('该卡尚未激活！');
         }
 
         return $this->responseSuccess([
