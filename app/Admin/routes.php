@@ -21,5 +21,8 @@ Route::group([
     $router->resource('complex', ComplexController::class);
 
     $router->resource('withdraw', WithdrawController::class);
+    $router->post('withdraw/changeStatus', 'WithdrawController@changeStatus');
+
+    $router->resource('capital-pool', CapitalPoolController::class);
 
 });

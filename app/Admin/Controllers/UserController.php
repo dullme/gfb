@@ -77,7 +77,7 @@ class UserController extends Controller {
      */
     protected function grid() {
         $grid = new Grid(new User);
-        $status = \Request::get('status', 1);
+        $status = \Request::get('status', 2);
 
         $grid->model()->where('status', $status)->orderBy('id', 'desc');
 
@@ -103,8 +103,9 @@ class UserController extends Controller {
         $grid->filter(function ($filter) {
             $filter->equal('id', '用户名');
             $filter->equal('status', '状态')->radio([
-                0    => '未激活',
-                1    => '已激活',
+                0    => '待售',
+                1    => '待激活',
+                2    => '已激活',
             ]);
         });
 
@@ -189,7 +190,7 @@ class UserController extends Controller {
 
     public function store(Request $request) {
         $request->validate([
-            'number' => 'required|numeric|min:1|max:50',
+            'number' => 'required|numeric|min:1|max:10000',
             'original_price' => 'required|numeric',
             'retail_price' => 'required|numeric',
         ]);
@@ -199,7 +200,7 @@ class UserController extends Controller {
 
         for ($i = 0; $i < $request->get('number'); $i++) {
             $password = makeInvitationCode(10);
-            $data[$i]['password'] = bcrypt($password);
+            $data[$i]['password'] = md5($password);
             $data[$i]['initial_password'] = $password;
             $data[$i]['original_price'] = $original_price;
             $data[$i]['retail_price'] = $retail_price;
@@ -240,6 +241,14 @@ class UserController extends Controller {
                 $amount += $item['history_amount'];
             }
             return "{$count} / {$amount}";
+        });
+
+        $grid->column('套现总次数')->display(function () {
+            return  123;
+        });
+        $grid->column('套现总金额')->display(function () {
+
+            return 332;
         });
 
         $grid->column('浏览频度(秒)	')->display(function () {

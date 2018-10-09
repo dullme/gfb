@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\Tools\ChangeWithdrawStatus;
+use App\Admin\Extensions\Tools\WithdrawTool;
 use App\Models\Withdraw;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\HasResourceActions;
@@ -9,6 +11,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
+use Illuminate\Http\Request;
 
 class WithdrawController extends Controller
 {
@@ -79,7 +82,15 @@ class WithdrawController extends Controller
      */
     protected function grid()
     {
+        $withdraw = \Request::get('withdraw');
+
         $grid = new Grid(new Withdraw);
+
+        if ($withdraw == 'to_be_confirmed') {
+            $grid->model()->where('status', 0);
+        }else if($withdraw == 'confirmed'){
+            $grid->model()->where('status', 1);
+        }
 
         $grid->model()->orderBy('status', 'asc')->orderBy('id', 'desc');
 
@@ -96,8 +107,22 @@ class WithdrawController extends Controller
             return "<span class=\"badge bg-$color\">$status</span>";
         });
 
+        //筛选
+        $grid->filter(function ($filter) {
+            $filter->equal('user.mobile', '电话');
+            $filter->equal('user.alipay_account', '支付宝账户');
+        });
+
         $grid->disableCreateButton();//禁用创建按钮
         $grid->disableActions();//禁用行操作列
+
+        $grid->tools(function ($tools) {
+            $tools->append(new WithdrawTool());
+            $tools->batch(function ($batch) {
+                $batch->disableDelete();
+                $batch->add('确认提现', new ChangeWithdrawStatus(1));
+            });
+        });
 
         return $grid;
     }
@@ -136,5 +161,30 @@ class WithdrawController extends Controller
         $form->switch('status', 'Status');
 
         return $form;
+    }
+
+    public function changeStatus(Request $request) {
+        $changed = 0;
+        foreach (Withdraw::find($request->get('ids')) as $product) {
+            if($product->status == 0){
+                $product->status = $request->get('action');
+                $product->save();
+                $changed++;
+            }
+        }
+
+        if ($changed) {
+            $data = [
+                'status'  => true,
+                'message' => '成功确认'.$changed.'记录',
+            ];
+        } else {
+            $data = [
+                'status'  => false,
+                'message' => '没有需要确认的记录',
+            ];
+        }
+
+        return response()->json($data);
     }
 }

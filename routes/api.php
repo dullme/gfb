@@ -13,6 +13,13 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+
+//用户登录
+Route::post('/login', 'LoginController@userLogin');
+
+//退出登录
+Route::post('/logout', 'LoginController@userLogout');
+
+//重置Token
+Route::post('/token/refresh', 'LoginController@refresh');
+

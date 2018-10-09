@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -30,8 +31,14 @@ class User extends Authenticatable
 
     public static $statusColors = [
         '0'    => 'grey',
-        '1'   => 'green',
+        '1'   => 'yellow',
+        '2'   => 'green',
     ];
+
+    public function findForPassport($username) {
+
+        return User::where('id', $username)->first();
+    }
 
     public function complexes() {
 
