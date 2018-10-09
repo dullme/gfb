@@ -182,7 +182,7 @@ class UserController extends Controller {
         $form->disableEditingCheck();
 
         $form->saving(function (Form $form) {
-            $form->password = bcrypt($form->password);
+            $form->password = md5($form->password);
         });
 
         return $form;
