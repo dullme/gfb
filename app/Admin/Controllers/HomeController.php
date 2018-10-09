@@ -13,7 +13,7 @@ use Predis\Client;
 class HomeController extends Controller {
 
     public function index(Content $content) {
-        $amount = getTodayAmount();
+        $amount = $this->getTodayAmount();
         $users = User::all();
         $data = [
             ['name' => '待售', 'value' => $users->where('status', 0)->count()],

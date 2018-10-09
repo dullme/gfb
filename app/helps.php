@@ -1,21 +1,5 @@
 <?php
 
-function getTodayAmount(){
-    $redis = new \Predis\Client();
-    $a_amount = $redis->keys('a_*_' . date('Ymd'));
-    $today_amount = $a_amount ? collect($redis->mget($a_amount))->sum() : 0;
-    $v_amount = $redis->keys('v_*_' . date('Ymd'));
-    $visits = $v_amount ? collect($redis->mget($v_amount))->sum() : 0;
-
-
-    return [
-        'ad_fee' => \App\Models\CapitalPool::all()->sum('price'), //广告费总额
-        'amount' => \App\Models\Complex::all()->sum('history_amount') + $today_amount,    //分润总额
-        'withdraw' => \App\Models\Withdraw::where('status', 1)->get()->sum('price'),  //提现总额
-        'visits' => $visits  //今日访问人数
-    ];
-}
-
 function getUserStatus($key = null){
     $data = [
         '0' => '待售',

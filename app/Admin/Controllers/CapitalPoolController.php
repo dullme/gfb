@@ -27,7 +27,7 @@ class CapitalPoolController extends Controller {
      * @return Content
      */
     public function index(Content $content) {
-        $amount = getTodayAmount();
+        $amount = $this->getTodayAmount();
 
         return $content
             ->header('资金池管理')
