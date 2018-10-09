@@ -32,7 +32,6 @@
             "App\\": "app/"
         },
         "files": [
-            "app/constants.php",
             "app/helpers.php"
         ]
     },
