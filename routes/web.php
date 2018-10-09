@@ -12,9 +12,9 @@
 */
 
 Route::get('/', function () {
-    Redis::incrby('v_100024_'.date('Ymd'), 1);
+    Redis::incrby('v_20154_'.date('Ymd'), 1);
     Redis::incrby('v_100023_'.date('Ymd'), 1);
-    Redis::incrby('a_100023_'.date('Ymd'),333);
+    Redis::incrby('a_20154_'.date('Ymd'),333);
     Redis::incrby('a_100024_'.date('Ymd'),987);
     return view('welcome');
 });

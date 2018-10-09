@@ -30,5 +30,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::post('/user-info', 'UserController@updateUserInfo');
     Route::get('/user-info', 'UserController@userInfo');
+    Route::get('/complex', 'UserController@complex');
+    Route::get('/image', 'UserController@getImage');
 });
 
