@@ -23,3 +23,12 @@ Route::post('/logout', 'LoginController@userLogout');
 //重置Token
 Route::post('/token/refresh', 'LoginController@refresh');
 
+/**
+ * 需要 OAuth 认证
+ */
+Route::group(['middleware' => 'auth:api'], function () {
+
+    Route::post('/user-info', 'UserController@updateUserInfo');
+    Route::get('/user-info', 'UserController@userInfo');
+});
+

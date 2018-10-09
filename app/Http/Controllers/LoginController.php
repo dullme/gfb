@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Proxy\TokenProxy;
 use App\Http\Requests\LoginRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 
-class LoginController extends Controller
+class LoginController extends ResponseController
 {
     protected $proxy;
 
@@ -24,8 +25,17 @@ class LoginController extends Controller
      * @return $this|\Illuminate\Http\JsonResponse
      */
     public function userLogin(LoginRequest $request) {
+        $user = User::find($request->get('username'));
+        if($user && $user->password == md5($request->get('password'))){
+            $proxy = $this->proxy->login($request->get('username'),$request->get('password'));
+        }else{
 
-        return $this->proxy->login($request->get('username'),$request->get('password'));
+            return $this->responseError('卡密有误！');
+        }
+
+        return $this->responseSuccess(array_merge([
+            'activated' => $user->status == 2 ? true : false
+        ], $proxy));
     }
 
     /**

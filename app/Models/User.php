@@ -18,6 +18,14 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'email', 'password',
+        'original_price',
+        'retail_price',
+        'mobile',
+        'alipay_account',
+        'alipay_name',
+        'status',
+        'initial_password',
+        'activation_at',
     ];
 
     /**

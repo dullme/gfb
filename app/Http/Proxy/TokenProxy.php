@@ -70,17 +70,17 @@ class TokenProxy {
                 'form_params' => $data
             ]);
         } catch (RequestException $e) {
-            return response()->json([
+            return [
                 'message' => '用户名或密码错误!'
-            ], 422);
+            ];
         }
 
         $token = json_decode((string) $response->getBody(), true);
 
-        return response()->json([
+        return [
             'token'      => $token['access_token'],
             'auth_id'      => md5($token['refresh_token']),
             'expires_in' => $token['expires_in'],
-        ])->cookie('refreshToken', $token['refresh_token'], 14400, null, null, false, true);
+        ];
     }
 }
