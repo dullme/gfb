@@ -22,8 +22,10 @@ class CreateUsersTable extends Migration
             $table->string('alipay_name')->nullable()->comment('支付宝账户姓名');
             $table->boolean('status')->default(0)->comment('状态');
             $table->string('password');
+            $table->integer('validity_period')->default(0)->comment('有效期限/月');
             $table->string('initial_password')->nullable()->comment('初始密码');
             $table->timestamp('activation_at')->nullable()->comment('激活时间');
+            $table->timestamp('expiration_at')->nullable()->comment('有效期');
             $table->rememberToken();
             $table->timestamps();
 

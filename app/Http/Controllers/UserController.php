@@ -29,6 +29,7 @@ class UserController extends ResponseController {
         $user->alipay_name = $request->get('alipay_name');
         $user->status = 2;
         $user->activation_at = Carbon::now();
+        $user->expiration_at = Carbon::now()->addMonth($user->validity_period);
         $user->save();
         if (!$user->save()) {
 
@@ -48,13 +49,21 @@ class UserController extends ResponseController {
         if ($user->status != 2) {
             return $this->responseError('该卡尚未激活！');
         }
+        $amount = $this->getTodayAmount(Auth()->user()->id);
 
         return $this->responseSuccess([
             'username'       => $user->id,
             'mobile'         => $user->mobile,
             'alipay_account' => $user->alipay_account,
             'alipay_name'    => $user->alipay_name,
-            'activation_at'  => $user->activation_at,
+            'activation_date_at'  => substr($user->activation_at, 0, 10),
+            'activation_time_at'  => substr($user->activation_at, 11),
+            'expiration_at'  => $user->expiration_at,
+            'ad_fee' => $amount['ad_fee'], //总金额
+            'amount' => $amount['ad_fee'] - $amount['amount'],    //可分配金额
+            'withdraw' => $amount['withdraw'],  //套现总额
+            'use_amount' => $amount['use_amount'],//可用总金额
+            'withdraw_amount' => $amount['withdraw_amount'],//可提现总金额
         ]);
     }
 

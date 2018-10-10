@@ -26,6 +26,8 @@ class User extends Authenticatable
         'status',
         'initial_password',
         'activation_at',
+        'validity_period',
+        'expiration_at',
     ];
 
     /**
@@ -41,6 +43,7 @@ class User extends Authenticatable
         '0'    => 'grey',
         '1'   => 'yellow',
         '2'   => 'green',
+        '3'   => 'red',
     ];
 
     public function findForPassport($username) {

@@ -13,6 +13,7 @@ Route::group([
     $router->get('/', 'HomeController@index');
 
     $router->resource('users', UserController::class);
+    $router->post('users/changeStatus', 'UserController@changeStatus');
     $router->get('today-complex', 'UserController@complexToday');
 
     $router->resource('advertisement', AdvertisementController::class);

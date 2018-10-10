@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\Tools\ChangeUserStatus;
+use App\Admin\Extensions\Tools\UserTool;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -77,13 +79,14 @@ class UserController extends Controller {
      */
     protected function grid() {
         $grid = new Grid(new User);
-        $status = \Request::get('status', 2);
+        $status = \Request::get('user', 2);
 
         $grid->model()->where('status', $status)->orderBy('id', 'desc');
 
         $grid->id('用户名');
         $grid->original_price('发行价');
         $grid->retail_price('零售价');
+        $grid->validity_period('有效期限/月');
         $grid->mobile('电话');
         $grid->alipay_account('支付宝账户');
         $grid->alipay_name('支付宝账户姓名');
@@ -98,15 +101,28 @@ class UserController extends Controller {
 
             return $value ? : '—';
         });
+        $grid->expiration_at('有效期至')->display(function ($value){
+
+            return $value ? : '—';
+        });
+
+        $grid->actions(function ($action){
+            $action->disableDelete();
+        });
 
         //筛选
         $grid->filter(function ($filter) {
             $filter->equal('id', '用户名');
-            $filter->equal('status', '状态')->radio([
-                0    => '待售',
-                1    => '待激活',
-                2    => '已激活',
-            ]);
+        });
+
+        $grid->tools(function ($tools) {
+            $tools->append(new UserTool());
+            $tools->batch(function ($batch) {
+                $batch->disableDelete();
+                $batch->add('出售', new ChangeUserStatus(1));
+                $batch->add('冻结', new ChangeUserStatus(3));
+                $batch->add('解冻', new ChangeUserStatus(2));
+            });
         });
 
         return $grid;
@@ -124,6 +140,7 @@ class UserController extends Controller {
         $show->id('用户名');
         $show->original_price('发行价');
         $show->retail_price('零售价');
+        $show->validity_period('有效期限/月');
         $show->mobile('电话');
         $show->alipay_account('支付宝账号');
         $show->alipay_name('支付宝用户名');
@@ -148,6 +165,7 @@ class UserController extends Controller {
         $form = new Form(new User);
 
         $form->number('number', '新增数量')->rules('required|numeric|min:1|max:50')->default(1);
+        $form->number('validity_period', '有效期限/月')->rules('required|numeric|min:1')->default(12);
         $form->decimal('original_price', '发行价')->rules('required|numeric');
         $form->decimal('retail_price', '零售价')->rules('required|numeric');
 
@@ -168,6 +186,7 @@ class UserController extends Controller {
         $form->text('id', '用户名')->readOnly();
         $form->decimal('original_price', '发行价');
         $form->decimal('retail_price', '零售价');
+//        $form->number('validity_period', '有效期限/月');
         $form->text('alipay_name', '支付宝用户名');
         $form->text('alipay_account', '支付宝账号');
         $form->text('mobile', '联系电话');
@@ -191,12 +210,14 @@ class UserController extends Controller {
     public function store(Request $request) {
         $request->validate([
             'number' => 'required|numeric|min:1|max:10000',
+            'validity_period' => 'required|numeric|min:1',
             'original_price' => 'required|numeric',
             'retail_price' => 'required|numeric',
         ]);
         $datetime = Carbon::now();
         $original_price = $request->get('original_price');
         $retail_price = $request->get('retail_price');
+        $validity_period = $request->get('validity_period');
 
         for ($i = 0; $i < $request->get('number'); $i++) {
             $password = makeInvitationCode(10);
@@ -206,6 +227,7 @@ class UserController extends Controller {
             $data[$i]['retail_price'] = $retail_price;
             $data[$i]['created_at'] = $datetime;
             $data[$i]['updated_at'] = $datetime;
+            $data[$i]['validity_period'] = $validity_period;
         }
 
         User::insert($data);
@@ -279,5 +301,50 @@ class UserController extends Controller {
         $grid->disableActions();//禁用行操作列
 
         return $grid;
+    }
+
+    public function changeStatus(Request $request) {
+        $status = $request->get('action');
+        $changed = 0;
+        foreach (User::find($request->get('ids')) as $product) {
+            if($status == 1){   //出售
+                if($product->status == 0){
+                    $product->status = $status;
+                    $product->save();
+                    $changed++;
+                }
+            }
+
+            if($status == 3){   //禁用
+                if($product->status == 2){
+                    $product->status = $status;
+                    $product->save();
+                    $changed++;
+                }
+            }
+
+            if($status == 2){   //启用
+                if($product->status == 3){
+                    $product->status = $status;
+                    $product->save();
+                    $changed++;
+                }
+            }
+
+        }
+
+        if ($changed) {
+            $data = [
+                'status'  => true,
+                'message' => '成功修改'.$changed.'条记录',
+            ];
+        } else {
+            $data = [
+                'status'  => false,
+                'message' => '没有需要设置的记录',
+            ];
+        }
+
+        return response()->json($data);
     }
 }

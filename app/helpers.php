@@ -5,6 +5,7 @@ function getUserStatus($key = null){
         '0' => '待售',
         '1' => '待激活',
         '2' => '已激活',
+        '3' => '已冻结',
     ];
 
     return is_null($key) ? $data : $data[$key];
