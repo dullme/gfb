@@ -258,22 +258,6 @@ class UserController extends Controller {
 
             return $value ? substr($value, 0, 10) : '—';
         });
-        $grid->complexes('历史总次/分润总计')->display(function ($complexes){
-            $count = $amount = 0;
-            foreach ($complexes as $item){
-                $count += $item['history_read_count'];
-                $amount += $item['history_amount'];
-            }
-            return "{$count} / {$amount}";
-        });
-
-        $grid->column('套现总次数')->display(function () {
-            return  123;
-        });
-        $grid->column('套现总金额')->display(function () {
-
-            return 332;
-        });
 
         $grid->column('浏览频度(秒)	')->display(function () {
             return config('ad_frequency');
@@ -291,6 +275,24 @@ class UserController extends Controller {
         $grid->column('当日金额')->display(function () use ($redis) {
 
             return $redis->userTodayAmount($this->id);
+        });
+
+        $grid->complexes('历史总次/分润总计')->display(function ($complexes){
+            $count = $amount = 0;
+            foreach ($complexes as $item){
+                $count += $item['history_read_count'];
+                $amount += $item['history_amount'];
+            }
+            return "{$count} / {$amount}";
+        });
+
+        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
+            $count = count($withdraws);
+            $amount = 0;
+            foreach ($withdraws as $item){
+                $amount += $item['price'];
+            }
+            return "{$count} / {$amount}";
         });
 
         //筛选

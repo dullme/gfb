@@ -56,4 +56,9 @@ class User extends Authenticatable
         return $this->hasMany(Complex::class);
     }
 
+    public function withdraws() {
+
+        return $this->hasMany(Withdraw::class);
+    }
+
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Image;
+use Validator;
 use App\Models\Advertisement;
 use App\Models\Complex;
 use App\Models\User;
@@ -186,5 +188,29 @@ class UserController extends ResponseController {
         $value = (int)((float)$user_amount / 100);
 
         return $value ? $value * 100 : 0;
+    }
+
+    /**
+     * 头像上传
+     * @param Request $request
+     * @return mixed
+     */
+    public function avatarUpload(Request $request){
+        $file = $request->file('avatar');
+        $input = ['image' => $file];
+        $rules = ['image' => 'image'];
+        $validator = Validator::make($input, $rules);
+        if ( $validator->fails() || !in_array(exif_imagetype($file), [2,3])) {
+            return $this->responseError('文件上传失败');
+        }
+        $destinationPath = 'uploads/avatar/'.Auth()->user()->id.'/';
+        $filename = Auth()->user()->id.'_'.time().rand(100000,999999).getImageType($file);
+        $fitSize = getAvatarSize($file, 440, 295);
+        $file->move($destinationPath, $filename);
+        Image::make($destinationPath.$filename)->fit($fitSize['width'],$fitSize['height'])->save();
+
+        return $this->responseSuccess([
+            'avatar' => url($destinationPath.$filename),
+        ]);
     }
 }

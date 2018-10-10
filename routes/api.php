@@ -34,5 +34,6 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/image', 'UserController@getImage');
     Route::get('/withdraw', 'UserController@getWithdraw');
     Route::post('/withdraw', 'UserController@storeWithdraw');
+    Route::post('/avatar-upload', 'UserController@avatarUpload');
 });
 

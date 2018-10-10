@@ -154,3 +154,50 @@ function randFloat($min=0, $max=1){
 
     return (float)(array_random(['+', '-']).$res);
 }
+
+/**
+ * 获取图片类型
+ * @param $image
+ * @return bool|string
+ */
+function getImageType($image){
+    switch (exif_imagetype($image)){
+        case 1: $imageType = '.gif'; break;
+        case 2: $imageType = '.jpg'; break;
+        case 3: $imageType = '.png'; break;
+        case 4: $imageType = '.swf'; break;
+        case 5: $imageType = '.psd'; break;
+        case 6: $imageType = '.bmp'; break;
+        default: $imageType = false; break;
+    }
+    return $imageType;
+}
+
+/**
+ * 获取裁剪图片的宽高和放大倍率
+ * @param file $image
+ * @param integer $width 裁剪画布的宽
+ * @param integer $height 裁剪画布的高
+ * @return array $width, $height, $multiple
+ */
+function getAvatarSize($image,$width,$height){
+    $imageSize = getimagesize($image);
+    if($imageSize[0] <= $width && $imageSize[1] <= $width){
+        $avatarWidth = $imageSize[0];
+        $avatarHeight = $imageSize[1];
+        $multiple = 1;
+    }else{
+        if($imageSize[0] > $imageSize[1]){	//宽>高
+            $multiple = $imageSize[0] < $width*2?1:2;
+            $proportion = $imageSize[0]/$width;
+            $avatarWidth = $width*$multiple;
+            $avatarHeight = (int)($imageSize[1]/$proportion)*$multiple;
+        }else{	//宽<=高
+            $multiple = $imageSize[1] < $height*2?1:2;
+            $proportion = $imageSize[1]/$height;
+            $avatarWidth = (int)($imageSize[0]/$proportion)*$multiple;
+            $avatarHeight = $height*$multiple;
+        }
+    }
+    return ['width'=>$avatarWidth, 'height'=>$avatarHeight, 'multiple'=>$multiple];
+}
