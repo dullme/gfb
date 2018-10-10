@@ -66,6 +66,7 @@ class UserController extends ResponseController {
             'ad_fee' => $amount['ad_fee'], //总金额
             'amount' => $amount['ad_fee'] - $amount['amount'],    //可分配金额
             'withdraw' => $amount['withdraw'],  //套现总额
+            'avatar' => url($user->avatar),
         ]);
     }
 
@@ -209,8 +210,14 @@ class UserController extends ResponseController {
         $file->move($destinationPath, $filename);
         Image::make($destinationPath.$filename)->fit($fitSize['width'],$fitSize['height'])->save();
 
+        $avatar = $destinationPath.$filename;
+
+        $user = User::find(Auth()->user()->id);
+        $user->avatar = $avatar;
+        $user->save();
+
         return $this->responseSuccess([
-            'avatar' => url($destinationPath.$filename),
+            'avatar' => url($avatar),
         ]);
     }
 }
