@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Withdraw extends Model {
 
+    protected $fillable = [
+        'user_id',
+        'price'
+    ];
+
     public static $status = [
         '0' => '待确认',
         '1' => '已提现',

@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Withdraw;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Predis\Client;
 
 class UserController extends ResponseController {
@@ -50,7 +51,7 @@ class UserController extends ResponseController {
         if ($user->status != 2) {
             return $this->responseError('该卡尚未激活！');
         }
-        $amount = (new RedisController())->getTodayAmount(Auth()->user()->id);
+        $amount = (new RedisController())->getTodayAmount();
 
         return $this->responseSuccess([
             'username'       => $user->id,
@@ -63,8 +64,6 @@ class UserController extends ResponseController {
             'ad_fee' => $amount['ad_fee'], //总金额
             'amount' => $amount['ad_fee'] - $amount['amount'],    //可分配金额
             'withdraw' => $amount['withdraw'],  //套现总额
-            'use_amount' => $amount['use_amount'],//可用总金额
-            'withdraw_amount' => $amount['withdraw_amount'],//可提现总金额
         ]);
     }
 
@@ -131,7 +130,6 @@ class UserController extends ResponseController {
 
     public function getWithdraw() {
         $redis = new RedisController();
-        $value = (int)((float)Auth()->user()->amount / 100);
         $history_amount = Complex::where('user_id', Auth()->user()->id)->sum('history_amount') * 100000;
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id) * 100000;
         $withdraw_finished = Withdraw::where([
@@ -141,14 +139,47 @@ class UserController extends ResponseController {
 
         return $this->responseSuccess([
             'use_amount' => (Auth()->user()->amount * 100000 +  $user_today_amount) /100000, //可用总金额
-            'withdraw_amount' => $value ? $value * 100 : 0, //可提现金额
+            'withdraw_amount' => $this->canWithdrawAmount(Auth()->user()->amount), //可提现金额
             'history_amount' => ($history_amount + $user_today_amount) / 100000,  //广告费总金额
             'withdraw_finished' => $withdraw_finished->sum('price'),  //提现总金额
             'withdraw_finished_count' => $withdraw_finished->count()  //提现总金额
         ]);
     }
 
-    public function storeWithdraw() {
+    public function storeWithdraw(Request $request) {
+        $request->validate([
+            'withdraw'         => 'required|integer|min:100',
+        ]);
 
+        $can_withdraw_amount = $this->canWithdrawAmount(Auth()->user()->amount);
+
+        if($request->get('withdraw') != $can_withdraw_amount){
+            return $this->responseError('提现金额有误');
+        }
+        $user = User::find(Auth()->user()->id);
+
+        $user->amount -= $can_withdraw_amount;
+        if(!$user->save()){
+            Log::info('用户'.Auth()->user()->id.'申请提现金额为'.$can_withdraw_amount.'用户表修改失败');
+            return $this->responseError('提现申请失败');
+        }
+        Log::info('用户'.Auth()->user()->id.'申请提现金额为'.$can_withdraw_amount.'用户表修改成功');
+        $res = Withdraw::create([
+            'user_id' => Auth()->user()->id,
+            'price' => $can_withdraw_amount,
+        ]);
+
+        if(!$res){
+            Log::info('用户'.Auth()->user()->id.'申请提现金额为'.$can_withdraw_amount.'提现表保存失败');
+            return $this->responseError('提现保存失败');
+        }
+        Log::info('用户'.Auth()->user()->id.'申请提现金额为'.$can_withdraw_amount.'提现表保存成功');
+        return $this->responseSuccess($res);
+    }
+
+    public function canWithdrawAmount($user_amount) {
+        $value = (int)((float)$user_amount / 100);
+
+        return $value ? $value * 100 : 0;
     }
 }
