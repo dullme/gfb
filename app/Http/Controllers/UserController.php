@@ -177,6 +177,11 @@ class UserController extends ResponseController {
         return $this->responseSuccess($res);
     }
 
+    /**
+     * 可提现金额
+     * @param $user_amount
+     * @return float|int
+     */
     public function canWithdrawAmount($user_amount) {
         $value = (int)((float)$user_amount / 100);
 
