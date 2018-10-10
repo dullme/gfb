@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Http\Controllers\RedisController;
 use App\Models\CapitalPool;
 use App\Http\Controllers\Controller;
 use App\Models\Complex;
@@ -27,7 +28,7 @@ class CapitalPoolController extends Controller {
      * @return Content
      */
     public function index(Content $content) {
-        $amount = $this->getTodayAmount();
+        $amount = (new RedisController())->getTodayAmount();
 
         return $content
             ->header('资金池管理')

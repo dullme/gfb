@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\RedisController;
 use App\Models\User;
 use Encore\Admin\Controllers\Dashboard;
 use Encore\Admin\Layout\Column;
@@ -13,7 +14,7 @@ use Predis\Client;
 class HomeController extends Controller {
 
     public function index(Content $content) {
-        $amount = $this->getTodayAmount();
+        $amount = (new RedisController())->getTodayAmount();
         $users = User::all();
         $data = [
             ['name' => '待售', 'value' => $users->where('status', 0)->count()],

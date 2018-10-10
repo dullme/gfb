@@ -32,5 +32,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/user-info', 'UserController@userInfo');
     Route::get('/complex', 'UserController@complex');
     Route::get('/image', 'UserController@getImage');
+    Route::get('/withdraw', 'UserController@getWithdraw');
+    Route::post('/withdraw', 'UserController@storeWithdraw');
 });
 

@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Extensions\Tools\ChangeUserStatus;
 use App\Admin\Extensions\Tools\UserTool;
+use App\Http\Controllers\RedisController;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -13,6 +14,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Http\Request;
+use Predis\Client;
 
 class UserController extends Controller {
 
@@ -244,7 +246,7 @@ class UserController extends Controller {
 
     protected function complexTodayGrid() {
         $grid = new Grid(new User);
-        $grid->model()->where('status', '1');
+        $grid->model()->where('status', '2');
 
         $grid->model()->orderBy('id', 'desc');
 
@@ -280,12 +282,15 @@ class UserController extends Controller {
             return config('max_visits');
         });
 
-        $grid->column('当日总次')->display(function () {
-            return  !is_null(\Redis::get("v_{$this->id}_".date('Ymd')))?:0;
+        $redis = new RedisController();
+
+        $grid->column('当日总次')->display(function () use ($redis) {
+
+            return $redis->userTodayVisit($this->id);
         });
-        $grid->column('当日金额')->display(function () {
-            $amount = \Redis::get("a_{$this->id}_".date('Ymd'));
-            return is_null($amount)?0:$amount/100;
+        $grid->column('当日金额')->display(function () use ($redis) {
+
+            return $redis->userTodayAmount($this->id);
         });
 
         //筛选

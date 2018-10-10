@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Advertisement;
 use App\Models\Complex;
 use App\Models\User;
+use App\Models\Withdraw;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Predis\Client;
@@ -49,7 +50,7 @@ class UserController extends ResponseController {
         if ($user->status != 2) {
             return $this->responseError('该卡尚未激活！');
         }
-        $amount = $this->getTodayAmount(Auth()->user()->id);
+        $amount = (new RedisController())->getTodayAmount(Auth()->user()->id);
 
         return $this->responseSuccess([
             'username'       => $user->id,
@@ -96,7 +97,7 @@ class UserController extends ResponseController {
         $redis = new Client(config('database.redis.default'));
         $visit = $redis->get('v_'.Auth()->user()->id.'_' . date('Ymd')) ?:0;
 
-        if($visit > config('max_visits')){
+        if($visit >= config('max_visits')){
             return $this->responseError('今日访问已达上限');
         }
 
@@ -126,5 +127,28 @@ class UserController extends ResponseController {
         $my_amount = round(config('daily_ad_revenue')/$middle_time, 4);
 
         return round($my_amount + randFloat(0.0001, 0.003), 4);
+    }
+
+    public function getWithdraw() {
+        $redis = new RedisController();
+        $value = (int)((float)Auth()->user()->amount / 100);
+        $history_amount = Complex::where('user_id', Auth()->user()->id)->sum('history_amount') * 100000;
+        $user_today_amount = $redis->userTodayAmount(Auth()->user()->id) * 100000;
+        $withdraw_finished = Withdraw::where([
+            'user_id' => Auth()->user()->id,
+            'status' => 1
+        ]);
+
+        return $this->responseSuccess([
+            'use_amount' => (Auth()->user()->amount * 100000 +  $user_today_amount) /100000, //可用总金额
+            'withdraw_amount' => $value ? $value * 100 : 0, //可提现金额
+            'history_amount' => ($history_amount + $user_today_amount) / 100000,  //广告费总金额
+            'withdraw_finished' => $withdraw_finished->sum('price'),  //提现总金额
+            'withdraw_finished_count' => $withdraw_finished->count()  //提现总金额
+        ]);
+    }
+
+    public function storeWithdraw() {
+
     }
 }
