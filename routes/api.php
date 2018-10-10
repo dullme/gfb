@@ -31,9 +31,12 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::post('/user-info', 'UserController@updateUserInfo');
     Route::get('/user-info', 'UserController@userInfo');
     Route::get('/complex', 'UserController@complex');
-    Route::get('/image', 'UserController@getImage');
     Route::get('/withdraw', 'UserController@getWithdraw');
     Route::post('/withdraw', 'UserController@storeWithdraw');
     Route::post('/avatar-upload', 'UserController@avatarUpload');
+
+    Route::group(['middleware' => 'throttle:'.ceil(60/config('ad_frequency')).',1'], function () {
+        Route::get('/image', 'UserController@getImage');
+    });
 });
 
