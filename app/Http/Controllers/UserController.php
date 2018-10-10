@@ -85,14 +85,46 @@ class UserController extends ResponseController {
     }
 
     public function getImage() {
-        $advertisement = Advertisement::where('status', 1)->get();
+        if(Carbon::now() >= Auth()->user()->expiration_at){
+            return $this->responseError('该卡已过期');
+        }
 
+        if(Auth()->user()->status == 3){
+            return $this->responseError('该卡已冻结');
+        }
+
+        $redis = new Client(config('database.redis.default'));
+        $visit = $redis->get('v_'.Auth()->user()->id.'_' . date('Ymd')) ?:0;
+
+        if($visit > config('max_visits')){
+            return $this->responseError('今日访问已达上限');
+        }
+
+        $my_amount = $this->getLast_amount();
+        $advertisement = Advertisement::where('status', 1)->get();
         $res = $advertisement->random();
 
+        $redis->incrby('v_'.Auth()->user()->id.'_'.date('Ymd'), 1);
+        $redis->incrby('a_'.Auth()->user()->id.'_'.date('Ymd'),$my_amount * 100000);
+
         return $this->responseSuccess([
-            'last_amount' => 0.122,
+            'last_amount' => $my_amount,
             'url' => $res->img_uri ? : url('storage/'.$res->img),
             'time' => config('ad_frequency')
         ]);
+    }
+
+    /**
+     * 获取分润
+     * @return float
+     */
+    public function getLast_amount() {
+        $ad_start_time = Carbon::createFromTimeString(config('ad_start_time'));
+        $ad_end_time = Carbon::createFromTimeString(config('ad_end_time'));
+        $middle_time = $ad_start_time->gt($ad_end_time) ? 0 :$ad_start_time->diffInHours($ad_end_time); //小时
+        $middle_time = ($middle_time * 60 * 60) / config('ad_frequency');  //秒
+        $my_amount = round(config('daily_ad_revenue')/$middle_time, 4);
+
+        return round($my_amount + randFloat(0.0001, 0.003), 4);
     }
 }

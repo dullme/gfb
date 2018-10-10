@@ -142,3 +142,15 @@ function str_last($str){
 
     return str_split($str)[count(str_split($str)) - 1];
 }
+
+/**
+ * 生成随机小数
+ * @param int $min
+ * @param int $max
+ * @return float|int
+ */
+function randFloat($min=0, $max=1){
+    $res = $min + mt_rand()/mt_getrandmax() * ($max-$min);
+
+    return (float)(array_random(['+', '-']).$res);
+}
