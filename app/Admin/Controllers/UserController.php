@@ -246,9 +246,8 @@ class UserController extends Controller {
 
     protected function complexTodayGrid() {
         $grid = new Grid(new User);
-        $grid->model()->where('status', '2');
 
-        $grid->model()->orderBy('id', 'desc');
+        $grid->model()->with('complexes')->where('status', '2')->orderBy('id', 'desc');
 
         $grid->id('用户名');
         $grid->mobile('电话');
@@ -277,23 +276,28 @@ class UserController extends Controller {
             return $redis->userTodayAmount($this->id);
         });
 
-        $grid->complexes('历史总次/分润总计')->display(function ($complexes){
-            $count = $amount = 0;
-            foreach ($complexes as $item){
-                $count += $item['history_read_count'];
-                $amount += $item['history_amount'];
-            }
-            return "{$count} / {$amount}";
-        });
+//        $grid->column('count', '历史总次')->display(function () {
+//
+//            return array_sum(array_column($this->complexes, 'count'));
+//        });
 
-        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
-            $count = count($withdraws);
-            $amount = 0;
-            foreach ($withdraws as $item){
-                $amount += $item['price'];
-            }
-            return "{$count} / {$amount}";
-        });
+//        $grid->complexes('历史总次/分润总计')->display(function ($complexes){
+//            $count = $amount = 0;
+//            foreach ($complexes as $item){
+//                $count += $item['history_read_count'];
+//                $amount += $item['history_amount'];
+//            }
+//            return "{$count} / {$amount}";
+//        });
+//
+//        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
+//            $count = count($withdraws);
+//            $amount = 0;
+//            foreach ($withdraws as $item){
+//                $amount += $item['price'];
+//            }
+//            return "{$count} / {$amount}";
+//        });
 
         //筛选
         $grid->filter(function ($filter) {

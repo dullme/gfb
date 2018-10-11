@@ -96,6 +96,12 @@ class UserController extends ResponseController {
             return $this->responseError('该卡已冻结');
         }
 
+        $ad_start_time = Carbon::createFromTimeString(config('ad_start_time'));
+        $ad_end_time = Carbon::createFromTimeString(config('ad_end_time'));
+        if(Carbon::now()->gt($ad_end_time) || Carbon::now()->lt($ad_start_time)){
+            return $this->responseError('广告开始结束时间为'.config('ad_start_time').'-'.config('ad_end_time'));
+        }
+
         $redis = new Client(config('database.redis.default'));
         $visit = $redis->get('v_'.Auth()->user()->id.'_' . date('Ymd')) ?:0;
 
@@ -159,6 +165,14 @@ class UserController extends ResponseController {
         if($request->get('withdraw') != $can_withdraw_amount){
             return $this->responseError('提现金额有误');
         }
+
+        $date = Carbon::tomorrow();
+        $date = $date->subDays($date->dayOfWeek);
+        $this_week_withdraw = Withdraw::where('user_id', Auth()->user()->id)->where('created_at', '>=', $date);
+        if($this_week_withdraw){
+            return $this->responseError('每周只可提现一次');
+        }
+
         $user = User::find(Auth()->user()->id);
 
         $user->amount -= $can_withdraw_amount;
