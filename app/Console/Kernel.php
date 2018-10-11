@@ -24,8 +24,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->command('redis:store')
+            ->dailyAt('02:00')
+            ->timezone('Asia/Shanghai') //设置时区
+            ->withoutOverlapping(); //避免任务重叠
     }
 
     /**

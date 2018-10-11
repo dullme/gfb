@@ -12,9 +12,11 @@
 */
 
 Route::get('/', function () {
-    Redis::incrby('v_20154_'.date('Ymd'), 1);
-    Redis::incrby('v_100023_'.date('Ymd'), 1);
-    Redis::incrby('a_20154_'.date('Ymd'),333);
-    Redis::incrby('a_100024_'.date('Ymd'),987);
+    $users = \App\Models\User::where('status', 2)->get();
+    foreach ($users as $user){
+        Redis::incrby('v_'.$user->id.'_20181010', 1);
+        Redis::incrby('a_'.$user->id.'_20181010', 1);
+    }
+
     return view('welcome');
 });

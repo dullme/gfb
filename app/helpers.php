@@ -201,3 +201,17 @@ function getAvatarSize($image,$width,$height){
     }
     return ['width'=>$avatarWidth, 'height'=>$avatarHeight, 'multiple'=>$multiple];
 }
+
+/**
+ * php截取指定两个字符之间字符串，默认字符集为utf-8
+ * @param string $begin  开始字符串
+ * @param string $end    结束字符串
+ * @param string $str    需要截取的字符串
+ * @return string
+ */
+function cut($begin,$end,$str){
+    $b = mb_strpos($str,$begin) + mb_strlen($begin);
+    $e = mb_strripos($str,$end) - $b;
+
+    return mb_substr($str,$b,$e);
+}
