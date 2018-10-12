@@ -58,6 +58,14 @@ class TokenProxy {
         ]);
     }
 
+    public function logoutOthers($user_id) {
+        app('db')->table('oauth_refresh_tokens')
+            ->where('user_id', $user_id)
+            ->update([
+                'revoked' => true,
+            ]);
+    }
+
     public function proxy($grantType, array $data = []) {
         $data = array_merge($data, [
             'client_id'     => env('PASSPORT_CLIENT_ID'),

@@ -34,7 +34,7 @@ class LoginController extends ResponseController
             return $this->responseError('卡密有误！');
         }
 
-        Auth::logoutOtherDevices($request->get('password'));
+        $this->proxy->logoutOthers($user->id);
 
         return $this->responseSuccess(array_merge([
             'activated' => $user->status == 2 ? true : false
