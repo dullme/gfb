@@ -80,10 +80,10 @@ class UserController extends ResponseController {
         $visits = $redis->get('v_' . auth()->user()->id . '_' . date('Ymd'));
 
         return $this->responseSuccess([
-            'today_amount'       => $today_amount ?: 0,
+            'today_amount'       => $today_amount ? $today_amount / 10000 : 0,
             'visits'             => $visits ?: 0,
             'history_read_count' => $complex->sum('history_read_count'),
-            'history_amount'     => $complex->sum('history_amount'),
+            'history_amount'     => $complex->sum('history_amount') / 10000,
         ]);
     }
 
@@ -118,7 +118,7 @@ class UserController extends ResponseController {
         $redis->incrby('a_' . Auth()->user()->id . '_' . date('Ymd'), $my_amount);
 
         return $this->responseSuccess([
-            'last_amount' => $my_amount/10000,
+            'last_amount' => $my_amount / 10000,
             'url'         => $res->img_uri ?: url('storage/' . $res->img),
             'time'        => config('ad_frequency')
         ]);
@@ -141,7 +141,6 @@ class UserController extends ResponseController {
     public function getWithdraw() {
 
 
-
         $redis = new RedisController();
         $history_amount = Complex::where('user_id', Auth()->user()->id)->sum('history_amount');
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id);
@@ -153,10 +152,10 @@ class UserController extends ResponseController {
         $user_last_amount = $redis->userLastAmount(Auth()->user()->id);
 
         return $this->responseSuccess([
-            'use_amount'              => ($user_last_amount + $user_today_amount)/10000, //可用总金额
+            'use_amount'              => ($user_last_amount + $user_today_amount) / 10000, //可用总金额
             'withdraw_amount'         => $this->canWithdrawAmount($user_last_amount / 10000), //可提现金额
-            'history_amount'          => ($history_amount + $user_today_amount)/10000,  //广告费总金额
-            'withdraw_finished'       => (int)$withdraw_finished->sum('price') /10000,  //提现总金额
+            'history_amount'          => ($history_amount + $user_today_amount) / 10000,  //广告费总金额
+            'withdraw_finished'       => (int) $withdraw_finished->sum('price') / 10000,  //提现总金额
             'withdraw_finished_count' => $withdraw_finished->count()  //提现总金额
         ]);
     }
@@ -169,7 +168,7 @@ class UserController extends ResponseController {
         $redis = new RedisController();
         $user_last_amount = $redis->userLastAmount(Auth()->user()->id);
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id);
-        $use_amount = ($user_last_amount + $user_today_amount)/10000; //可用总金额
+        $use_amount = ($user_last_amount + $user_today_amount) / 10000; //可用总金额
         $can_withdraw_amount = $this->canWithdrawAmount($use_amount);
 
         if ($request->get('withdraw') != $can_withdraw_amount) {
@@ -198,7 +197,7 @@ class UserController extends ResponseController {
 
         return $this->responseSuccess([
             "user_id" => $res->user_id,
-            "price" => $res->price /10000,
+            "price"   => $res->price / 10000,
         ]);
     }
 
