@@ -64,7 +64,7 @@ class UserController extends ResponseController {
             'activation_time_at' => substr($user->activation_at, 11),
             'expiration_at'      => $user->expiration_at,
             'ad_fee'             => $amount['ad_fee'], //总金额
-            'amount'             => $amount['ad_fee'] - $amount['amount'],    //可分配金额
+            'amount'             => ($amount['ad_fee'] * 10000 - $amount['amount'] * 10000) / 10000,    //可分配金额
             'withdraw'           => $amount['withdraw'],  //套现总额
             'avatar'             => is_null($user->avatar) ? '' : url($user->avatar),
         ]);
