@@ -34,9 +34,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/withdraw', 'UserController@getWithdraw');
     Route::post('/withdraw', 'UserController@storeWithdraw');
     Route::post('/avatar-upload', 'UserController@avatarUpload');
+    Route::get('/image', 'UserController@getImage');
 
-    Route::group(['middleware' => 'throttle:'.ceil(60/config('ad_frequency')).',1'], function () {
-        Route::get('/image', 'UserController@getImage');
-    });
 });
 

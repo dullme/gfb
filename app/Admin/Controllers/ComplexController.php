@@ -53,7 +53,9 @@ class ComplexController extends Controller
             return $value ? substr($value, 0, 10) : '—';
         });
         $grid->history_read_count('历史总次');
-        $grid->history_amount('历史分润总计');
+        $grid->history_amount('历史分润总计')->display(function ($history_amount){
+            return $history_amount /10000;
+        });
         $grid->column('浏览频度(秒)	')->display(function () {
             return config('ad_frequency');
         });

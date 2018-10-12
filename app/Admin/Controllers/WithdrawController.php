@@ -13,8 +13,8 @@ use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Http\Request;
 
-class WithdrawController extends Controller
-{
+class WithdrawController extends Controller {
+
     use HasResourceActions;
 
     /**
@@ -23,8 +23,7 @@ class WithdrawController extends Controller
      * @param Content $content
      * @return Content
      */
-    public function index(Content $content)
-    {
+    public function index(Content $content) {
         return $content
             ->header('提现管理')
             ->description(' ')
@@ -38,8 +37,7 @@ class WithdrawController extends Controller
      * @param Content $content
      * @return Content
      */
-    public function show($id, Content $content)
-    {
+    public function show($id, Content $content) {
         return $content
             ->header('Detail')
             ->description('description')
@@ -53,8 +51,7 @@ class WithdrawController extends Controller
      * @param Content $content
      * @return Content
      */
-    public function edit($id, Content $content)
-    {
+    public function edit($id, Content $content) {
         return $content
             ->header('Edit')
             ->description('description')
@@ -67,8 +64,7 @@ class WithdrawController extends Controller
      * @param Content $content
      * @return Content
      */
-    public function create(Content $content)
-    {
+    public function create(Content $content) {
         return $content
             ->header('Create')
             ->description('description')
@@ -80,15 +76,14 @@ class WithdrawController extends Controller
      *
      * @return Grid
      */
-    protected function grid()
-    {
+    protected function grid() {
         $withdraw = \Request::get('withdraw');
 
         $grid = new Grid(new Withdraw);
 
         if ($withdraw == 'to_be_confirmed') {
             $grid->model()->where('status', 0);
-        }else if($withdraw == 'confirmed'){
+        } else if ($withdraw == 'confirmed') {
             $grid->model()->where('status', 1);
         }
 
@@ -99,8 +94,10 @@ class WithdrawController extends Controller
         $grid->user()->alipay_name('支付宝账户姓名');
         $grid->user()->mobile('电话');
         $grid->user()->alipay_account('支付宝账户');
-        $grid->price('申请金额');
-        $grid->status('状态')->display(function ($status){
+        $grid->price('申请金额')->display(function ($price) {
+            return $price / 10000;
+        });
+        $grid->status('状态')->display(function ($status) {
             $color = array_get(Withdraw::$statusColors, $status, 'grey');
             $status = array_get(Withdraw::$status, $status, '未知');
 
@@ -133,8 +130,7 @@ class WithdrawController extends Controller
      * @param mixed $id
      * @return Show
      */
-    protected function detail($id)
-    {
+    protected function detail($id) {
         $show = new Show(Withdraw::findOrFail($id));
 
         $show->id('Id');
@@ -152,8 +148,7 @@ class WithdrawController extends Controller
      *
      * @return Form
      */
-    protected function form()
-    {
+    protected function form() {
         $form = new Form(new Withdraw);
 
         $form->number('user_id', 'User id');
@@ -166,7 +161,7 @@ class WithdrawController extends Controller
     public function changeStatus(Request $request) {
         $changed = 0;
         foreach (Withdraw::find($request->get('ids')) as $product) {
-            if($product->status == 0){
+            if ($product->status == 0) {
                 $product->status = $request->get('action');
                 $product->save();
                 $changed++;
@@ -176,7 +171,7 @@ class WithdrawController extends Controller
         if ($changed) {
             $data = [
                 'status'  => true,
-                'message' => '成功确认'.$changed.'记录',
+                'message' => '成功确认' . $changed . '记录',
             ];
         } else {
             $data = [

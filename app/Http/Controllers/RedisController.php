@@ -8,8 +8,8 @@ use App\Models\Withdraw;
 use Illuminate\Http\Request;
 use Predis\Client;
 
-class RedisController extends Controller
-{
+class RedisController extends Controller {
+
     protected $redis;
 
     /**
@@ -21,13 +21,13 @@ class RedisController extends Controller
     }
 
     /**
-     * 从获取今日总分润
+     * 获取今日总分润
      * @return float|int
      */
     public function todayTotalAmount() {
         $a_amount = $this->redis->keys('a_*_' . date('Ymd'));
 
-        return $a_amount ? collect($this->redis->mget($a_amount))->sum()/100000 : 0;
+        return $a_amount ? collect($this->redis->mget($a_amount))->sum() : 0;
     }
 
     /**
@@ -36,8 +36,9 @@ class RedisController extends Controller
      * @return float|int
      */
     public function userTodayAmount($user_id) {
-        $a_amount = $this->redis->get('a_'.$user_id.'_' . date('Ymd'));
-        return $a_amount ?$a_amount/10000:0;
+        $a_amount = $this->redis->get('a_' . $user_id . '_' . date('Ymd'));
+
+        return $a_amount ? $a_amount : 0;
     }
 
     /**
@@ -57,22 +58,34 @@ class RedisController extends Controller
      */
     public function userTodayVisit($user_id) {
 
-        return $this->redis->get('v_'.$user_id.'_' . date('Ymd')) ?:0;
+        return $this->redis->get('v_' . $user_id . '_' . date('Ymd')) ?: 0;
+    }
+
+    /**
+     * 用户可用余额
+     * @param $user_id
+     * @return mixed
+     */
+    public function userLastAmount($user_id) {
+        $complex = Complex::where('user_id', $user_id)->get();
+        $withdraw = Withdraw::where('user_id', $user_id)->get();
+
+        return $complex->sum('history_amount') - $withdraw->sum('price');
     }
 
     /**
      * 各种金额参数
      * @return array
      */
-    public function getTodayAmount(){
+    public function getTodayAmount() {
         $complex = Complex::all();
         $withdraw = Withdraw::where('status', 1)->get();
 
         return [
-            'ad_fee' => round(CapitalPool::all()->sum('price'), 4), //广告费总额
-            'amount' => round($complex->sum('history_amount')/100000 + $this->todayTotalAmount(), 4),    //分润总额
-            'withdraw' => round($withdraw->sum('price'), 4),  //提现总额
-            'visits' => $this->todayTotalVisit()  //今日访问人数
+            'ad_fee'   => CapitalPool::all()->sum('price'), //广告费总额
+            'amount'   => ($complex->sum('history_amount') + $this->todayTotalAmount()) / 10000,    //分润总额
+            'withdraw' => (int)$withdraw->sum('price') / 10000,  //提现总额
+            'visits'   => $this->todayTotalVisit()  //今日访问人数
         ];
     }
 

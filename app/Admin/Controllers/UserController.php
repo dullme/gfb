@@ -99,16 +99,16 @@ class UserController extends Controller {
             return "<span class=\"badge bg-$color\">$status</span>";
         });
         $grid->initial_password('初始密码');
-        $grid->activation_at('激活时间')->display(function ($value){
+        $grid->activation_at('激活时间')->display(function ($value) {
 
-            return $value ? : '—';
+            return $value ?: '—';
         });
-        $grid->expiration_at('有效期至')->display(function ($value){
+        $grid->expiration_at('有效期至')->display(function ($value) {
 
-            return $value ? : '—';
+            return $value ?: '—';
         });
 
-        $grid->actions(function ($action){
+        $grid->actions(function ($action) {
             $action->disableDelete();
         });
 
@@ -150,7 +150,7 @@ class UserController extends Controller {
 
             return getUserStatus($status);
         });
-        $show->activation_at('激活时间')->as(function ($value){
+        $show->activation_at('激活时间')->as(function ($value) {
 
             return $value ? substr($value, 0, 10) : '—';
         });
@@ -211,10 +211,10 @@ class UserController extends Controller {
 
     public function store(Request $request) {
         $request->validate([
-            'number' => 'required|numeric|min:1|max:10000',
+            'number'          => 'required|numeric|min:1|max:10000',
             'validity_period' => 'required|numeric|min:1',
-            'original_price' => 'required|numeric',
-            'retail_price' => 'required|numeric',
+            'original_price'  => 'required|numeric',
+            'retail_price'    => 'required|numeric',
         ]);
         $datetime = Carbon::now();
         $original_price = $request->get('original_price');
@@ -253,7 +253,7 @@ class UserController extends Controller {
         $grid->mobile('电话');
         $grid->alipay_account('支付宝账户');
         $grid->alipay_name('支付宝账户姓名');
-        $grid->activation_at('激活时间')->display(function ($value){
+        $grid->activation_at('激活时间')->display(function ($value) {
 
             return $value ? substr($value, 0, 10) : '—';
         });
@@ -273,24 +273,26 @@ class UserController extends Controller {
         });
         $grid->column('当日金额')->display(function () use ($redis) {
 
-            return $redis->userTodayAmount($this->id);
+            return $redis->userTodayAmount($this->id) / 10000;
         });
 
-        $grid->complexes('历史总次/分润总计')->display(function ($complexes){
+        $grid->complexes('历史总次/分润总计')->display(function ($complexes) {
             $count = $amount = 0;
-            foreach ($complexes as $item){
+            foreach ($complexes as $item) {
                 $count += $item['history_read_count'];
                 $amount += $item['history_amount'];
             }
+            $amount = $amount/10000;
             return "{$count} / {$amount}";
         });
 
         $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
             $count = count($withdraws);
             $amount = 0;
-            foreach ($withdraws as $item){
+            foreach ($withdraws as $item) {
                 $amount += $item['price'];
             }
+            $amount = $amount/10000;
             return "{$count} / {$amount}";
         });
 
@@ -313,24 +315,24 @@ class UserController extends Controller {
         $status = $request->get('action');
         $changed = 0;
         foreach (User::find($request->get('ids')) as $product) {
-            if($status == 1){   //出售
-                if($product->status == 0){
+            if ($status == 1) {   //出售
+                if ($product->status == 0) {
                     $product->status = $status;
                     $product->save();
                     $changed++;
                 }
             }
 
-            if($status == 3){   //禁用
-                if($product->status == 2){
+            if ($status == 3) {   //禁用
+                if ($product->status == 2) {
                     $product->status = $status;
                     $product->save();
                     $changed++;
                 }
             }
 
-            if($status == 2){   //启用
-                if($product->status == 3){
+            if ($status == 2) {   //启用
+                if ($product->status == 3) {
                     $product->status = $status;
                     $product->save();
                     $changed++;
@@ -342,7 +344,7 @@ class UserController extends Controller {
         if ($changed) {
             $data = [
                 'status'  => true,
-                'message' => '成功修改'.$changed.'条记录',
+                'message' => '成功修改' . $changed . '条记录',
             ];
         } else {
             $data = [
