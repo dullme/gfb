@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Proxy\TokenProxy;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,9 +28,20 @@ class LoginController extends ResponseController
      */
     public function userLogin(LoginRequest $request) {
         $user = User::find($request->get('username'));
-        if($user && $user->password == md5($request->get('password'))){
-            $this->proxy->logoutOthers($user->id);
-            $proxy = $this->proxy->login($request->get('username'),$request->get('password'));
+
+        if($user){
+            if($user->wrong_password >= 5 && Carbon::now()->lt($user->updated_at->addMinutes($user->wrong_password))){
+                return $this->responseError('请'.$user->wrong_password.'分钟后重试');
+            }
+
+            if($user->password == md5($request->get('password'))){
+                $user->update(['wrong_password' => 0]);
+                $this->proxy->logoutOthers($user->id);
+                $proxy = $this->proxy->login($request->get('username'),$request->get('password'));
+            }else{
+                $user->increment('wrong_password');
+                return $this->responseError('卡密有误！');
+            }
         }else{
 
             return $this->responseError('卡密有误！');

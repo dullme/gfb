@@ -29,6 +29,7 @@ class User extends Authenticatable
         'validity_period',
         'expiration_at',
         'avatar',
+        'wrong_password',
     ];
 
     /**

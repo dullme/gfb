@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration
             $table->string('initial_password')->nullable()->comment('初始密码');
             $table->timestamp('activation_at')->nullable()->comment('激活时间');
             $table->timestamp('expiration_at')->nullable()->comment('有效期');
+            $table->integer('wrong_password')->default(0)->comment('密码错误次数');
             $table->rememberToken();
             $table->timestamps();
 
