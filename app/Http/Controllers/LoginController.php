@@ -6,6 +6,7 @@ use App\Http\Proxy\TokenProxy;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends ResponseController
 {
@@ -32,6 +33,8 @@ class LoginController extends ResponseController
 
             return $this->responseError('卡密有误！');
         }
+
+        Auth::logoutOtherDevices($request->get('password'));
 
         return $this->responseSuccess(array_merge([
             'activated' => $user->status == 2 ? true : false
