@@ -59,13 +59,11 @@ class TokenProxy {
     }
 
     public function logoutOthers($user_id) {
-        $oauth_access_tokens = app('db')->table('oauth_access_tokens')
+        app('db')->table('oauth_access_tokens')
             ->where('user_id', $user_id)
             ->update([
                 'revoked' => true,
             ]);
-
-        dd($oauth_access_tokens);
     }
 
     public function proxy($grantType, array $data = []) {
