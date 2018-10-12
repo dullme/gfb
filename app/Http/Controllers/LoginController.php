@@ -28,13 +28,12 @@ class LoginController extends ResponseController
     public function userLogin(LoginRequest $request) {
         $user = User::find($request->get('username'));
         if($user && $user->password == md5($request->get('password'))){
+            $this->proxy->logoutOthers($user->id);
             $proxy = $this->proxy->login($request->get('username'),$request->get('password'));
         }else{
 
             return $this->responseError('卡密有误！');
         }
-
-        $this->proxy->logoutOthers($user->id);
 
         return $this->responseSuccess(array_merge([
             'activated' => $user->status == 2 ? true : false
