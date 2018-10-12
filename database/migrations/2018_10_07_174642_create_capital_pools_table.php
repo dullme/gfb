@@ -15,9 +15,9 @@ class CreateCapitalPoolsTable extends Migration
     {
         Schema::create('capital_pools', function (Blueprint $table) {
             $table->increments('id');
-            $table->decimal('price', 10, 2)->comment('广告费总额');
-            $table->decimal('Balance', 10, 2)->comment('资金池余额	');
-            $table->decimal('change_amount', 10, 2)->comment('变动金额');
+            $table->integer('price')->comment('广告费总额');
+            $table->integer('Balance')->comment('资金池余额	');
+            $table->integer('change_amount')->comment('变动金额');
             $table->string('type')->comment('类型');
             $table->timestamps();
         });

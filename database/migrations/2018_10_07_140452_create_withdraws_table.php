@@ -16,7 +16,7 @@ class CreateWithdrawsTable extends Migration
         Schema::create('withdraws', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned()->comment('外键：users的主键');
-            $table->decimal('price', 10, 2)->comment('申请金额');
+            $table->integer('price')->comment('申请金额');
             $table->boolean('status')->default(0)->comment('是否确认');
             $table->timestamp('payment_at')->nullable()->comment('支付日期');
             $table->timestamps();

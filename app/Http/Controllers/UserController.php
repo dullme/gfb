@@ -139,17 +139,17 @@ class UserController extends ResponseController {
 
     public function getWithdraw() {
         $redis = new RedisController();
-        $history_amount = Complex::where('user_id', Auth()->user()->id)->sum('history_amount') * 100000;
-        $user_today_amount = $redis->userTodayAmount(Auth()->user()->id) * 100000;
+        $history_amount = Complex::where('user_id', Auth()->user()->id)->sum('history_amount') * 10000;
+        $user_today_amount = $redis->userTodayAmount(Auth()->user()->id) * 10000;
         $withdraw_finished = Withdraw::where([
             'user_id' => Auth()->user()->id,
             'status' => 1
         ]);
 
         return $this->responseSuccess([
-            'use_amount' => (Auth()->user()->amount * 100000 +  $user_today_amount) /100000, //可用总金额
+            'use_amount' => (Auth()->user()->amount * 10000 +  $user_today_amount) /10000, //可用总金额
             'withdraw_amount' => $this->canWithdrawAmount(Auth()->user()->amount), //可提现金额
-            'history_amount' => ($history_amount + $user_today_amount) / 100000,  //广告费总金额
+            'history_amount' => ($history_amount + $user_today_amount) / 10000,  //广告费总金额
             'withdraw_finished' => $withdraw_finished->sum('price'),  //提现总金额
             'withdraw_finished_count' => $withdraw_finished->count()  //提现总金额
         ]);

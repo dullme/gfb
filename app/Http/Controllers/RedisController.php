@@ -37,7 +37,7 @@ class RedisController extends Controller
      */
     public function userTodayAmount($user_id) {
         $a_amount = $this->redis->get('a_'.$user_id.'_' . date('Ymd'));
-        return $a_amount ?$a_amount/100000:0;
+        return $a_amount ?$a_amount/10000:0;
     }
 
     /**
