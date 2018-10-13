@@ -253,15 +253,9 @@ class UserController extends ResponseController {
      * 是否可以浏览广告
      */
     public function canSeeAd() {
-        if($this->canSee()){
-            return $this->responseSuccess([
-                'status' => true,
-                'time' => config('ad_frequency'),
-            ]);
-        }
 
         return $this->responseSuccess([
-            'status' => false,
+            'status' => $this->canSee(),
             'time' => config('ad_frequency'),
         ]);
     }
