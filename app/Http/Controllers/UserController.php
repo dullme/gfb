@@ -109,6 +109,10 @@ class UserController extends ResponseController {
             return $this->responseError('今日访问已达上限');
         }
 
+        if(!$this->canSee()){
+            return $this->responseError('访问频率太高！');
+        }
+
         $my_amount = $this->getLast_amount();
 
         $advertisement = Advertisement::where('status', 1)->get();
@@ -116,6 +120,8 @@ class UserController extends ResponseController {
 
         $redis->incrby('v_' . Auth()->user()->id . '_' . date('Ymd'), 1);
         $redis->incrby('a_' . Auth()->user()->id . '_' . date('Ymd'), $my_amount);
+
+        $redis->set('see_'.Auth()->user()->id, Carbon::now()->addSeconds(config('ad_frequency')));
 
         return $this->responseSuccess([
             'last_amount' => $my_amount / 10000,
@@ -241,5 +247,32 @@ class UserController extends ResponseController {
         return $this->responseSuccess([
             'avatar' => url($avatar),
         ]);
+    }
+
+    /**
+     * 是否可以浏览广告
+     */
+    public function canSeeAd() {
+        if($this->canSee()){
+            return $this->responseSuccess(true);
+        }
+
+        return $this->responseSuccess(false);
+    }
+
+    public function canSee() {
+        $redis = new Client(config('database.redis.default'));
+        $last_time_see_ad = $redis->get('see_'.Auth()->user()->id);
+        if(is_null($last_time_see_ad)){
+            return true;
+        }else{
+            Carbon::now();
+            $last_time_see_ad = Carbon::createFromFormat('Y-m-d H:i:s', $last_time_see_ad);
+            if(Carbon::now()->gt($last_time_see_ad)){
+                return true;
+            }
+        }
+
+        return false;
     }
 }
