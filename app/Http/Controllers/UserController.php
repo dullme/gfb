@@ -144,9 +144,7 @@ class UserController extends ResponseController {
         return (int) (round($my_amount + randFloat(0.0001, 0.003), 4) * 10000);
     }
 
-    public function getWithdraw() {
-
-
+    public function withdrawInfo() {
         $redis = new RedisController();
         $history_amount = Complex::where('user_id', Auth()->user()->id)->sum('history_amount');
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id);
@@ -157,13 +155,18 @@ class UserController extends ResponseController {
 
         $user_last_amount = $redis->userLastAmount(Auth()->user()->id);
 
-        return $this->responseSuccess([
+        return [
             'use_amount'              => ($user_last_amount + $user_today_amount) / 10000, //可用总金额
             'withdraw_amount'         => $this->canWithdrawAmount($user_last_amount / 10000), //可提现金额
             'history_amount'          => ($history_amount + $user_today_amount) / 10000,  //广告费总金额
             'withdraw_finished'       => (int) $withdraw_finished->sum('price') / 10000,  //提现总金额
             'withdraw_finished_count' => $withdraw_finished->count()  //提现总金额
-        ]);
+        ];
+    }
+
+    public function getWithdraw() {
+
+        return $this->responseSuccess($this->withdrawInfo());
     }
 
     public function storeWithdraw(Request $request) {
@@ -201,10 +204,10 @@ class UserController extends ResponseController {
         }
         Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '提现表保存成功');
 
-        return $this->responseSuccess([
+        return $this->responseSuccess(array_merge([
             "user_id" => $res->user_id,
             "price"   => $res->price / 10000,
-        ]);
+        ], $this->withdrawInfo()));
     }
 
     /**
