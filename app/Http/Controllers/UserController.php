@@ -119,7 +119,7 @@ class UserController extends ResponseController {
 
         return $this->responseSuccess([
             'last_amount' => $my_amount / 10000,
-            'text'        => config('announcement') != 'null' ?: null,
+            'text'        => config('announcement') != 'null' ? config('announcement') : null,
             'url'         => $res->img_uri ?: url('storage/' . $res->img),
             'time'        => config('ad_frequency')
         ]);
