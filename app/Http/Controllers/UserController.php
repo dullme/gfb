@@ -253,9 +253,12 @@ class UserController extends ResponseController {
      * 是否可以浏览广告
      */
     public function canSeeAd() {
+        if(!$this->canSee()){
+            return $this->responseError('现在请求广告资源的用户太多，挤爆服务器，请稍后再试');
+        }
 
         return $this->responseSuccess([
-            'status' => $this->canSee(),
+            'status' => true,
             'time' => config('ad_frequency'),
         ]);
     }
@@ -263,16 +266,13 @@ class UserController extends ResponseController {
     public function canSee() {
         $redis = new Client(config('database.redis.default'));
         $last_time_see_ad = $redis->get('see_'.Auth()->user()->id);
-        if(is_null($last_time_see_ad)){
-            return true;
-        }else{
+        if(!is_null($last_time_see_ad)){
             Carbon::now();
             $last_time_see_ad = Carbon::createFromFormat('Y-m-d H:i:s', $last_time_see_ad);
-            if(Carbon::now()->gt($last_time_see_ad)){
-                return true;
-            }
+
+            return Carbon::now()->gt($last_time_see_ad)?:false;
         }
 
-        return false;
+        return true;
     }
 }
