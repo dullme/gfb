@@ -109,14 +109,18 @@ class UserController extends ResponseController {
             return $this->responseError('今日访问已达上限');
         }
 
-        if(!$this->canSee()){
-            return $this->responseError('访问频率太高！');
-        }
-
         $my_amount = $this->getLast_amount();
 
         $advertisement = Advertisement::where('status', 1)->get();
         $res = $advertisement->random();
+
+        if(!$this->canSee()){
+            return $this->responseSuccess([
+                'last_amount' => $my_amount / 10000,
+                'url'         => $res->img_uri ?: url('storage/' . $res->img),
+                'time'        => config('ad_frequency')
+            ]);
+        }
 
         $redis->incrby('v_' . Auth()->user()->id . '_' . date('Ymd'), 1);
         $redis->incrby('a_' . Auth()->user()->id . '_' . date('Ymd'), $my_amount);
