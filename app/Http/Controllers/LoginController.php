@@ -30,6 +30,10 @@ class LoginController extends ResponseController
         $user = User::find($request->get('username'));
 
         if($user){
+            if($user->status == 0){
+                return $this->responseError('卡密有误！');
+            }
+
             if($user->wrong_password >= 5 && Carbon::now()->lt($user->updated_at->addMinutes($user->wrong_password))){
                 return $this->responseError('请'.$user->wrong_password.'分钟后重试');
             }
