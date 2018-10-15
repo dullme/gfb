@@ -126,10 +126,10 @@ class CapitalPoolController extends Controller {
     protected function form() {
         $form = new Form(new CapitalPool);
 
-        $form->text('type', '类型');
-        $form->decimal('price', '广告费总额');
-        $form->decimal('Balance', '资金池余额');
-        $form->decimal('change_amount', '变动金额');
+        $form->text('type', '类型')->rules('required');
+        $form->decimal('price', '广告费总额')->rules('required');
+        $form->decimal('Balance', '资金池余额')->default(0)->rules('required');
+        $form->decimal('change_amount', '变动金额')->default(0)->rules('required');
 
         return $form;
     }

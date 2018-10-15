@@ -15,3 +15,8 @@ Route::get('/', function () {
 
     return view('welcome');
 });
+
+Route::get('download/guafen.apk', function () {
+
+    return redirect(config('app_download'));
+});
