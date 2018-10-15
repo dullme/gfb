@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\ExcelExpoter;
 use App\Admin\Extensions\Tools\ChangeWithdrawStatus;
 use App\Admin\Extensions\Tools\WithdrawTool;
 use App\Models\Withdraw;
@@ -120,6 +121,8 @@ class WithdrawController extends Controller {
                 $batch->add('确认提现', new ChangeWithdrawStatus(1));
             });
         });
+
+        $grid->exporter(new ExcelExpoter());
 
         return $grid;
     }

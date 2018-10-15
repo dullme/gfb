@@ -180,7 +180,7 @@ return [
     */
     'operation_log' => [
 
-        'enable' => true,
+        'enable' => env('OPERATION_LOG', true),
 
         /*
          * Only logging allowed methods in the list

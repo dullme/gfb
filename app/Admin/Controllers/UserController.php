@@ -127,6 +127,8 @@ class UserController extends Controller {
             });
         });
 
+        $grid->disableExport();//禁用导出数据按钮
+
         return $grid;
     }
 
