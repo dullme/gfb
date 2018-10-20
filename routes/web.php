@@ -11,12 +11,6 @@
 |
 */
 
-Route::get('/', function () {
+Route::get('/', 'RouteController@index');
 
-    return view('welcome');
-});
-
-Route::get('download/guafen.apk', function () {
-
-    return redirect(config('app_download'));
-});
+Route::get('download/guafen.apk', 'RouteController@download');
