@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use Cache;
 use App\Admin\Extensions\Tools\ChangeAdvertisementStatus;
 use App\Models\Advertisement;
 use App\Http\Controllers\Controller;
@@ -111,6 +112,12 @@ class AdvertisementController extends Controller {
         return $grid;
     }
 
+    public function store() {
+        Cache::forget('advertisement');
+
+        return $this->form()->store();
+    }
+
     /**
      * Make a show builder.
      *
@@ -153,6 +160,7 @@ class AdvertisementController extends Controller {
     }
 
     public function changeStatus(Request $request) {
+        Cache::forget('advertisement');
         foreach (Advertisement::find($request->get('ids')) as $product) {
             $product->status = $request->get('action');
             $product->save();

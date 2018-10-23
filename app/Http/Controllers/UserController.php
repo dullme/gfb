@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Cache;
 use Image;
 use Validator;
 use App\Models\Advertisement;
@@ -88,7 +89,8 @@ class UserController extends ResponseController {
     }
 
     public function getImage() {
-        if (Carbon::now() >= Auth()->user()->expiration_at) {
+        $carbon_now = Carbon::now();
+        if ($carbon_now >= Auth()->user()->expiration_at) {
             return $this->responseError('该卡已过期');
         }
 
@@ -98,7 +100,7 @@ class UserController extends ResponseController {
 
         $ad_start_time = Carbon::createFromTimeString(config('ad_start_time'));
         $ad_end_time = Carbon::createFromTimeString(config('ad_end_time'));
-        if (Carbon::now()->gt($ad_end_time) || Carbon::now()->lt($ad_start_time)) {
+        if ($carbon_now->gt($ad_end_time) || $carbon_now->lt($ad_start_time)) {
             return $this->responseError('广告开始结束时间为' . config('ad_start_time') . '-' . config('ad_end_time'));
         }
 
@@ -111,7 +113,10 @@ class UserController extends ResponseController {
 
         $my_amount = $this->getLast_amount();
 
-        $advertisement = Advertisement::where('status', 1)->get();
+        $advertisement = Cache::rememberForever('advertisement', function (){
+            return Advertisement::where('status', 1)->get();
+        });
+
         $res = $advertisement->random();
 
         if(!$this->canSee()){
