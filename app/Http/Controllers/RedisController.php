@@ -79,7 +79,7 @@ class RedisController extends Controller {
      */
     public function getTodayAmount() {
         $complex = Complex::all();
-        $withdraw = Withdraw::where('status', 1)->get();
+        $withdraw = Withdraw::where('status', 2)->get();
         $today_amount = $this->todayTotalAmount();
 
         return [

@@ -84,8 +84,10 @@ class WithdrawController extends Controller {
 
         if ($withdraw == 'to_be_confirmed') {
             $grid->model()->where('status', 0);
-        } else if ($withdraw == 'confirmed') {
+        } else if ($withdraw == 'be_confirmed') {
             $grid->model()->where('status', 1);
+        } else if ($withdraw == 'confirmed') {
+            $grid->model()->where('status', 2);
         }
 
         $grid->model()->orderBy('status', 'asc')->orderBy('id', 'desc');
@@ -118,14 +120,14 @@ class WithdrawController extends Controller {
             $tools->append(new WithdrawTool());
             $tools->batch(function ($batch) {
                 $batch->disableDelete();
-                $batch->add('确认提现', new ChangeWithdrawStatus(1));
+                $batch->add('确认提现', new ChangeWithdrawStatus(2));
             });
         });
 
         $excel = new ExcelExpoter();
         $excel->setAttr(
-            ['账户', '支付宝账号', '金额', '申请时间'],
-            ['user.id', 'user.alipay_account','price', 'created_at'],
+            ['ID', '账户', '支付宝账号', '金额', '申请时间'],
+            ['id', 'user.id', 'user.alipay_account','price', 'created_at'],
             ['price']
         );
         $grid->exporter($excel);
@@ -170,7 +172,7 @@ class WithdrawController extends Controller {
     public function changeStatus(Request $request) {
         $changed = 0;
         foreach (Withdraw::find($request->get('ids')) as $product) {
-            if ($product->status == 0) {
+            if ($product->status == 1) {
                 $product->status = $request->get('action');
                 $product->save();
                 $changed++;

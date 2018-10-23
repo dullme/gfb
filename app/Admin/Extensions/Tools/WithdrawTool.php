@@ -29,8 +29,9 @@ EOT;
 
         $options = [
             'search' => '套现查询',
-            'to_be_confirmed' => '待确认',
-            'confirmed' => '已提现',
+            'to_be_confirmed' => '未导出',
+            'be_confirmed' => '已导出',
+            'confirmed' => '已确认',
         ];
 
         return view('admin.tools.withdrawTool', compact('options'));

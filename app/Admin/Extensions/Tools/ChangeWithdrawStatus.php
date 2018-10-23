@@ -8,7 +8,7 @@ class ChangeWithdrawStatus extends BatchAction
 {
     protected $action;
 
-    public function __construct($action = 1)
+    public function __construct($action = 2)
     {
         $this->action = $action;
     }

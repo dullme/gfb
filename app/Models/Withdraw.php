@@ -12,13 +12,15 @@ class Withdraw extends Model {
     ];
 
     public static $status = [
-        '0' => '待确认',
-        '1' => '已提现',
+        '0' => '未导出',
+        '1' => '已导出',
+        '2' => '已处理',
     ];
 
     public static $statusColors = [
         '0' => 'grey',
-        '1' => 'green',
+        '1' => 'red',
+        '2' => 'green',
     ];
 
     public function user() {

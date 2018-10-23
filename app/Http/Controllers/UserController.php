@@ -159,7 +159,7 @@ class UserController extends ResponseController {
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id);
         $withdraw_finished = Withdraw::where([
             'user_id' => Auth()->user()->id,
-            'status'  => 1
+            'status'  => 2
         ]);
 
         $user_last_amount = $redis->userLastAmount(Auth()->user()->id);

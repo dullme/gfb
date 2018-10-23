@@ -2,6 +2,7 @@
 
 namespace App\Admin\Extensions;
 
+use App\Models\Withdraw;
 use Carbon\Carbon;
 use Encore\Admin\Grid\Exporters\AbstractExporter;
 use Maatwebsite\Excel\Facades\Excel;
@@ -37,6 +38,8 @@ class ExcelExpoter extends AbstractExporter
 
                     return $arr;
                 });
+
+                Withdraw::where('status', 0)->whereIn('id', collect($this->getData())->pluck('id'))->update(['status'=>1]);
 
                 $rows = collect([$head])->merge($bodyRows);
                 $sheet->rows($rows);
