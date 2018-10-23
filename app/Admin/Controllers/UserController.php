@@ -88,7 +88,7 @@ class UserController extends Controller {
         $grid->id('用户名');
         $grid->original_price('发行价');
         $grid->retail_price('零售价');
-        $grid->validity_period('有效期限/月');
+        $grid->validity_period('有效期限/月')->sortable();
         $grid->mobile('电话');
         $grid->alipay_account('支付宝账户');
         $grid->alipay_name('支付宝账户姓名');
@@ -102,11 +102,11 @@ class UserController extends Controller {
         $grid->activation_at('激活时间')->display(function ($value) {
 
             return $value ?: '—';
-        });
+        })->sortable();
         $grid->expiration_at('有效期至')->display(function ($value) {
 
             return $value ?: '—';
-        });
+        })->sortable();
 
         $grid->actions(function ($action) {
             $action->disableDelete();
@@ -115,6 +115,8 @@ class UserController extends Controller {
         //筛选
         $grid->filter(function ($filter) {
             $filter->equal('id', '用户名');
+            $filter->like('mobile', '电话');
+            $filter->date('activation_at', '激活时间');
         });
 
         $grid->tools(function ($tools) {
@@ -301,8 +303,8 @@ class UserController extends Controller {
         //筛选
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
-            $filter->equal('user.mobile', '电话');
-            $filter->equal('user.alipay_account', '支付宝账户');
+            $filter->equal('mobile', '电话');
+            $filter->equal('alipay_account', '支付宝账户');
         });
 
         $grid->disableCreateButton();//禁用创建按钮

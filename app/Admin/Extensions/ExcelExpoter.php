@@ -8,28 +8,49 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ExcelExpoter extends AbstractExporter
 {
-    public function export()
-    {
-        Excel::create(Carbon::now(), function($excel) {
+    protected $head = [];
+    protected $body = [];
+    protected $display = [];
 
-            $excel->sheet('Sheetname', function($sheet) {
+    public function setAttr($head, $body, $display = []) {
+        $this->head = $head;
+        $this->body = $body;
+        $this->display = $display;
+    }
 
-                $head = ['账户', '支付宝账号', '金额', '申请时间'];
-                // 这段逻辑是从表格数据中取出需要导出的字段
-                $bodyRows = collect($this->getData())->map(function ($item) {
+    public function export() {
+        Excel::create(Carbon::now(), function ($excel) {
 
-                    return [
-                        'id' => $item['user']['id'],
-                        'alipay_account' => $item['user']['alipay_account'],
-                        'price' => $item['price'],
-                        'created_at' => $item['created_at'],
-                    ];
+            $excel->sheet('Sheetname', function ($sheet) {
+
+                $head = $this->head;
+                $body = $this->body;
+                $bodyRows = collect($this->getData())->map(function ($item) use ($body) {
+                    foreach ($body as $keyName) {
+                        $functionName = $this->getKeyName($keyName);
+                        if (in_array($functionName, $this->display)) {
+                            $arr[] = $this->$functionName(array_get($item, $keyName));
+                        } else {
+                            $arr[] = array_get($item, $keyName);
+                        }
+                    }
+
+                    return $arr;
                 });
+
                 $rows = collect([$head])->merge($bodyRows);
                 $sheet->rows($rows);
 
             });
 
         })->export('xls');
+    }
+
+    public function price($value) {
+        return $value / 10000;
+    }
+
+    public function getKeyName($keyName) {
+        return count(explode('.', $keyName)) > 1 ? substr($keyName, strripos($keyName, ".") + 1) : $keyName;
     }
 }

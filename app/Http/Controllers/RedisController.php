@@ -80,12 +80,14 @@ class RedisController extends Controller {
     public function getTodayAmount() {
         $complex = Complex::all();
         $withdraw = Withdraw::where('status', 1)->get();
+        $today_amount = $this->todayTotalAmount();
 
         return [
             'ad_fee'   => CapitalPool::all()->sum('price'), //广告费总额
-            'amount'   => ($complex->sum('history_amount') + $this->todayTotalAmount()) / 10000,    //分润总额
+            'amount'   => ($complex->sum('history_amount') + $today_amount) / 10000,    //分润总额
+            'today_amount'   => $today_amount / 10000,  //今日分润
             'withdraw' => (int)$withdraw->sum('price') / 10000,  //提现总额
-            'visits'   => $this->todayTotalVisit()  //今日访问人数
+            'visits'   => $this->todayTotalVisit(),  //今日访问人数
         ];
     }
 

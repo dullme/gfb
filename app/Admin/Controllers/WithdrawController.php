@@ -122,7 +122,13 @@ class WithdrawController extends Controller {
             });
         });
 
-        $grid->exporter(new ExcelExpoter());
+        $excel = new ExcelExpoter();
+        $excel->setAttr(
+            ['账户', '支付宝账号', '金额', '申请时间'],
+            ['user.id', 'user.alipay_account','price', 'created_at'],
+            ['price']
+        );
+        $grid->exporter($excel);
 
         return $grid;
     }
