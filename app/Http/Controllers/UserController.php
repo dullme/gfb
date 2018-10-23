@@ -190,6 +190,11 @@ class UserController extends ResponseController {
         $can_withdraw_amount = $this->canWithdrawAmount($use_amount);
 
         if ($request->get('withdraw') != $can_withdraw_amount) {
+
+            if($use_amount > 100){
+                return $this->responseError('可用金额中包含当日分润金额'.($user_today_amount / 10000).'元，系统暂时还未结算，请等待0点结算后再操作！');
+            }
+
             return $this->responseError('提现金额有误');
         }
 
