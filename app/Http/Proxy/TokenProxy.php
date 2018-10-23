@@ -68,8 +68,8 @@ class TokenProxy {
 
     public function proxy($grantType, array $data = []) {
         $data = array_merge($data, [
-            'client_id'     => env('PASSPORT_CLIENT_ID'),
-            'client_secret' => env('PASSPORT_CLIENT_SECRET'),
+            'client_id'     => config('passport.client_id'),
+            'client_secret' => config('passport.client_secret'),
             'grant_type'    => $grantType
         ]);
 
