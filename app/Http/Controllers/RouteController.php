@@ -16,4 +16,10 @@ class RouteController extends Controller
 
         return redirect(config('app_download'));
     }
+
+    public function delete() {
+        return app('db')->table('oauth_access_tokens')
+            ->where('revoked', true)
+            ->delete();
+    }
 }
