@@ -77,6 +77,7 @@ class TokenProxy {
             ]);
         } catch (RequestException $e) {
             return [
+                'error' => $e->getMessage(),
                 'message' => '用户名或密码错误!'
             ];
         }
