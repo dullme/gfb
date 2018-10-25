@@ -126,8 +126,8 @@ class WithdrawController extends Controller {
 
         $excel = new ExcelExpoter();
         $excel->setAttr(
-            ['ID', '账户', '支付宝账号', '金额', '申请时间'],
-            ['id', 'user.id', 'user.alipay_account','price', 'created_at'],
+            ['ID', '账户','姓名', '支付宝账号', '金额', '申请时间'],
+            ['id', 'user.id', 'user.alipay_name', 'user.alipay_account','price', 'created_at'],
             ['price']
         );
         $grid->exporter($excel);
