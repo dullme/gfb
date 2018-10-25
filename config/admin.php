@@ -291,4 +291,6 @@ return [
     'extensions' => [
 
     ],
+
+    'local_ip' => env('LOCAL_IP', '127.0.0.1')
 ];

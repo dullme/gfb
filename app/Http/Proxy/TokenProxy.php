@@ -88,6 +88,7 @@ class TokenProxy {
             'token'      => $token['access_token'],
             'auth_id'      => md5($token['refresh_token']),
             'expires_in' => $token['expires_in'],
+            'local_ip' => config('admin.local_ip'),
         ];
     }
 }
