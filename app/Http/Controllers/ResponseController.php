@@ -35,7 +35,7 @@ class ResponseController extends Controller
         return $this->setStatusCode(404)->responseError($message);
     }
 
-    public function responseError($message) {
+    public function responseError($message = '网络拥堵，请稍后重试！') {
         $this->setStatusCode(422);
         
         return $this->response([
