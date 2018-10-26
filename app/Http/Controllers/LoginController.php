@@ -40,7 +40,7 @@ class LoginController extends ResponseController
 
             if($user->password == md5($request->get('password'))){
                 $user->update(['wrong_password' => 0]);
-                $this->proxy->logoutOthers($user->id);
+//                $this->proxy->logoutOthers($user->id);
                 $proxy = $this->proxy->login($request->get('username'),$request->get('password'));
             }else{
 //                $user->increment('wrong_password');
