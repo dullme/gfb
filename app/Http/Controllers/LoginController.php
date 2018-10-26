@@ -31,24 +31,24 @@ class LoginController extends ResponseController
 
         if($user){
             if($user->status == 0){
-                return $this->responseError('卡密有误！');
+                return $this->responseError('资料有误！');
             }
 
-            if($user->wrong_password >= 5 && Carbon::now()->lt($user->updated_at->addMinutes($user->wrong_password))){
-                return $this->responseError('请'.$user->wrong_password.'分钟后重试');
-            }
+//            if($user->wrong_password >= 5 && Carbon::now()->lt($user->updated_at->addMinutes($user->wrong_password))){
+//                return $this->responseError('请'.$user->wrong_password.'分钟后重试');
+//            }
 
             if($user->password == md5($request->get('password'))){
                 $user->update(['wrong_password' => 0]);
                 $this->proxy->logoutOthers($user->id);
                 $proxy = $this->proxy->login($request->get('username'),$request->get('password'));
             }else{
-                $user->increment('wrong_password');
-                return $this->responseError('卡密有误！');
+//                $user->increment('wrong_password');
+                return $this->responseError('密码有误！');
             }
         }else{
 
-            return $this->responseError('卡密有误！');
+            return $this->responseError('卡号有误！');
         }
 
         return $this->responseSuccess(array_merge([
