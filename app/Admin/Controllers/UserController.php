@@ -199,7 +199,7 @@ class UserController extends Controller {
         $form->text('alipay_name', '支付宝用户名');
         $form->text('alipay_account', '支付宝账号');
         $form->text('mobile', '联系电话');
-        $form->password('password', '重置密码');
+        $form->password('password', '重置密码')->rules('required');
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
