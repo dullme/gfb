@@ -99,6 +99,9 @@ class UserController extends Controller {
             return "<span class=\"badge bg-$color\">$status</span>";
         });
         $grid->initial_password('初始密码');
+        $grid->column('是否变更')->display(function (){
+            return $this->password == md5($this->initial_password)?'否':'<span class="badge bg-danger">是</span>';
+        });
         $grid->activation_at('激活时间')->display(function ($value) {
 
             return $value ?: '—';
