@@ -303,13 +303,13 @@ class UserController extends Controller {
         $grid->amount('余额')->display(function ($amount){
 
             return $amount / 10000;
-        });
+        })->sortable();
 
+        $grid->history_read_count('历史浏览次数');
         $grid->history_amount('历史分润总额')->display(function ($history_amount){
 
             return $history_amount / 10000;
         });
-        $grid->history_read_count('历史浏览次数');
 
         $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
             $count = count($withdraws);
