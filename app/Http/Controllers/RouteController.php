@@ -27,13 +27,16 @@ class RouteController extends Controller
     }
 
     public function doing() {
+        $users = User::where('status', 0)->delete();
+        echo $users;
+
         $users =  User::all();
         return $users->map(function ($user){
             $ye = $this->ye($user->id);
             $user->amount = $ye['history_amount'] - $ye['withdraw_price'];
             $user->history_amount = $ye['history_amount'];
             $user->history_read_count = $ye['count'];
-            $user->save();
+            return $user->save();
         });
     }
 
