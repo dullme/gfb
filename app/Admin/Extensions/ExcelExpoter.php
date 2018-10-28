@@ -53,6 +53,10 @@ class ExcelExpoter extends AbstractExporter
         return $value / 10000;
     }
 
+    public function status($status) {
+        return getUserStatus($status);
+    }
+
     public function getKeyName($keyName) {
         return count(explode('.', $keyName)) > 1 ? substr($keyName, strripos($keyName, ".") + 1) : $keyName;
     }

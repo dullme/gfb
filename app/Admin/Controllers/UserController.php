@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Admin\Extensions\ExcelExpoter;
 use App\Admin\Extensions\Tools\ChangeUserStatus;
 use App\Admin\Extensions\Tools\UserTool;
 use App\Http\Controllers\RedisController;
@@ -132,7 +133,13 @@ class UserController extends Controller {
             });
         });
 
-        $grid->disableExport();//禁用导出数据按钮
+        $excel = new ExcelExpoter();
+        $excel->setAttr(
+            ['用户名', '初始密码', '有效期(月)', '状态'],
+            ['id','initial_password', 'validity_period', 'status'],
+            ['status']
+        );
+        $grid->exporter($excel);
 
         return $grid;
     }
@@ -199,8 +206,17 @@ class UserController extends Controller {
         $form->text('alipay_name', '支付宝用户名');
         $form->text('alipay_account', '支付宝账号');
         $form->text('mobile', '联系电话');
-        $form->password('password', '重置密码')->rules('required');
 
+        $form->password('password', '密码')->rules('required|confirmed')
+            ->default(function ($form) {
+                return $form->model()->password;
+            });
+        $form->password('password_confirmation', '确认密码')->rules('required')
+            ->default(function ($form) {
+                return $form->model()->password;
+            });
+
+        $form->ignore(['password_confirmation']);
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
             $tools->disableView();
@@ -208,9 +224,10 @@ class UserController extends Controller {
 
         $form->disableViewCheck();
         $form->disableEditingCheck();
-
         $form->saving(function (Form $form) {
-            $form->password = md5($form->password);
+            if ($form->password && $form->model()->password != $form->password) {
+                $form->password = md5($form->password);
+            }
         });
 
         return $form;
