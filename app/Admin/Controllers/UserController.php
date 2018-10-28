@@ -246,7 +246,7 @@ class UserController extends Controller {
         $validity_period = $request->get('validity_period');
 
         for ($i = 0; $i < $request->get('number'); $i++) {
-            $password = makeInvitationCode(10);
+            $password = makeInvitationCode(6);
             $data[$i]['password'] = md5($password);
             $data[$i]['initial_password'] = $password;
             $data[$i]['original_price'] = $original_price;
