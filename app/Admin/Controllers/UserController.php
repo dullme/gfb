@@ -181,7 +181,7 @@ class UserController extends Controller {
         $form = new Form(new User);
 
         $form->number('number', '新增数量')->rules('required|numeric|min:1|max:50')->default(1);
-        $form->number('validity_period', '有效期限/月')->rules('required|numeric|min:1')->default(12);
+        $form->number('validity_period', '有效期限/月')->rules('required|numeric|min:1')->default(3);
         $form->decimal('original_price', '发行价')->rules('required|numeric');
         $form->decimal('retail_price', '零售价')->rules('required|numeric');
 
