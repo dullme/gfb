@@ -300,15 +300,11 @@ class UserController extends Controller {
             return $redis->userTodayAmount($this->id) / 10000;
         });
 
-        $grid->complexes('历史总次/分润总计')->display(function ($complexes) {
-            $count = $amount = 0;
-            foreach ($complexes as $item) {
-                $count += $item['history_read_count'];
-                $amount += $item['history_amount'];
-            }
-            $amount = $amount/10000;
-            return "{$count} / {$amount}";
+        $grid->history_amount('历史分润总额')->display(function ($history_amount){
+
+            return $history_amount / 10000;
         });
+        $grid->history_read_count('历史浏览次数');
 
         $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
             $count = count($withdraws);

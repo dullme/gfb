@@ -74,7 +74,7 @@ class StoreRedis extends Command
      * @return bool
      */
     public function needStore() {
-        $last_complex = Complex::orderBy('id', 'desc')->first();
+        $last_complex = Complex::where('history_amount', '>', 0)->orderBy('id', 'desc')->first();
 
         if(!is_null($last_complex) && $last_complex->created_at->isYesterday()){
             return false;

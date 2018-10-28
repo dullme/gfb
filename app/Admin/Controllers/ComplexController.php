@@ -54,9 +54,14 @@ class ComplexController extends Controller
         });
         $grid->history_read_count('历史总次');
         $grid->history_amount('历史分润总计')->display(function ($history_amount){
-            return $history_amount /10000;
+            $history_amount = $history_amount /10000;
+            if($history_amount < 0){
+                $history_amount .= ' (提前提现)';
+            }
+            return $history_amount;
         });
         $grid->column('浏览频度(秒)	')->display(function () {
+
             return config('ad_frequency');
         });
         $grid->column('最大次数')->display(function () {

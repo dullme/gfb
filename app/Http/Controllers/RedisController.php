@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CapitalPool;
 use App\Models\Complex;
+use Cache;
+use App\Models\CapitalPool;
+use App\Models\User;
 use App\Models\Withdraw;
-use Illuminate\Http\Request;
 use Predis\Client;
 
 class RedisController extends Controller {
@@ -31,17 +32,6 @@ class RedisController extends Controller {
     }
 
     /**
-     * 用户今日总分润
-     * @param $user_id
-     * @return float|int
-     */
-    public function userTodayAmount($user_id) {
-        $a_amount = $this->redis->get('a_' . $user_id . '_' . date('Ymd'));
-
-        return $a_amount ? $a_amount : 0;
-    }
-
-    /**
      * 获取今日总访问量
      * @return int|mixed
      */
@@ -62,15 +52,44 @@ class RedisController extends Controller {
     }
 
     /**
-     * 用户可用余额
+     * 用户今日总分润
+     * @param $user_id
+     * @return float|int
+     */
+    public function userTodayAmount($user_id) {
+        $a_amount = $this->redis->get('a_' . $user_id . '_' . date('Ymd'));
+
+        return $a_amount ? $a_amount : 0;
+    }
+
+    /**
+     * 保存用户当天在 Redis 中的数据到数据库并清除 Redis
      * @param $user_id
      * @return mixed
      */
-    public function userLastAmount($user_id) {
-        $complex = Complex::where('user_id', $user_id)->get();
-        $withdraw = Withdraw::where('user_id', $user_id)->get();
+    public function storeUserTodayAmountAndVisit($user_id) {
+        $amount = $this->userTodayAmount($user_id);
+        $history_read_count = $this->userTodayVisit($user_id);
 
-        return $complex->sum('history_amount') - $withdraw->sum('price');
+        $complex = Complex::create([
+            'user_id' => $user_id,
+            'history_read_count' => $history_read_count,
+            'history_amount' => $amount * (-1),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        if(!$complex){
+            return false;
+        }
+
+        $this->redis->del('a_' . $user_id . '_' . date('Ymd'));
+        $this->redis->del('v_' . $user_id . '_' . date('Ymd'));
+
+        return User::where('id', $user_id)->increment([
+            'amount' => $amount,
+            'history_read_count' => $history_read_count,
+        ]);
     }
 
     /**
@@ -78,13 +97,15 @@ class RedisController extends Controller {
      * @return array
      */
     public function getTodayAmount() {
-        $complex = Complex::all();
         $withdraw = Withdraw::where('status', 2)->get();
         $today_amount = $this->todayTotalAmount();
+        $users = Cache::remember('users', 60, function (){
+            return User::whereIn('status', [2,3])->get();
+        });
 
         return [
             'ad_fee'   => CapitalPool::all()->sum('price'), //广告费总额
-            'amount'   => ($complex->sum('history_amount') + $today_amount) / 10000,    //分润总额
+            'amount'   => $users->sum('history_amount') / 10000,    //分润总额
             'today_amount'   => $today_amount / 10000,  //今日分润
             'withdraw' => (int)$withdraw->sum('price') / 10000,  //提现总额
             'visits'   => $this->todayTotalVisit(),  //今日访问人数
