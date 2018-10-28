@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Cache;
+use Illuminate\Support\Facades\DB;
 use Image;
 use Validator;
 use App\Models\Advertisement;
@@ -203,22 +204,23 @@ class UserController extends ResponseController {
             return $this->responseError('每周只可申请一次');
         }
 
-        $user = User::find(Auth()->user()->id);
-        $user->amount -= $can_withdraw_amount;
-        $user->history_amount += $amount;
-        $user->history_read_count += $history_read_count;
-
-        $user = User::where('id', Auth()->user()->id)->decrement('amount', $can_withdraw_amount * 10000);
+        $user = DB::transaction(function () use ($can_withdraw_amount){
+            $user = User::lockForUpdate()->find(Auth()->user()->id);
+            $user->amount -= $can_withdraw_amount * 10000;
+            return $user->save();
+        });
 
         if(!$user){
             Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除失败');
         }
         Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除成功');
 
-        $res = Withdraw::create([
-            'user_id' => Auth()->user()->id,
-            'price'   => $can_withdraw_amount * 10000,
-        ]);
+        $res = DB::transaction(function () use ($can_withdraw_amount){
+            return Withdraw::lockForUpdate()->create([
+                'user_id' => Auth()->user()->id,
+                'price'   => $can_withdraw_amount * 10000,
+            ]);
+        });
 
         if (!$res) {
             Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '提现表保存失败');

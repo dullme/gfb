@@ -6,6 +6,7 @@ use App\Models\Complex;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Predis\Client;
 
 class StoreRedis extends Command
@@ -50,13 +51,13 @@ class StoreRedis extends Command
                 $this->storeComplex($data['create']);   //保存数据到数据库
 
                 foreach ($data['create'] as $item){
-                    $user = User::find($item['user_id']);
-                    if($user){
+                    DB::transaction(function () use ($item){
+                        $user = User::lockForUpdate()->find($item['user_id']);
                         $user->amount += $item['history_amount'];
                         $user->history_amount += $item['history_amount'];
                         $user->history_read_count += $item['history_read_count'];
-                        $user->save();
-                    }
+                        return $user->save();
+                    });
                 }
 
             }
