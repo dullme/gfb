@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Complex;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Predis\Client;
@@ -47,6 +48,17 @@ class StoreRedis extends Command
         if($data){
             if($this->needStore()){ //是否需要保存到数据库
                 $this->storeComplex($data['create']);   //保存数据到数据库
+
+                foreach ($data['create'] as $item){
+                    $user = User::find($item['user_id']);
+                    if($user){
+                        $user->amount += $item['history_amount'];
+                        $user->history_amount += $item['history_amount'];
+                        $user->history_read_count += $item['history_read_count'];
+                        $user->save();
+                    }
+                }
+
             }
             $this->clearRedis(array_merge($data['amount'], $data['visit'])); //清除历史Redis
         }
@@ -74,7 +86,7 @@ class StoreRedis extends Command
      * @return bool
      */
     public function needStore() {
-        $last_complex = Complex::where('history_amount', '>', 0)->orderBy('id', 'desc')->first();
+        $last_complex = Complex::orderBy('id', 'desc')->first();
 
         if(!is_null($last_complex) && $last_complex->created_at->isYesterday()){
             return false;
