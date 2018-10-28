@@ -7,6 +7,7 @@ use Cache;
 use App\Models\CapitalPool;
 use App\Models\User;
 use App\Models\Withdraw;
+use Carbon\Carbon;
 use Predis\Client;
 
 class RedisController extends Controller {
@@ -60,36 +61,6 @@ class RedisController extends Controller {
         $a_amount = $this->redis->get('a_' . $user_id . '_' . date('Ymd'));
 
         return $a_amount ? $a_amount : 0;
-    }
-
-    /**
-     * 保存用户当天在 Redis 中的数据到数据库并清除 Redis
-     * @param $user_id
-     * @return mixed
-     */
-    public function storeUserTodayAmountAndVisit($user_id) {
-        $amount = $this->userTodayAmount($user_id);
-        $history_read_count = $this->userTodayVisit($user_id);
-
-        $complex = Complex::create([
-            'user_id' => $user_id,
-            'history_read_count' => $history_read_count,
-            'history_amount' => $amount * (-1),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-        ]);
-
-        if(!$complex){
-            return false;
-        }
-
-        $this->redis->del('a_' . $user_id . '_' . date('Ymd'));
-        $this->redis->del('v_' . $user_id . '_' . date('Ymd'));
-
-        return User::where('id', $user_id)->increment([
-            'amount' => $amount,
-            'history_read_count' => $history_read_count,
-        ]);
     }
 
     /**

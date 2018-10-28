@@ -89,6 +89,10 @@ class UserController extends ResponseController {
 
     public function getImage() {
         $carbon_now = Carbon::now();
+        if (Auth()->user()->status == 1) {
+            return $this->responseError('您还未激活该卡！');
+        }
+
         if ($carbon_now >= Auth()->user()->expiration_at) {
             return $this->responseError('该卡已过期');
         }
@@ -183,6 +187,7 @@ class UserController extends ResponseController {
 
         $redis = new RedisController();
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id);
+        $history_read_count = $redis->userTodayVisit(Auth()->user()->id);
         $amount = (Auth()->user()->amount + $user_today_amount) / 10000; //可用总金额
         $can_withdraw_amount = $this->canWithdrawAmount($amount);
 
@@ -198,11 +203,17 @@ class UserController extends ResponseController {
             return $this->responseError('每周只可申请一次');
         }
 
-        $store_user_today_amount_and_visit = $redis->storeUserTodayAmountAndVisit(Auth()->user()->id);
-        if(!$store_user_today_amount_and_visit){
+        $user = User::find(Auth()->user()->id);
+        $user->amount -= $can_withdraw_amount;
+        $user->history_amount += $amount;
+        $user->history_read_count += $history_read_count;
 
-            return $this->responseError('出错啦！');
+        $user = User::where('id', Auth()->user()->id)->decrement('amount', $can_withdraw_amount * 10000);
+
+        if(!$user){
+            Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除失败');
         }
+        Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除成功');
 
         $res = Withdraw::create([
             'user_id' => Auth()->user()->id,

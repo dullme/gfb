@@ -30,6 +30,9 @@ class User extends Authenticatable
         'expiration_at',
         'avatar',
         'wrong_password',
+        'amount',
+        'history_amount',
+        'history_read_count',
     ];
 
     /**

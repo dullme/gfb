@@ -300,6 +300,11 @@ class UserController extends Controller {
             return $redis->userTodayAmount($this->id) / 10000;
         });
 
+        $grid->amount('余额')->display(function ($amount){
+
+            return $amount / 10000;
+        });
+
         $grid->history_amount('历史分润总额')->display(function ($history_amount){
 
             return $history_amount / 10000;
