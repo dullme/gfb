@@ -111,6 +111,7 @@ class WithdrawController extends Controller {
         $grid->filter(function ($filter) {
             $filter->equal('user.mobile', '电话');
             $filter->equal('user.alipay_account', '支付宝账户');
+            $filter->between('created_at', '申请日期')->datetime();
         });
 
         $grid->disableCreateButton();//禁用创建按钮

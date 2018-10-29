@@ -196,14 +196,6 @@ class UserController extends ResponseController {
             return $this->responseError('提现金额有误');
         }
 
-        $date = Carbon::tomorrow();
-        $date = $date->subDays($date->dayOfWeek);
-        $this_week_withdraw = Withdraw::where('user_id', Auth()->user()->id)->where('created_at', '>=', $date)->get();
-
-        if (count($this_week_withdraw)) {
-            return $this->responseError('每周只可申请一次');
-        }
-
         $user = DB::transaction(function () use ($can_withdraw_amount){
             $user = User::lockForUpdate()->find(Auth()->user()->id);
             $user->amount -= $can_withdraw_amount * 10000;
