@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'local'),
+    'default' => env('FILESYSTEM_DRIVER', 'oss'),
 
     /*
     |--------------------------------------------------------------------------
@@ -42,33 +42,44 @@ return [
     */
 
     'disks' => [
+        'oss' => [
+            'driver'     => 'oss',
+            'access_id'  => env('OSS_ACCESS_ID'),
+            'access_key' => env('OSS_ACCESS_KEY'),
+            'bucket'     => env('OSS_BUCKET'),
+            'endpoint'   => env('OSS_ENDPOINT'),
+            'cdnDomain'  => '',
+            'ssl'        => false,
+            'isCName'    => false,
+            'debug'      => false,
+        ],
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app'),
+            'root'   => storage_path('app'),
         ],
 
         'admin' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'driver'     => 'local',
+            'root'       => storage_path('app/public'),
+            'url'        => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
         'public' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'driver'     => 'local',
+            'root'       => storage_path('app/public'),
+            'url'        => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
         's3' => [
             'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
+            'key'    => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
+            'url'    => env('AWS_URL'),
         ],
 
     ],

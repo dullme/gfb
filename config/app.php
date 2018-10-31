@@ -164,6 +164,7 @@ return [
          * Package Service Providers...
          */
         Intervention\Image\ImageServiceProvider::class,
+        Jacobcyl\AliOSS\AliOssServiceProvider::class,
 
         /*
          * Application Service Providers...

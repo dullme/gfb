@@ -160,10 +160,7 @@ class UserController extends ResponseController {
     public function withdrawInfo() {
         $redis = new RedisController();
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id);
-        $withdraw_finished = Withdraw::where([
-            'user_id' => Auth()->user()->id,
-            'status'  => 2
-        ]);
+        $withdraw_finished = Withdraw::where('user_id' , Auth()->user()->id);
 
         $amount = (Auth()->user()->amount + $user_today_amount) / 10000; //可用总金额
 
