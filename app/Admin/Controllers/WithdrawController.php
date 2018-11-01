@@ -92,6 +92,7 @@ class WithdrawController extends Controller {
 
         $grid->model()->orderBy('status', 'asc')->orderBy('id', 'desc');
 
+        $grid->id('ID');
         $grid->user()->id('用户名');
         $grid->created_at('申请日期');
         $grid->user()->alipay_name('支付宝账户姓名');
