@@ -57,7 +57,7 @@ class UserController extends ResponseController {
         }
         $amount = (new RedisController())->getTodayAmount();
 
-        return $this->responseSuccess([
+        return $this->responseSuccess(array_merge([
             'username'           => $user->id,
             'mobile'             => $user->mobile,
             'alipay_account'     => $user->alipay_account,
@@ -69,7 +69,7 @@ class UserController extends ResponseController {
             'amount'             => ($amount['ad_fee'] * 10000 - $amount['amount'] * 10000) / 10000,    //可分配金额
             'withdraw'           => $amount['withdraw'],  //套现总额
             'avatar'             => is_null($user->avatar) ? '' : url($user->avatar),
-        ]);
+        ], $this->withdrawInfo()));
     }
 
     /**
@@ -117,13 +117,13 @@ class UserController extends ResponseController {
 
         $my_amount = $this->getLast_amount();
 
-        $advertisement = Cache::rememberForever('advertisement', function (){
+        $advertisement = Cache::rememberForever('advertisement', function () {
             return Advertisement::where('status', 1)->get();
         });
 
         $res = $advertisement->random();
 
-        if(!$this->canSee()){
+        if (!$this->canSee()) {
             return $this->responseSuccess([
                 'last_amount' => $my_amount / 10000,
                 'url'         => $res->img_uri ?: url('storage/' . $res->img),
@@ -134,12 +134,78 @@ class UserController extends ResponseController {
         $redis->incrby('v_' . Auth()->user()->id . '_' . date('Ymd'), 1);
         $redis->incrby('a_' . Auth()->user()->id . '_' . date('Ymd'), $my_amount);
 
-        $redis->set('see_'.Auth()->user()->id, Carbon::now()->addSeconds(config('ad_frequency')));
+        $redis->set('see_' . Auth()->user()->id, Carbon::now()->addSeconds(config('ad_frequency')));
 
         return $this->responseSuccess([
             'last_amount' => $my_amount / 10000,
             'url'         => $res->img_uri ?: url('storage/' . $res->img),
             'time'        => config('ad_frequency')
+        ]);
+    }
+
+    public function getMobileImage() {
+        $carbon_now = Carbon::now();
+        if (Auth()->user()->status == 1) {
+            return $this->responseError('您还未激活该卡！');
+        }
+
+        if ($carbon_now >= Auth()->user()->expiration_at) {
+            return $this->responseError('该卡已过期');
+        }
+
+        if (Auth()->user()->status == 3) {
+            return $this->responseError('该卡已冻结');
+        }
+
+        $ad_start_time = Carbon::createFromTimeString(config('ad_start_time'));
+        $ad_end_time = Carbon::createFromTimeString(config('ad_end_time'));
+        if ($carbon_now->gt($ad_end_time) || $carbon_now->lt($ad_start_time)) {
+
+            if($carbon_now->gt($ad_start_time)){
+                $seconds = $carbon_now->diffInSeconds($ad_start_time->addDay());
+            }else{
+                $seconds = $carbon_now->diffInSeconds($ad_start_time);
+            }
+
+            return $this->responseSuccess([
+                'is_open' => false,
+                'amount' => 0,
+                'url'    => '',
+                'text'   => config('announcement') != 'null' ? config('announcement') : null,
+                'seconds'   => $seconds
+            ]);
+        }
+
+        $redis = new Client(config('database.redis.default'));
+        $visit = $redis->get('v_' . Auth()->user()->id . '_' . date('Ymd')) ?: 0;
+
+        if ($visit >= config('max_visits')) {
+            return $this->responseError('今日访问已达上限');
+        }
+
+        $my_amount = $this->getLast_amount();
+
+        $advertisement = Cache::rememberForever('advertisement', function () {
+            return Advertisement::where('status', 1)->get();
+        });
+
+        $res = $advertisement->random();
+
+        if (!$this->canSee()) {
+            return $this->responseError('访问过于频繁');
+        }
+
+        $redis->incrby('v_' . Auth()->user()->id . '_' . date('Ymd'), 1);
+        $redis->incrby('a_' . Auth()->user()->id . '_' . date('Ymd'), $my_amount);
+
+        $redis->set('see_' . Auth()->user()->id, Carbon::now()->addSeconds(config('ad_frequency')));
+
+        return $this->responseSuccess([
+            'is_open' => true,
+            'amount' => $my_amount / 10000,
+            'url'    => $res->img_uri ?: url('storage/' . $res->img),
+            'text'   => config('announcement') != 'null' ? config('announcement') : null,
+            'seconds'   => config('ad_frequency')
         ]);
     }
 
@@ -160,12 +226,15 @@ class UserController extends ResponseController {
     public function withdrawInfo() {
         $redis = new RedisController();
         $user_today_amount = $redis->userTodayAmount(Auth()->user()->id);
-        $withdraw_finished = Withdraw::where('user_id' , Auth()->user()->id);
+        $user_today_visit = $redis->userTodayVisit(Auth()->user()->id);
+        $withdraw_finished = Withdraw::where('user_id', Auth()->user()->id);
 
         $amount = (Auth()->user()->amount + $user_today_amount) / 10000; //可用总金额
 
         return [
             'use_amount'              => $amount, //可用总金额
+            'use_today_amount'        => $user_today_amount / 10000, //当日浏览总金额
+            'user_today_visit'        => (int)$user_today_visit, //当日浏览总次数
             'withdraw_amount'         => $this->canWithdrawAmount($amount), //可提现金额
             'history_amount'          => (Auth()->user()->history_amount + $user_today_amount) / 10000,  //广告费总金额
             'withdraw_finished'       => (int) $withdraw_finished->sum('price') / 10000,  //提现总金额
@@ -193,18 +262,19 @@ class UserController extends ResponseController {
             return $this->responseError('提现金额有误');
         }
 
-        $user = DB::transaction(function () use ($can_withdraw_amount){
+        $user = DB::transaction(function () use ($can_withdraw_amount) {
             $user = User::lockForUpdate()->find(Auth()->user()->id);
             $user->amount -= $can_withdraw_amount * 10000;
+
             return $user->save();
         });
 
-        if(!$user){
+        if (!$user) {
             Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除失败');
         }
         Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除成功');
 
-        $res = DB::transaction(function () use ($can_withdraw_amount){
+        $res = DB::transaction(function () use ($can_withdraw_amount) {
             return Withdraw::lockForUpdate()->create([
                 'user_id' => Auth()->user()->id,
                 'price'   => $can_withdraw_amount * 10000,
@@ -217,11 +287,13 @@ class UserController extends ResponseController {
             return $this->responseError('提现保存失败');
         }
         Log::info('用户' . Auth()->user()->id . '申请提现金额为' . $can_withdraw_amount . '提现表保存成功');
+        $withdraw_info = $this->withdrawInfo();
+        $withdraw_info['withdraw_amount'] = 0;
 
         return $this->responseSuccess(array_merge([
             "user_id" => $res->user_id,
             "price"   => $res->price / 10000,
-        ], $this->withdrawInfo()));
+        ], $withdraw_info), '提现成功，7个工作日内到账');
     }
 
     /**
@@ -269,25 +341,25 @@ class UserController extends ResponseController {
      * 是否可以浏览广告
      */
     public function canSeeAd() {
-        if(!$this->canSee()){
+        if (!$this->canSee()) {
             return $this->responseError('现在请求广告资源的用户太多，挤爆服务器，请稍后再试');
         }
 
         return $this->responseSuccess([
             'status' => true,
-            'time' => config('ad_frequency'),
-            'text'        => config('announcement') != 'null' ? config('announcement') : null,
+            'time'   => config('ad_frequency'),
+            'text'   => config('announcement') != 'null' ? config('announcement') : null,
         ]);
     }
 
     public function canSee() {
         $redis = new Client(config('database.redis.default'));
-        $last_time_see_ad = $redis->get('see_'.Auth()->user()->id);
-        if(!is_null($last_time_see_ad)){
+        $last_time_see_ad = $redis->get('see_' . Auth()->user()->id);
+        if (!is_null($last_time_see_ad)) {
             Carbon::now();
             $last_time_see_ad = Carbon::createFromFormat('Y-m-d H:i:s', $last_time_see_ad);
 
-            return Carbon::now()->gt($last_time_see_ad)?:false;
+            return Carbon::now()->gt($last_time_see_ad) ?: false;
         }
 
         return true;
