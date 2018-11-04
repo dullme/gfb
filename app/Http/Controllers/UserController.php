@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Storage;
 use Cache;
 use Illuminate\Support\Facades\DB;
 use Image;
@@ -42,7 +43,7 @@ class UserController extends ResponseController {
             return $this->responseError('激活失败');
         }
 
-        return $this->responseSuccess(true);
+        return $this->responseSuccess(true, '激活成功');
     }
 
     public function userInfo() {
@@ -126,7 +127,7 @@ class UserController extends ResponseController {
         if (!$this->canSee()) {
             return $this->responseSuccess([
                 'last_amount' => $my_amount / 10000,
-                'url'         => $res->img_uri ?: url('storage/' . $res->img),
+                'url'         => $res->img_uri ?: Storage::url($res->img),
                 'time'        => config('ad_frequency')
             ]);
         }
@@ -138,7 +139,7 @@ class UserController extends ResponseController {
 
         return $this->responseSuccess([
             'last_amount' => $my_amount / 10000,
-            'url'         => $res->img_uri ?: url('storage/' . $res->img),
+            'url'         => $res->img_uri ?: Storage::url($res->img),
             'time'        => config('ad_frequency')
         ]);
     }
@@ -203,7 +204,7 @@ class UserController extends ResponseController {
         return $this->responseSuccess([
             'is_open' => true,
             'amount'  => $my_amount / 10000,
-            'url'     => $res->img_uri ?: url('storage/' . $res->img),
+            'url'     => $res->img_uri ?: Storage::url($res->img),
             'text'    => config('announcement') != 'null' ? config('announcement') : null,
             'seconds' => config('ad_frequency')
         ]);
@@ -259,7 +260,7 @@ class UserController extends ResponseController {
         $can_withdraw_amount = $this->canWithdrawAmount($amount);
 
         if ($request->get('withdraw') != $can_withdraw_amount) {
-            return $this->responseError('提现金额有误');
+            return $this->responseError('提现金额不足，请刷新页面后重试！');
         }
 
         $user = DB::transaction(function () use ($can_withdraw_amount, $user_today_amount) {

@@ -40,7 +40,7 @@ class Authenticate extends Middleware
         }
 
         throw new AuthenticationException(
-            '请先登陆', $guards, $this->redirectTo($request)
+            '请重新登录', $guards, $this->redirectTo($request)
         );
     }
 }
