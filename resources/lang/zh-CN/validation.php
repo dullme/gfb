@@ -138,6 +138,8 @@ return [
         ],
         'withdraw' => [
             'required' => '提现金额不能为空',
+            'integer' => '提现金额必须为整数',
+            'min' => '提现金额最小为:min',
         ],
     ],
 
