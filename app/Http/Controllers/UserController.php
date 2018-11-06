@@ -90,6 +90,7 @@ class UserController extends ResponseController {
     }
 
     public function getImage() {
+        return $this->responseError('系统维护中，请于本月8号8点再次使用，期间收益正常到账!');
         $carbon_now = Carbon::now();
         if (Auth()->user()->status == 1) {
             return $this->responseError('您还未激活该卡！');
@@ -145,6 +146,7 @@ class UserController extends ResponseController {
     }
 
     public function getMobileImage() {
+        return $this->responseError('系统维护中，请于本月8号8点再次使用，期间收益正常到账!');
         $carbon_now = Carbon::now();
         if (Auth()->user()->status == 1) {
             return $this->responseError('您还未激活该卡！');
