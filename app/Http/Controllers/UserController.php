@@ -191,7 +191,7 @@ class UserController extends ResponseController {
         $can_withdraw_amount = $this->canWithdrawAmount($amount);
 
         if ($request->get('withdraw') != $can_withdraw_amount) {
-            return $this->responseError('提现金额不足，请刷新页面后重试！');
+            return $this->responseError('提现金额有误，请刷新页面后重试！');
         }
 
         $user_transaction = DB::transaction(function () use ($can_withdraw_amount, $user_today_amount, $user) {
