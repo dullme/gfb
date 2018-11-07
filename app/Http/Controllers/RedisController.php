@@ -68,7 +68,10 @@ class RedisController extends Controller {
      * @return array
      */
     public function getTodayAmount() {
-        $withdraw = Withdraw::where('status', 2)->get();
+        $withdraw =Cache::remember('withdraw', 60, function (){
+            return Withdraw::where('status', 2)->get();
+        });
+
         $today_amount = $this->todayTotalAmount();
         $users = Cache::remember('users', 60, function (){
             return User::whereIn('status', [2,3])->get();
