@@ -26,17 +26,11 @@ Route::post('/token/refresh', 'LoginController@refresh');
 /**
  * 需要 OAuth 认证
  */
-Route::group(['middleware' => 'auth:api'], function () {
-
-    Route::post('/user-info', 'UserController@updateUserInfo');
-    Route::get('/user-info', 'UserController@userInfo');
-    Route::get('/complex', 'UserController@complex');
-    Route::get('/withdraw', 'UserController@getWithdraw');
-    Route::post('/withdraw', 'UserController@storeWithdraw');
-    Route::post('/avatar-upload', 'UserController@avatarUpload');
-    Route::get('/can-see', 'UserController@canSeeAd');
-
-});
-
+Route::post('/user-info', 'UserController@updateUserInfo');
+Route::get('/user-info', 'UserController@userInfo');
+Route::get('/complex', 'UserController@complex');
+Route::get('/withdraw', 'UserController@getWithdraw');
+Route::post('/withdraw', 'UserController@storeWithdraw');
+Route::get('/can-see', 'UserController@canSeeAd');
 Route::get('/image', 'ProfitController@getImage');
 //Route::get('/get-image', 'ProfitController@getMobileImage');
