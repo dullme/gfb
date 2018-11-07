@@ -43,7 +43,7 @@ class ProfitController extends ResponseController
             } else {
                 $auth_user = $this->authUser($token['id'], $token['token']);
                 if ($auth_user) { //认证成功
-                    $ready = $this->ready($user);
+                    $ready = $this->ready($auth_user);
                     if($ready['status']){
                         return $this->responseSuccess($ready);
                     }else{
@@ -71,7 +71,7 @@ class ProfitController extends ResponseController
     {
         $user = User::find($user_id);
         if ($user && $token == $user->wrong_password) {
-            return $this->client->set($user->id, json_encode([
+            $auth_user = [
                 'id'                 => $user->id,
                 'alipay_name'        => $user->alipay_name,
                 'status'             => $user->status,
@@ -81,7 +81,10 @@ class ProfitController extends ResponseController
                 'history_read_count' => $user->history_read_count,
                 'activation_at'      => $user->activation_at,
                 'expiration_at'      => $user->expiration_at,
-            ]));
+            ];
+            $this->client->set($user->id, json_encode($auth_user));
+
+            return $auth_user;
         }
 
         return false;
