@@ -95,7 +95,7 @@ class ProfitController extends ResponseController
         if ($user['status'] == 1 || $user['status'] == 3) {
             return [
                 'status' => false,
-                'message' => '该卡无法使用，请联系管理员'
+                'message' => '请重新登陆'
             ];
         }
         $carbon_now = Carbon::now();

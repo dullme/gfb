@@ -47,7 +47,7 @@ class UserController extends ResponseController {
         $user = User::find($user_data['id']);
 
         if ($user->status == 2) {
-            return $this->responseError('该卡已激活无需重新激活！');
+            return $this->responseError('注册成功，请重新登陆');
         }
 
         $user->mobile = $request->get('mobile');
@@ -63,7 +63,7 @@ class UserController extends ResponseController {
             return $this->responseError('激活失败');
         }
 
-        return $this->responseSuccess(true, '激活成功');
+        return $this->responseError('注册成功，请重新登陆');
     }
 
     public function userInfo(Request $request) {
