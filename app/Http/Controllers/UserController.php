@@ -247,13 +247,13 @@ class UserController extends ResponseController {
      * 是否可以浏览广告
      */
     public function canSeeAd() {
-        $config = $this->redis->get('config');
+        $config = $this->client->get('config');
 
         if ($config) {
             $config = json_decode($config, true);
         } else {
             $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
-            $this->redis->set('config', json_encode($config));
+            $this->client->set('config', json_encode($config));
         }
 
         return $this->responseSuccess([

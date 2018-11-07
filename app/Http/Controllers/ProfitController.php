@@ -103,13 +103,19 @@ class ProfitController extends ResponseController
             ];
         }
 
-        $config = $this->redis->get('config');
+        $config = $this->client->get('config');
 
         if ($config) {
             $config = json_decode($config, true);
         } else {
             $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
-            $this->redis->set('config', json_encode($config));
+            $this->client->set('config', json_encode($config));
+        }
+
+        $ad_start_time = Carbon::createFromTimeString($config['ad_start_time']);
+        $ad_end_time = Carbon::createFromTimeString($config['ad_end_time']);
+        if ($carbon_now->gt($ad_end_time) || $carbon_now->lt($ad_start_time)) {
+            return $this->responseError('广告开始结束时间为' . $config['ad_start_time'] . '-' . $config['ad_end_time']);
         }
 
         $visit = $this->redis->get('v_' . $user['id'] . '_' . date('Ymd')) ?: 0;
