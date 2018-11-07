@@ -15,6 +15,7 @@ class ProfitController extends ResponseController
 {
 
     protected $client;
+    protected $redis;
 
     /**
      * ProfitController constructor.
@@ -23,6 +24,7 @@ class ProfitController extends ResponseController
     public function __construct()
     {
         $this->client = new Client(config('database.redis.local'));
+        $this->redis = new Client(config('database.redis.default'));
     }
 
     public function getImage(Request $request)
@@ -101,17 +103,16 @@ class ProfitController extends ResponseController
             ];
         }
 
-        $config = $this->client->get('config');
+        $config = $this->redis->get('config');
 
         if ($config) {
             $config = json_decode($config, true);
         } else {
             $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
-            $this->client->set('config', json_encode($config));
+            $this->redis->set('config', json_encode($config));
         }
 
-        $redis = new Client(config('database.redis.default'));
-        $visit = $redis->get('v_' . $user['id'] . '_' . date('Ymd')) ?: 0;
+        $visit = $this->redis->get('v_' . $user['id'] . '_' . date('Ymd')) ?: 0;
 
         if ($visit >= $config['max_visits']) {
             return [
@@ -122,8 +123,8 @@ class ProfitController extends ResponseController
 
         $my_amount = $this->getLast_amount($config);
 
-        $redis->incrby('v_' . $user['id'] . '_' . date('Ymd'), 1);
-        $redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
+        $this->redis->incrby('v_' . $user['id'] . '_' . date('Ymd'), 1);
+        $this->redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
 
         $advertisement = Cache::rememberForever('advertisement', function () {
             return Advertisement::where('status', 1)->get();
