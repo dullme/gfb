@@ -125,6 +125,13 @@ return [
             'database' => env('REDIS_CACHE_DB', 1),
         ],
 
+        'local' => [
+            'host' => env('LOCAL_REDIS_HOST', '127.0.0.1'),
+            'password' => env('LOCAL_REDIS_PASSWORD', null),
+            'port' => env('LOCAL_REDIS_PORT', 6379),
+            'database' => env('REDIS_CACHE_DB', 1),
+        ],
+
     ],
 
 ];

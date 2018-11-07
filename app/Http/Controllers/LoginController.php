@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Predis\Client;
 
 class LoginController extends ResponseController
 {
@@ -33,36 +34,49 @@ class LoginController extends ResponseController
             if($user->status == 0){
                 return $this->responseError('资料有误！');
             }
-
-//            if($user->wrong_password >= 5 && Carbon::now()->lt($user->updated_at->addMinutes($user->wrong_password))){
-//                return $this->responseError('请'.$user->wrong_password.'分钟后重试');
-//            }
-
             if($user->password == md5($request->get('password'))){
-                $user->update(['wrong_password' => 0]);
-                $this->proxy->logoutOthers($user->id);
-                $proxy = $this->proxy->login($request->get('username'),$request->get('password'));
+                $token = makeInvitationCode(6);
+                $user->update(['wrong_password' => $token]);
+                $redis = new Client(config('database.redis.local'));
+                $redis->set($user->id, json_encode([
+                    'id' => $user->id,
+                    'alipay_name' => $user->alipay_name,
+                    'status' => $user->status,
+                    'token' => $user->wrong_password,
+                    'amount' => $user->amount,
+                    'history_amount' => $user->history_amount,
+                    'history_read_count' => $user->history_read_count,
+                    'activation_at' => $user->activation_at,
+                    'expiration_at' => $user->expiration_at,
+                ]));
+
+                return $this->responseSuccess([
+                    'activated' => $user->status == 2 ? true : false,
+                    'token' => json_encode([
+                        'id' => $user->id,
+                        'token' => $token,
+                    ])
+                ]);
             }else{
-//                $user->increment('wrong_password');
                 return $this->responseError('密码有误！');
             }
         }else{
 
             return $this->responseError('卡号有误！');
         }
-
-        return $this->responseSuccess(array_merge([
-            'activated' => $user->status == 2 ? true : false
-        ], $proxy));
     }
 
     /**
      * 用户注销
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return int
      */
-    public function userLogout() {
+    public function userLogout(Request $request) {
+        $res = str_replace('Bearer ', '', $request->header('Authorization'));
+        $token = json_decode($res, true);
+        $redis = new Client(config('database.redis.local'));
 
-        return $this->proxy->logout();
+        return $redis->del($token['id']);
     }
 
     /**

@@ -38,5 +38,5 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 });
 
-Route::get('/image', 'UserController@getImage');
-Route::get('/get-image', 'UserController@getMobileImage');
+Route::get('/image', 'ProfitController@getImage');
+//Route::get('/get-image', 'ProfitController@getMobileImage');
