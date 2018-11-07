@@ -56,6 +56,7 @@ class UserController extends ResponseController {
         $user->status = 2;
         $user->activation_at = Carbon::now();
         $user->expiration_at = Carbon::now()->addMonth($user->validity_period);
+        $user->wrong_password = makeInvitationCode(6);
         $user->save();
         if (!$user->save()) {
 
