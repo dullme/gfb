@@ -323,7 +323,6 @@ class UserController extends Controller {
 
         //筛选
         $grid->filter(function ($filter) {
-            $filter->disableIdFilter();
             $filter->equal('mobile', '电话');
             $filter->equal('alipay_account', '支付宝账户');
         });
