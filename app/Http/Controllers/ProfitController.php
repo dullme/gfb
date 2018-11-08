@@ -139,7 +139,7 @@ class ProfitController extends ResponseController
         $this->redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
 
         $advertisement = Cache::rememberForever('advertisement', function () {
-            return Advertisement::where('status', 1)->get();
+            return Advertisement::where('status', 1)->select('img_uri', 'img')->get();
         });
 
         $res = $advertisement->random();
