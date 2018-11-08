@@ -27,9 +27,8 @@ class RedisController extends Controller {
      * @return float|int
      */
     public function todayTotalAmount() {
-        $a_amount = $this->redis->keys('a_*_' . date('Ymd'));
 
-        return $a_amount ? collect($this->redis->mget($a_amount))->sum() : 0;
+        return $this->redis->get('tta');
     }
 
     /**
@@ -37,9 +36,7 @@ class RedisController extends Controller {
      * @return int|mixed
      */
     public function todayTotalVisit() {
-        $v_amount = $this->redis->keys('v_*_' . date('Ymd'));
-
-        return $v_amount ? collect($this->redis->mget($v_amount))->sum() : 0;
+        return $this->redis->get('ttv');
     }
 
     /**

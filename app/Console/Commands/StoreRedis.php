@@ -60,8 +60,10 @@ class StoreRedis extends Command
                     });
                 }
 
+                $this->clearRedis(array_merge($data['amount'], $data['visit'])); //清除历史Redis
+
             }
-            $this->clearRedis(array_merge($data['amount'], $data['visit'])); //清除历史Redis
+
         }
 
     }
@@ -79,7 +81,16 @@ class StoreRedis extends Command
      * @param array $data
      */
     public function storeComplex(array $data) {
-        Complex::insert($data);
+        $count = count($data);
+        if($count / 1000 >=1){
+            $count = intval($count / 1000) + 1;
+        }
+
+        $data = collect($data)->split($count);
+
+        $data->map(function($item){
+            Complex::insert($item->toArray());
+        });
     }
 
     /**
@@ -113,14 +124,14 @@ class StoreRedis extends Command
             $data['visit'] = str_replace('a', 'v', $data['amount']);
             $data['amount_value'] = $this->redis->mget($data['amount']);
             $data['visit_value'] = $this->redis->mget($data['visit']);
+            $now_date = Carbon::now();
             foreach ($data['amount'] as $key=>$item){
-                $date = Carbon::createFromFormat('YmdH:i:s', substr($item, strripos($item,'_') + 1).'00:00:00');
                 $data['create'][] = [
                     'user_id' => cut('_', '_', $item),
                     'history_read_count' => $data['visit_value'][$key],
                     'history_amount' => $data['amount_value'][$key],
-                    'created_at' => $date,
-                    'updated_at' => Carbon::now(),
+                    'created_at' => $now_date,
+                    'updated_at' => $now_date,
                 ];
             }
         }
