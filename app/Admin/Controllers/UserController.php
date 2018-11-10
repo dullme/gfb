@@ -342,16 +342,18 @@ class UserController extends Controller {
             $res = $this->history_amount + $redis->userTodayAmount($this->id);
             $aa = $amount * 10000 + $this->amount;
             $str = '';
-            if ($res > $aa){
-                $res /=10000;
-                $aa /=10000;
-                $str = "/ <span style='color: red'>{$res} > {$aa}";
-            } elseif ($res < $aa){
-                $res /=10000;
-                $aa /=10000;
-                $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
+            if($this->id > 1000000){
+                if ($res > $aa){
+                    $res /=10000;
+                    $aa /=10000;
+                    $str = "/ <span style='color: red'>{$res} > {$aa}";
+                } elseif ($res < $aa){
+                    $res /=10000;
+                    $aa /=10000;
+                    $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
+                }
             }
-
+            
             return "{$count} / {$amount}{$str}";
         });
 
