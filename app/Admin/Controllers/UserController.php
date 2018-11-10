@@ -342,7 +342,7 @@ class UserController extends Controller {
             $res = $this->history_amount + $redis->userTodayAmount($this->id);
             $aa = $amount * 10000 + $this->amount;
             $str = '';
-            if((int)$this->id > 1000000){
+            if($this->id < 1000000){
                 if ($res > $aa){
                     $res /=10000;
                     $aa /=10000;
