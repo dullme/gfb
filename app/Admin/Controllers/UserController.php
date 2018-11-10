@@ -331,14 +331,28 @@ class UserController extends Controller {
             return $history_amount / 10000;
         });
 
-        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
+        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) use ($redis)  {
             $count = count($withdraws);
             $amount = 0;
             foreach ($withdraws as $item) {
                 $amount += $item['price'];
             }
             $amount = $amount/10000;
-            return "{$count} / {$amount}";
+
+            $res = $this->history_amount + $redis->userTodayAmount($this->id);
+            $aa = $amount * 10000 + $this->amount;
+            $str = '';
+            if ($res > $aa){
+                $res /=10000;
+                $aa /=10000;
+                $str = "/ <span style='color: red'>{$res} > {$aa}";
+            } elseif ($res < $aa){
+                $res /=10000;
+                $aa /=10000;
+                $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
+            }
+
+            return "{$count} / {$amount}{$str}";
         });
 
         //筛选
