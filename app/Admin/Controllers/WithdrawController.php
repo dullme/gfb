@@ -110,7 +110,7 @@ class WithdrawController extends Controller {
         //筛选
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
-            $filter->equal('user.id', '账号');
+            $filter->equal('user.id', '用户名');
             $filter->equal('user.mobile', '电话');
             $filter->equal('user.alipay_account', '支付宝账户');
             $filter->between('created_at', '申请日期')->datetime();

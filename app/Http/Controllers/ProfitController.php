@@ -148,7 +148,8 @@ class ProfitController extends ResponseController
             'status'      => true,
             'last_amount' => $my_amount / 10000,
             'url'         => $res->img_uri ?: Storage::url($res->img),
-            'time'        => $config['ad_frequency']
+            'time'        => $config['ad_frequency'],
+            'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
         ];
 
     }

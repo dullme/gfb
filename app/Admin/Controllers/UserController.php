@@ -21,6 +21,17 @@ class UserController extends Controller {
 
     use HasResourceActions;
 
+    protected $client;
+
+    /**
+     * ProfitController constructor.
+     * @param $client
+     */
+    public function __construct()
+    {
+        $this->client = new Client(config('database.redis.local'));
+    }
+
     /**
      * Index interface.
      *
@@ -269,6 +280,15 @@ class UserController extends Controller {
 
 
     protected function complexTodayGrid() {
+        $config = $this->client->get('config');
+
+        if ($config) {
+            $config = json_decode($config, true);
+        } else {
+            $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
+            $this->client->set('config', json_encode($config));
+        }
+
         $grid = new Grid(new User);
 
         $grid->model()->where('status', '2')->orderBy('id', 'desc');
@@ -282,11 +302,11 @@ class UserController extends Controller {
             return $value ? substr($value, 0, 10) : '—';
         });
 
-        $grid->column('浏览频度(秒)	')->display(function () {
-            return config('ad_frequency');
+        $grid->column('浏览频度(秒)	')->display(function () use($config) {
+            return $config['ad_frequency'];
         });
-        $grid->column('最大次数')->display(function () {
-            return config('max_visits');
+        $grid->column('最大次数')->display(function () use($config) {
+            return $config['max_visits'];
         });
 
         $redis = new RedisController();
@@ -323,6 +343,7 @@ class UserController extends Controller {
 
         //筛选
         $grid->filter(function ($filter) {
+            $filter->equal('id', '用户名');
             $filter->equal('mobile', '电话');
             $filter->equal('alipay_account', '支付宝账户');
         });

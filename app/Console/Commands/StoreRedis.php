@@ -124,13 +124,14 @@ class StoreRedis extends Command
             $data['visit'] = str_replace('a', 'v', $data['amount']);
             $data['amount_value'] = $this->redis->mget($data['amount']);
             $data['visit_value'] = $this->redis->mget($data['visit']);
-            $now_date = Carbon::now();
+            $now_date = Carbon::now()->toDateTimeString();
+            $yesterday = Carbon::yesterday()->toDateTimeString();
             foreach ($data['amount'] as $key=>$item){
                 $data['create'][] = [
                     'user_id' => cut('_', '_', $item),
                     'history_read_count' => $data['visit_value'][$key],
                     'history_amount' => $data['amount_value'][$key],
-                    'created_at' => $now_date,
+                    'created_at' => $yesterday,
                     'updated_at' => $now_date,
                 ];
             }
