@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Withdraw;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Predis\Client;
 
 class RouteController extends Controller
 {
