@@ -43,7 +43,7 @@ class UserController extends Controller
     public function index(Content $content)
     {
         return $content
-            ->header('用户管理')
+            ->header('用户管理'.env('LOCAL_IP'))
             ->description(' ')
             ->body($this->grid());
     }
