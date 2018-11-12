@@ -141,6 +141,21 @@ return [
             'integer' => '提现金额必须为整数',
             'min' => '提现金额最小为:min',
         ],
+        'start_id' => [
+            'required' => '开始用户名不能为空',
+            'integer' => '开始用户名必须是数字',
+        ],
+
+        'start_id' => [
+            'required' => '结束用户名不能为空',
+            'integer' => '结束用户名必须是数字',
+        ],
+
+        'new_validity_period' => [
+            'required' => '有效期不能为哦空',
+            'integer' => '有效期必须为整数',
+            'min' => '有效期最小为:min',
+        ],
     ],
 
     /*

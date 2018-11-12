@@ -26,7 +26,7 @@
                             <span class="input-group-addon" style="border-left: 0; border-right: 0;">-</span>
                             <input id="end_id" type="text" class="form-control" placeholder="用户名" name="id[end]" value="">
                         </div>
-                        <a id="check-expiration" style="margin-left: 10px" class="btn btn-default">修改</a>
+                        <a id="check-expiration" onclick="checkExpiration()" style="margin-left: 10px" class="btn btn-default" >修改</a>
                     </div>
                 </div>
 
@@ -34,7 +34,7 @@
                     <label for="validity_period" class="col-sm-2  control-label">有效期限/月</label>
                     <div class="col-sm-8">
                         <div class="input-group">
-                            <input style="width: 100px; text-align: center;" type="text" id="validity_period" name="validity_period" value="3" class="form-control validity_period initialized" placeholder="输入 有效期限/月">
+                            <input style="width: 100px; text-align: center;" type="text" id="new_validity_period" name="new_validity_period" value="3" class="form-control validity_period initialized" placeholder="输入有效期限/月">
                         </div>
                     </div>
                 </div>
@@ -47,37 +47,52 @@
 </div>
 
 <script>
-    $(function () {
-        $('#check-expiration').click(function () {
-            $('#check-expiration-message').html("");
-            var start_id = $('#start_id').val();
-            var end_id = $('#end_id').val();
-            var validity_period = $('#validity_period').val();
-            if(start_id == '' || end_id == ''){
-                $('#check-expiration-message').html("开始或结束用户名不能为空");
+    var lock = true;
+    function checkExpiration() {
+        $('#check-expiration-message').html("");
+        var start_id = $('#start_id').val();
+        var end_id = $('#end_id').val();
+        var new_validity_period = $('#new_validity_period').val();
+        if(start_id == '' || end_id == ''){
+            $('#check-expiration-message').html("开始或结束用户名不能为空");
+            return false;
+        }
+        if(start_id > end_id){
+            $('#check-expiration-message').html("开始用户名不能大于结束用户名");
+            return false;
+        }
+        if(new_validity_period == '' || new_validity_period == 0){
+            $('#check-expiration-message').html("有效期不能为零或空");
+            return false;
+        }
+        if(lock){
+            if (window.confirm("确定修改吗？")) {
+                this.lock = false;
+                $('#check-expiration-message').html('修改中... ...');
+                axios.post('/admin/edit-expiration', {
+                    start_id: start_id,
+                    end_id: end_id,
+                    new_validity_period: new_validity_period
+                })
+                    .then(function (response) {
+                        if(response.data.status){
+                            $('#check-expiration-message').html('<span style="color:#3c763d">'+response.data.message+'</span>');
+                        }else{
+                            $('#check-expiration-message').html(response.data.message);
+                        }
+                        this.lock = true;
+                    })
+                    .catch(function (error) {
+                        $('#check-expiration-message').html(error.response.data.message);
+                        this.lock = true;
+                    });
+            } else {
                 return false;
             }
-            if(start_id > end_id){
-                $('#check-expiration-message').html("开始用户名不能大于结束用户名");
-                return false;
-            }
-            if(validity_period == '' || validity_period == 0){
-                $('#check-expiration-message').html("有效期不能为零或空");
-                return false;
-            }
+        }else{
+            alert('不允许重复修改');
+        }
 
-            axios.post('/admin/edit-expiration', {
-                start_id: start_id,
-                end_id: end_id
-            })
-            .then(function (response) {
-                alert(response.data.message);
-            })
-            .catch(function (error) {
-                alert(error.data.message);
-            });
 
-        });
-
-    })
+    }
 </script>

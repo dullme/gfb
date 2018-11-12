@@ -18,7 +18,8 @@ use Encore\Admin\Show;
 use Illuminate\Http\Request;
 use Predis\Client;
 
-class UserController extends Controller {
+class UserController extends Controller
+{
 
     use HasResourceActions;
 
@@ -39,7 +40,8 @@ class UserController extends Controller {
      * @param Content $content
      * @return Content
      */
-    public function index(Content $content) {
+    public function index(Content $content)
+    {
         return $content
             ->header('用户管理')
             ->description(' ')
@@ -53,7 +55,8 @@ class UserController extends Controller {
      * @param Content $content
      * @return Content
      */
-    public function show($id, Content $content) {
+    public function show($id, Content $content)
+    {
         return $content
             ->header('用户详情')
             ->description(' ')
@@ -67,7 +70,8 @@ class UserController extends Controller {
      * @param Content $content
      * @return Content
      */
-    public function edit($id, Content $content) {
+    public function edit($id, Content $content)
+    {
         return $content
             ->header('编辑用户')
             ->description(' ')
@@ -80,7 +84,8 @@ class UserController extends Controller {
      * @param Content $content
      * @return Content
      */
-    public function create(Content $content) {
+    public function create(Content $content)
+    {
         return $content
             ->header('新增用户')
             ->description(' ')
@@ -92,7 +97,8 @@ class UserController extends Controller {
      *
      * @return Grid
      */
-    protected function grid() {
+    protected function grid()
+    {
         $grid = new Grid(new User);
         $status = \Request::get('user', 2);
 
@@ -112,8 +118,8 @@ class UserController extends Controller {
             return "<span class=\"badge bg-$color\">$status</span>";
         });
         $grid->initial_password('初始密码');
-        $grid->column('是否变更')->display(function (){
-            return $this->password == md5($this->initial_password)?'否':'<span class="badge bg-danger">是</span>';
+        $grid->column('是否变更')->display(function () {
+            return $this->password == md5($this->initial_password) ? '否' : '<span class="badge bg-danger">是</span>';
         });
         $grid->activation_at('激活时间')->display(function ($value) {
 
@@ -152,7 +158,7 @@ class UserController extends Controller {
         $excel = new ExcelExpoter();
         $excel->setAttr(
             ['用户名', '初始密码', '有效期(月)', '状态'],
-            ['id','initial_password', 'validity_period', 'status'],
+            ['id', 'initial_password', 'validity_period', 'status'],
             ['status']
         );
         $grid->exporter($excel);
@@ -166,7 +172,8 @@ class UserController extends Controller {
      * @param mixed $id
      * @return Show
      */
-    protected function detail($id) {
+    protected function detail($id)
+    {
         $show = new Show(User::findOrFail($id));
 
         $show->id('用户名');
@@ -193,7 +200,8 @@ class UserController extends Controller {
      *
      * @return Form
      */
-    protected function createForm() {
+    protected function createForm()
+    {
         $form = new Form(new User);
 
         $form->number('number', '新增数量')->rules('required|numeric|min:1|max:50')->default(1);
@@ -212,7 +220,8 @@ class UserController extends Controller {
         return $form;
     }
 
-    protected function form() {
+    protected function form()
+    {
         $form = new Form(new User);
 
         $form->text('id', '用户名')->readOnly();
@@ -249,7 +258,8 @@ class UserController extends Controller {
         return $form;
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'number'          => 'required|numeric|min:1|max:10000',
             'validity_period' => 'required|numeric|min:1',
@@ -276,7 +286,8 @@ class UserController extends Controller {
         admin_toastr('创建成功', 'success');
     }
 
-    public function complexToday(Content $content) {
+    public function complexToday(Content $content)
+    {
         return $content
             ->header('今日动态')
             ->description(' ')
@@ -284,7 +295,8 @@ class UserController extends Controller {
     }
 
 
-    protected function complexTodayGrid() {
+    protected function complexTodayGrid()
+    {
         $config = $this->client->get('config');
 
         if ($config) {
@@ -307,10 +319,10 @@ class UserController extends Controller {
             return $value ? substr($value, 0, 10) : '—';
         });
 
-        $grid->column('浏览频度(秒)	')->display(function () use($config) {
+        $grid->column('浏览频度(秒)	')->display(function () use ($config) {
             return $config['ad_frequency'];
         });
-        $grid->column('最大次数')->display(function () use($config) {
+        $grid->column('最大次数')->display(function () use ($config) {
             return $config['max_visits'];
         });
 
@@ -325,36 +337,36 @@ class UserController extends Controller {
             return $redis->userTodayAmount($this->id) / 10000;
         });
 
-        $grid->amount('余额')->display(function ($amount){
+        $grid->amount('余额')->display(function ($amount) {
 
             return $amount / 10000;
         })->sortable();
 
         $grid->history_read_count('历史浏览次数');
-        $grid->history_amount('历史分润总额')->display(function ($history_amount){
+        $grid->history_amount('历史分润总额')->display(function ($history_amount) {
 
             return $history_amount / 10000;
         });
 
-        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) use ($redis)  {
+        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) use ($redis) {
             $count = count($withdraws);
             $amount = 0;
             foreach ($withdraws as $item) {
                 $amount += $item['price'];
             }
-            $amount = $amount/10000;
+            $amount = $amount / 10000;
 
             $res = $this->history_amount + $redis->userTodayAmount($this->id);
             $aa = $amount * 10000 + $this->amount;
             $str = '';
-            if($this->id < 1000000){
-                if ($res > $aa){
-                    $res /=10000;
-                    $aa /=10000;
+            if ($this->id < 1000000) {
+                if ($res > $aa) {
+                    $res /= 10000;
+                    $aa /= 10000;
                     $str = "/ <span style='color: red'>{$res} > {$aa}";
-                } elseif ($res < $aa){
-                    $res /=10000;
-                    $aa /=10000;
+                } else if ($res < $aa) {
+                    $res /= 10000;
+                    $aa /= 10000;
                     $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
                 }
             }
@@ -377,7 +389,8 @@ class UserController extends Controller {
         return $grid;
     }
 
-    public function changeStatus(Request $request) {
+    public function changeStatus(Request $request)
+    {
         $status = $request->get('action');
         $changed = 0;
         foreach (User::find($request->get('ids')) as $product) {
@@ -432,42 +445,65 @@ class UserController extends Controller {
 
     public function editExpiration(Request $request)
     {
-        $start_id = intval($request->get('start_id'));
-        $end_id = intval($request->get('end_id'));
+        $request->validate([
+            'start_id'    => 'required|integer',
+            'end_id'      => 'required|integer',
+            'new_validity_period' => 'required|integer|min:1',
+        ]);
+        $start_id = $request->get('start_id');
+        $end_id = $request->get('end_id');
+        $new_validity_period = $request->get('new_validity_period');
         $ids = [];
-        for ($i = $start_id; $i <= $end_id; $i++){
+        for ($i = $start_id; $i <= $end_id; $i++) {
             $ids[] = $i;
         }
+
+        if(count($ids) > 1000){
+            return response()->json([
+                'status'  => false,
+                'message' => '修改的用户最多为1000个'
+            ]);
+        }
         $users = User::whereBetween('id', [$start_id, $end_id])->get();
-        if(count($users)){
+        if (count($users)) {
             $validity_period = $users->first()->validity_period;
-            foreach ($users as $user){
-                if($validity_period != $user->validity_period){
+            foreach ($users as $user) {
+                if ($validity_period != $user->validity_period) {
                     return response()->json([
-                        'status' => false,
-                        'message' => $user->id.'与其他账号有效期不一致！'
+                        'status'  => false,
+                        'message' => $user->id . '与其他账号有效期不一致！'
                     ]);
                 }
             }
 
-            $diff_array= array_diff($ids, $users->pluck('id')->toArray());
-            if($diff_array){
+            $diff_array = array_diff($ids, $users->pluck('id')->toArray());
+            if ($diff_array) {
                 return response()->json([
-                    'status' => false,
-                    'message' => '存在不连续的用户名'. implode(',', $diff_array)
+                    'status'  => false,
+                    'message' => '存在不连续的用户名' . implode(',', $diff_array)
                 ]);
-            }else{
+            } else {
+                $res = $users->map(function ($user) use ($new_validity_period){
+                    if(!is_null($user->activation_at)){
+                        $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->activation_at)->addMonths($new_validity_period);
+                    }else{
+                        $expiration_at = null;
+                    }
 
-                //此处修改代码
+                    return User::where('id', $user->id)->update([
+                        'validity_period' => $new_validity_period,
+                        'expiration_at'   => $expiration_at
+                    ]);
+                });
 
                 return response()->json([
-                    'status' => true,
-                    'message' => '修改成功！'
+                    'status'  => true,
+                    'message' => '成功修改'. $res->sum() .'条记录的有效期为'.$new_validity_period.'个月'
                 ]);
             }
-        }else{
+        } else {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => '不存在用户'
             ]);
         }
