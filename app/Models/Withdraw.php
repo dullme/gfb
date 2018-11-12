@@ -9,7 +9,8 @@ class Withdraw extends Model {
     protected $fillable = [
         'user_id',
         'price',
-        'status'
+        'status',
+        'payment_at'
     ];
 
     public static $status = [

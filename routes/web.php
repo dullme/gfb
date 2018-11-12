@@ -16,4 +16,4 @@ Route::get('/', 'RouteController@index');
 Route::get('download/guafen.apk', 'RouteController@download');
 Route::get('delete', 'RouteController@delete');
 
-//Route::get('doing', 'RouteController@doing');
+Route::get('doing', 'RouteController@doing');
