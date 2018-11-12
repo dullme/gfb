@@ -13,6 +13,8 @@ Route::group([
     $router->get('/', 'HomeController@index');
 
     $router->resource('users', UserController::class);
+    $router->get('edit-expiration', 'UserController@showEditExpiration');
+    $router->post('edit-expiration', 'UserController@editExpiration');
     $router->post('users/changeStatus', 'UserController@changeStatus');
     $router->get('today-complex', 'UserController@complexToday');
 

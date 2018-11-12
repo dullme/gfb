@@ -9,6 +9,7 @@ use App\Http\Controllers\RedisController;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use function Couchbase\defaultDecoder;
 use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -118,13 +119,17 @@ class UserController extends Controller {
 
         //筛选
         $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
             $filter->equal('id', '用户名');
+            $filter->between('id', '用户名');
             $filter->like('mobile', '电话');
             $filter->date('activation_at', '激活时间');
         });
 
         $grid->tools(function ($tools) {
+            $url = url('admin/edit-expiration');
             $tools->append(new UserTool());
+            $tools->append("<a class='btn btn-sm btn-info' href='{$url}'>批量修改有效期</a>");
             $tools->batch(function ($batch) {
                 $batch->disableDelete();
                 $batch->add('出售', new ChangeUserStatus(1));
@@ -379,5 +384,57 @@ class UserController extends Controller {
         }
 
         return response()->json($data);
+    }
+
+    public function showEditExpiration(Content $content)
+    {
+        return $content
+            ->header('批量修改到期时间')
+            ->description(' ')
+            ->body(view('admin.expiration'));
+    }
+
+    public function editExpiration(Request $request)
+    {
+        $start_id = intval($request->get('start_id'));
+        $end_id = intval($request->get('end_id'));
+        $ids = [];
+        for ($i = $start_id; $i <= $end_id; $i++){
+            $ids[] = $i;
+        }
+        $users = User::whereBetween('id', [$start_id, $end_id])->get();
+        if(count($users)){
+            $validity_period = $users->first()->validity_period;
+            foreach ($users as $user){
+                if($validity_period != $user->validity_period){
+                    return response()->json([
+                        'status' => false,
+                        'message' => $user->id.'与其他账号有效期不一致！'
+                    ]);
+                }
+            }
+
+            $diff_array= array_diff($ids, $users->pluck('id')->toArray());
+            if($diff_array){
+                return response()->json([
+                    'status' => false,
+                    'message' => '存在不连续的用户名'. implode(',', $diff_array)
+                ]);
+            }else{
+
+                //此处修改代码
+
+                return response()->json([
+                    'status' => true,
+                    'message' => '修改成功！'
+                ]);
+            }
+        }else{
+            return response()->json([
+                'status' => false,
+                'message' => '不存在用户'
+            ]);
+        }
+
     }
 }

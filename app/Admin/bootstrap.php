@@ -20,3 +20,4 @@
 
 Encore\Admin\Form::forget(['map', 'editor']);
 \Encore\Admin\Admin::css('css/admin.css');
+\Encore\Admin\Admin::js('js/axios.min.js');
