@@ -46,32 +46,32 @@ class RouteController extends Controller
             ->delete();
     }
 
-    public function doing() {
-        $this->import('1-5001.xlsx');
-        $this->import('5001-10001.xlsx');
-//        $this->import('10001-15001.xlsx');
-//        $this->import('15001-20612.xlsx');
-
-    }
-
-    public function import($file)
-    {
-        Excel::load(base_path($file), function($reader) {
-            $data = $reader->all();
-            $res = $data->map(function ($item){
-                if(intval($item->withdraw) != 0){
-                    Withdraw::create([
-                        'user_id' => '1'.intval($item->id),
-                        'price'   => intval($item->withdraw) * 10000,
-                        'status'   => 2,
-                        'payment_at'   => '2018-10-01 00:00:00'
-                    ]);
-                }
-            });
-
-            echo 'ok';
-        });
-    }
+//    public function doing() {
+//        $this->import('1-5001.xlsx');
+//        $this->import('5001-10001.xlsx');
+////        $this->import('10001-15001.xlsx');
+////        $this->import('15001-20612.xlsx');
+//
+//    }
+//
+//    public function import($file)
+//    {
+//        Excel::load(base_path($file), function($reader) {
+//            $data = $reader->all();
+//            $res = $data->map(function ($item){
+//                if(intval($item->withdraw) != 0){
+//                    Withdraw::create([
+//                        'user_id' => '1'.intval($item->id),
+//                        'price'   => intval($item->withdraw) * 10000,
+//                        'status'   => 2,
+//                        'payment_at'   => '2018-10-01 00:00:00'
+//                    ]);
+//                }
+//            });
+//
+//            echo 'ok';
+//        });
+//    }
 
 
 //
