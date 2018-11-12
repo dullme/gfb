@@ -147,7 +147,7 @@ class ProfitController extends ResponseController
         return [
             'status'      => true,
             'last_amount' => $my_amount / 10000,
-            'url'         => $res->img_uri ?: Storage::url($res->img),
+            'url'         => $res->img_uri ?: 'https://guafen.oss-cn-beijing.aliyuncs.com/'.$res->img,
             'time'        => $config['ad_frequency'],
             'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
         ];
