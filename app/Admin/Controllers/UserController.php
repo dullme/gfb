@@ -22,6 +22,17 @@ class UserController extends Controller {
 
     use HasResourceActions;
 
+    protected $client;
+
+    /**
+     * ProfitController constructor.
+     * @param $client
+     */
+    public function __construct()
+    {
+        $this->client = new Client(config('database.redis.local'));
+    }
+
     /**
      * Index interface.
      *
@@ -274,6 +285,15 @@ class UserController extends Controller {
 
 
     protected function complexTodayGrid() {
+        $config = $this->client->get('config');
+
+        if ($config) {
+            $config = json_decode($config, true);
+        } else {
+            $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
+            $this->client->set('config', json_encode($config));
+        }
+
         $grid = new Grid(new User);
 
         $grid->model()->where('status', '2')->orderBy('id', 'desc');
@@ -287,11 +307,11 @@ class UserController extends Controller {
             return $value ? substr($value, 0, 10) : '—';
         });
 
-        $grid->column('浏览频度(秒)	')->display(function () {
-            return config('ad_frequency');
+        $grid->column('浏览频度(秒)	')->display(function () use($config) {
+            return $config['ad_frequency'];
         });
-        $grid->column('最大次数')->display(function () {
-            return config('max_visits');
+        $grid->column('最大次数')->display(function () use($config) {
+            return $config['max_visits'];
         });
 
         $redis = new RedisController();
@@ -316,19 +336,35 @@ class UserController extends Controller {
             return $history_amount / 10000;
         });
 
-        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) {
+        $grid->withdraws('套现总次数/套现总金额')->display(function ($withdraws) use ($redis)  {
             $count = count($withdraws);
             $amount = 0;
             foreach ($withdraws as $item) {
                 $amount += $item['price'];
             }
             $amount = $amount/10000;
-            return "{$count} / {$amount}";
+
+            $res = $this->history_amount + $redis->userTodayAmount($this->id);
+            $aa = $amount * 10000 + $this->amount;
+            $str = '';
+            if($this->id < 1000000){
+                if ($res > $aa){
+                    $res /=10000;
+                    $aa /=10000;
+                    $str = "/ <span style='color: red'>{$res} > {$aa}";
+                } elseif ($res < $aa){
+                    $res /=10000;
+                    $aa /=10000;
+                    $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
+                }
+            }
+
+            return "{$count} / {$amount}{$str}";
         });
 
         //筛选
         $grid->filter(function ($filter) {
-            $filter->disableIdFilter();
+            $filter->equal('id', '用户名');
             $filter->equal('mobile', '电话');
             $filter->equal('alipay_account', '支付宝账户');
         });

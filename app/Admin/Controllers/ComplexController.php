@@ -10,10 +10,22 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
+use Predis\Client;
 
 class ComplexController extends Controller
 {
     use HasResourceActions;
+
+    protected $client;
+
+    /**
+     * ProfitController constructor.
+     * @param $client
+     */
+    public function __construct()
+    {
+        $this->client = new Client(config('database.redis.local'));
+    }
 
     /**
      * Index interface.
@@ -36,6 +48,15 @@ class ComplexController extends Controller
      */
     protected function grid()
     {
+        $config = $this->client->get('config');
+
+        if ($config) {
+            $config = json_decode($config, true);
+        } else {
+            $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
+            $this->client->set('config', json_encode($config));
+        }
+
         $grid = new Grid(new Complex);
 
         $grid->model()->orderBy('id', 'desc');
@@ -60,17 +81,17 @@ class ComplexController extends Controller
             }
             return $history_amount;
         });
-        $grid->column('浏览频度(秒)	')->display(function () {
+        $grid->column('浏览频度(秒)	')->display(function () use($config) {
 
-            return config('ad_frequency');
+            return $config['ad_frequency'];
         });
-        $grid->column('最大次数')->display(function () {
-            return config('max_visits');
+        $grid->column('最大次数')->display(function () use($config) {
+            return $config['max_visits'];
         });
 
         //筛选
         $grid->filter(function ($filter) {
-            $filter->disableIdFilter();
+            $filter->equal('id', '用户名');
             $filter->equal('user.mobile', '电话');
             $filter->equal('user.alipay_account', '支付宝账户');
         });
