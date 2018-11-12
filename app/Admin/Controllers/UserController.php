@@ -369,6 +369,16 @@ class UserController extends Controller
                     $aa /= 10000;
                     $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
                 }
+            }else{
+                if ($res > $aa) {
+                    $res /= 10000;
+                    $aa /= 10000;
+                    $str = "/ <span style='color: darkorange'>{$res} > {$aa}";
+                } else if ($res < $aa) {
+                    $res /= 10000;
+                    $aa /= 10000;
+                    $str = "/ <span style='color: green'>{$res} < {$aa}</span>";
+                }
             }
 
             return "{$count} / {$amount}{$str}";
