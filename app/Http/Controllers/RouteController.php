@@ -10,6 +10,16 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class RouteController extends Controller
 {
+    protected $client;
+
+    /**
+     * ProfitController constructor.
+     * @param $client
+     */
+    public function __construct()
+    {
+        $this->client = new Client(config('database.redis.local'));
+    }
 
     public function index() {
 
@@ -17,8 +27,16 @@ class RouteController extends Controller
     }
 
     public function download() {
+        $config = $this->client->get('config');
 
-        return redirect(config('app_download'));
+        if ($config) {
+            $config = json_decode($config, true);
+        } else {
+            $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
+            $this->client->set('config', json_encode($config));
+        }
+
+        return redirect($config['app_download']);
     }
 
     public function delete() {
@@ -34,48 +52,15 @@ class RouteController extends Controller
 //        $this->import('15001-20612.xlsx');
 //
 //    }
-//
+
 //    public function import($file)
 //    {
 //        Excel::load(base_path($file), function($reader) {
 //            $data = $reader->all();
 //            $res = $data->map(function ($item){
-//                if(strpos($item->alipay_account,'@') !== false){
-//                    $alipay_account = $item->alipay_account;
-//                }else{
-//                    $alipay_account = intval($item->alipay_account);
-//                }
-//
-//                if(intval($item->status) == 0){
-//                    $activation_at = null;
-//                    $expiration_at = optional($item->expiration_at)->toDateTimeString();
-//                }else{
-//                    $activation_at = optional($item->activation_at)->toDateTimeString();
-//                    $expiration_at = optional($item->expiration_at)->addDay()->toDateTimeString();
-//                }
-//
-//                return [
-//                    'id' => intval('1'.intval($item->id)),
-//                    'original_price' => 1200,
-//                    'retail_price' => 1200,
-//                    'mobile' => intval($item->mobile),
-//                    'alipay_account' => $alipay_account,
-//                    'alipay_name' => $item->alipay_name,
-//                    'status' => intval($item->status) == 0 ? 0 : 2,
-//                    'password' => md5(intval($item->password)),
-//                    'validity_period' => intval($item->validity_period),
-//                    'initial_password' => intval($item->password),
-//                    'activation_at' => $activation_at,
-//                    'expiration_at' => $expiration_at,
-//                    'created_at' => optional($item->activation_at)->toDateTimeString(),
-//                    'amount' => intval($item->amount * 10000),
-//                    'history_amount' => intval($item->history_amount * 10000),
-//                ];
+//                dd($item);
 //            });
-//            $ress = $res->split(2);
 //
-//            User::insert($ress->first()->toArray());
-//            User::insert($ress->last()->toArray());
 //            echo 'ok';
 //        });
 //    }
