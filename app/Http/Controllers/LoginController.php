@@ -36,13 +36,13 @@ class LoginController extends ResponseController
             }
             if($user->password == md5($request->get('password'))){
                 $token = makeInvitationCode(6);
-                $user->update(['wrong_password' => $token]);
+                $user->update(['remember_token' => $token]);
                 $redis = new Client(config('database.redis.local'));
                 $redis->set($user->id, json_encode([
                     'id' => $user->id,
                     'alipay_name' => $user->alipay_name,
                     'status' => $user->status,
-                    'token' => $user->wrong_password,
+                    'token' => $user->remember_token,
                     'amount' => $user->amount,
                     'history_amount' => $user->history_amount,
                     'history_read_count' => $user->history_read_count,

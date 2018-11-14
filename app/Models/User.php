@@ -30,6 +30,7 @@ class User extends Authenticatable
         'expiration_at',
         'avatar',
         'wrong_password',
+        'remember_token',
         'amount',
         'history_amount',
         'history_read_count',
@@ -41,7 +42,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
     ];
 
     public static $statusColors = [

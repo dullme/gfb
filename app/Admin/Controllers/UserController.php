@@ -415,6 +415,7 @@ class UserController extends Controller
             if ($status == 3) {   //禁用
                 if ($product->status == 2) {
                     $product->status = $status;
+                    $product->remember_token = makeInvitationCode(6);
                     $product->save();
                     $changed++;
                 }

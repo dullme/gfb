@@ -56,7 +56,7 @@ class UserController extends ResponseController {
         $user->status = 2;
         $user->activation_at = Carbon::now();
         $user->expiration_at = Carbon::now()->addMonth($user->validity_period);
-        $user->wrong_password = makeInvitationCode(6);
+        $user->remember_token = makeInvitationCode(6);
         $user->save();
         if (!$user->save()) {
 
@@ -181,6 +181,10 @@ class UserController extends ResponseController {
 
         $user = User::find($user_data['id']);
 
+        if($user->status != 2){
+            return $this->responseError('当前用户状态有误，无法进行提现操作');
+        }
+
         $request->validate([
             'withdraw' => 'required|integer|min:100',
         ]);
@@ -297,12 +301,12 @@ class UserController extends ResponseController {
     public function authUser($user_id, $token)
     {
         $user = User::find($user_id);
-        if ($user && $token == $user->wrong_password) {
+        if ($user && $token == $user->remember_token) {
             $this->client->set($user->id, json_encode([
                 'id'                 => $user->id,
                 'alipay_name'        => $user->alipay_name,
                 'status'             => $user->status,
-                'token'              => $user->wrong_password,
+                'token'              => $user->remember_token,
                 'amount'             => $user->amount,
                 'history_amount'     => $user->history_amount,
                 'history_read_count' => $user->history_read_count,

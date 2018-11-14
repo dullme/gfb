@@ -70,12 +70,12 @@ class ProfitController extends ResponseController
     public function authUser($user_id, $token)
     {
         $user = User::find($user_id);
-        if ($user && $token == $user->wrong_password) {
+        if ($user && $token == $user->remember_token) {
             $auth_user = [
                 'id'                 => $user->id,
                 'alipay_name'        => $user->alipay_name,
                 'status'             => $user->status,
-                'token'              => $user->wrong_password,
+                'token'              => $user->remember_token,
                 'amount'             => $user->amount,
                 'history_amount'     => $user->history_amount,
                 'history_read_count' => $user->history_read_count,
