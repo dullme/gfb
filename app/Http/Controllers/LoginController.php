@@ -34,9 +34,17 @@ class LoginController extends ResponseController
             if($user->status == 0){
                 return $this->responseError('资料有误！');
             }
+
+            if($user->wrong_password >= 5 && Carbon::now()->lt($user->updated_at->addMinutes($user->wrong_password))){
+                return $this->responseError('请'.$user->wrong_password.'分钟后重试');
+            }
+
             if($user->password == md5($request->get('password'))){
                 $token = makeInvitationCode(6);
-                $user->update(['remember_token' => $token]);
+                $user->update([
+                    'remember_token' => $token,
+                    'wrong_password' => 0
+                ]);
                 $redis = new Client(config('database.redis.local'));
                 $redis->set($user->id, json_encode([
                     'id' => $user->id,
@@ -58,6 +66,7 @@ class LoginController extends ResponseController
                     ])
                 ]);
             }else{
+                $user->increment('wrong_password');
                 return $this->responseError('密码有误！');
             }
         }else{
