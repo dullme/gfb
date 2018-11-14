@@ -31,12 +31,12 @@ class LoginController extends ResponseController
         $user = User::find($request->get('username'));
 
         if($user){
-            if($user->status == 0){
-                return $this->responseError('资料有误！');
+            if($user->status != 1 || $user->status != 2){
+                return $this->responseError('该卡异常，请联系客服！');
             }
 
             if($user->wrong_password >= 5 && Carbon::now()->lt($user->updated_at->addMinutes($user->wrong_password))){
-                return $this->responseError('请'.$user->wrong_password.'分钟后重试');
+                return $this->responseError('连续输入错误过多，请'.$user->wrong_password.'分钟后重试');
             }
 
             if($user->password == md5($request->get('password'))){
@@ -58,8 +58,13 @@ class LoginController extends ResponseController
                     'expiration_at' => $user->expiration_at,
                 ]));
 
+                if($user->status == 2 || $user->status == 3){
+                    $activated = true;
+                }else{
+                    $activated = false;
+                }
                 return $this->responseSuccess([
-                    'activated' => $user->status == 2 ? true : false,
+                    'activated' => $activated,
                     'token' => json_encode([
                         'id' => $user->id,
                         'token' => $token,

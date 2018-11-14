@@ -46,8 +46,12 @@ class UserController extends ResponseController {
 
         $user = User::find($user_data['id']);
 
-        if ($user->status == 2) {
-            return $this->responseError('注册成功，请重新登陆');
+        if ($user->status != 1) {
+            if ($user->status == 2) {
+                return $this->responseError('注册成功，请重新登陆');
+            }
+
+            return $this->responseError('该卡异常，请联系客服！');
         }
 
         $user->mobile = $request->get('mobile');
@@ -79,7 +83,7 @@ class UserController extends ResponseController {
         }
 
         if ($user->status != 2) {
-            return $this->responseError('该卡尚未激活！');
+            return $this->responseError('该卡异常，请联系客服！');
         }
 
         $amount = $this->getTodayAmount();
@@ -182,7 +186,7 @@ class UserController extends ResponseController {
         $user = User::find($user_data['id']);
 
         if($user->status != 2){
-            return $this->responseError('当前用户状态有误，无法进行提现操作');
+            return $this->responseError('该卡异常，请联系客服！');
         }
 
         $request->validate([
