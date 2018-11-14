@@ -29,6 +29,10 @@ class ProfitController extends ResponseController
 
     public function getImage(Request $request)
     {
+        if($request->headers->get('user-agent') == 'okhttp/3.8.0'){
+            return $this->responseError('Android');
+        }
+
         $res = str_replace('Bearer ', '', $request->header('Authorization'));
         $token = json_decode($res, true);
         if ($token['id']) {
