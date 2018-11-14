@@ -119,11 +119,16 @@ class ProfitController extends ResponseController
         $ad_end_time = Carbon::createFromTimeString($config['ad_end_time']);
         if ($carbon_now->gt($ad_end_time) || $carbon_now->lt($ad_start_time)) {
             if($request->headers->get('user-agent') == 'okhttp/3.8.0'){
+                if ($carbon_now->gt($ad_start_time)) {
+                    $seconds = $carbon_now->diffInSeconds($ad_start_time->addDay());
+                } else {
+                    $seconds = $carbon_now->diffInSeconds($ad_start_time);
+                }
                 return [
                     'status'      => true,
                     'last_amount' => 0,
                     'url'         => '',
-                    'time'        => $config['ad_frequency'],
+                    'time'        => $seconds,
                     'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
                 ];
             }
