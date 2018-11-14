@@ -29,16 +29,12 @@ class ProfitController extends ResponseController
 
     public function getImage(Request $request)
     {
-        if($request->headers->get('user-agent') == 'okhttp/3.8.0'){
-            return $this->responseError('Android');
-        }
-
         $res = str_replace('Bearer ', '', $request->header('Authorization'));
         $token = json_decode($res, true);
         if ($token['id']) {
             $user = $this->getUserFromRedis($token['id']);
             if ($user && $user['token'] == $token['token']) {  //认证成功
-                $ready = $this->ready($user);
+                $ready = $this->ready($user, $request);
                 if($ready['status']){
                     return $this->responseSuccess($ready);
                 }else{
@@ -47,7 +43,7 @@ class ProfitController extends ResponseController
             } else {
                 $auth_user = $this->authUser($token['id'], $token['token']);
                 if ($auth_user) { //认证成功
-                    $ready = $this->ready($auth_user);
+                    $ready = $this->ready($auth_user, $request);
                     if($ready['status']){
                         return $this->responseSuccess($ready);
                     }else{
@@ -94,7 +90,7 @@ class ProfitController extends ResponseController
         return false;
     }
 
-    public function ready($user)
+    public function ready($user, $request)
     {
         if ($user['status'] == 1 || $user['status'] == 3) {
             return [
@@ -122,6 +118,16 @@ class ProfitController extends ResponseController
         $ad_start_time = Carbon::createFromTimeString($config['ad_start_time']);
         $ad_end_time = Carbon::createFromTimeString($config['ad_end_time']);
         if ($carbon_now->gt($ad_end_time) || $carbon_now->lt($ad_start_time)) {
+            if($request->headers->get('user-agent') == 'okhttp/3.8.0'){
+                return [
+                    'status'      => true,
+                    'last_amount' => 0,
+                    'url'         => '',
+                    'time'        => $config['ad_frequency'],
+                    'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
+                ];
+            }
+
             return [
                 'status' => false,
                 'message' => '广告开始结束时间为' . $config['ad_start_time'] . '-' . $config['ad_end_time']
