@@ -31,7 +31,7 @@ class LoginController extends ResponseController
         $user = User::find($request->get('username'));
 
         if($user){
-            if($user->status != 1 || $user->status != 2){
+            if($user->status == 0 || $user->status == 3){
                 return $this->responseError('该卡异常，请联系客服！');
             }
 
