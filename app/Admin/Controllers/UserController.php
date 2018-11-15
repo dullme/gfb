@@ -407,6 +407,8 @@ class UserController extends Controller
         $grid->disableRowSelector();//禁用行选择checkbox
         $grid->disableActions();//禁用行操作列
 
+        $grid->perPages([10, 20, 30, 40, 50, 500]);
+
         return $grid;
     }
 
