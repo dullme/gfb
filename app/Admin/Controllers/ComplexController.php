@@ -91,7 +91,7 @@ class ComplexController extends Controller
 
         //筛选
         $grid->filter(function ($filter) {
-            $filter->equal('id', '用户名');
+            $filter->equal('user.id', '用户名');
             $filter->equal('user.mobile', '电话');
             $filter->equal('user.alipay_account', '支付宝账户');
         });
