@@ -370,9 +370,15 @@ class UserController extends Controller
                     $aa /= 10000;
                     $str = "/ <span style='color: red'>{$res} > {$aa}";
                 } else if ($res < $aa) {
+                    $dec = $aa-$res;
+                    if($dec <= 20000){
+                        $user = User::find($this->id);
+                        $user->decrement('amount', $dec);
+                    }
+
                     $res /= 10000;
                     $aa /= 10000;
-                    $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
+                    $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}--{$dec}</span>";
                 }
             }else{
                 if ($res > $aa) {
@@ -386,9 +392,15 @@ class UserController extends Controller
                     $aa /= 10000;
                     $str = "/ <span style='color: darkorange'>{$res} > {$aa}--{$add}";
                 } else if ($res < $aa) {
+                    $dec = $aa-$res;
+                    if($dec <= 20000){
+                        $user = User::find($this->id);
+                        $user->decrement('amount', $dec);
+                    }
+
                     $res /= 10000;
                     $aa /= 10000;
-                    $str = "/ <span style='color: green'>{$res} < {$aa}</span>";
+                    $str = "/ <span style='color: green'>{$res} < {$aa}--{$dec}</span>";
                 }
             }
 
@@ -407,7 +419,7 @@ class UserController extends Controller
         $grid->disableRowSelector();//禁用行选择checkbox
         $grid->disableActions();//禁用行操作列
 
-        $grid->perPages([10, 20, 30, 40, 50, 500]);
+        $grid->perPages([10, 20, 30, 40, 50, 500, 1000]);
 
         return $grid;
     }
