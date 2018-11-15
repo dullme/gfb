@@ -362,19 +362,16 @@ class UserController extends Controller
             if ($this->id < 1000000) {
                 if ($res > $aa) {
                     $add = $res-$aa;
-                    if($add <= 20000){
-                        $user = User::find($this->id);
-                        $user->increment('amount', $add);
-                    }
+                    $user = User::find($this->id);
+                    $user->increment('amount', $add);
+                    
                     $res /= 10000;
                     $aa /= 10000;
                     $str = "/ <span style='color: red'>{$res} > {$aa}";
                 } else if ($res < $aa) {
                     $dec = $aa-$res;
-                    if($dec <= 20000){
-                        $user = User::find($this->id);
-                        $user->decrement('amount', $dec);
-                    }
+                    $user = User::find($this->id);
+                    $user->decrement('amount', $dec);
 
                     $res /= 10000;
                     $aa /= 10000;
@@ -383,20 +380,17 @@ class UserController extends Controller
             }else{
                 if ($res > $aa) {
                     $add = $res-$aa;
-                    if($add <= 20000){
-                        $user = User::find($this->id);
-                        $user->increment('amount', $add);
-                    }
+                    $user = User::find($this->id);
+                    $user->increment('amount', $add);
 
                     $res /= 10000;
                     $aa /= 10000;
                     $str = "/ <span style='color: darkorange'>{$res} > {$aa}--{$add}";
                 } else if ($res < $aa) {
                     $dec = $aa-$res;
-                    if($dec <= 20000){
-                        $user = User::find($this->id);
-                        $user->decrement('amount', $dec);
-                    }
+                    $user = User::find($this->id);
+                    $user->decrement('amount', $dec);
+
 
                     $res /= 10000;
                     $aa /= 10000;
