@@ -203,35 +203,30 @@ class UserController extends ResponseController {
             return $this->responseError('提现金额有误，请刷新页面后重试！');
         }
 
-        $user_transaction = DB::transaction(function () use ($can_withdraw_amount, $user_today_amount, $user) {
+        DB::beginTransaction(); //开启事务
+        try{
             $user = User::lockForUpdate()->find($user->id);
-
             if (($user->amount + $user_today_amount) - ($can_withdraw_amount * 10000) < 0){
-                return false;
+                throw new \Exception('提现失败');
             }
             $user->amount -= $can_withdraw_amount * 10000;
+            $user->save();
 
-            return $user->save();
-        });
-
-        if (!$user_transaction) {
-            Log::info('用户' . $user->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除失败');
-
-            return $this->responseError('提现保存失败');
-        }
-        Log::info('用户' . $user->id . '申请提现金额为' . $can_withdraw_amount . '用户表金额扣除成功');
-        $res = DB::transaction(function () use ($can_withdraw_amount, $user) {
-            return Withdraw::lockForUpdate()->create([
+            $res = Withdraw::lockForUpdate()->create([
                 'user_id' => $user->id,
                 'price'   => $can_withdraw_amount * 10000,
             ]);
-        });
-        if (!$res) {
-            Log::info('用户' . $user->id . '申请提现金额为' . $can_withdraw_amount . '提现表保存失败');
+            if($user && $res){
+                DB::commit();   // 保存修改
+            }else{
+                throw new \Exception('提现失败');
+            }
 
-            return $this->responseError('提现保存失败');
+        }catch (\Exception $e) {
+            DB::rollBack(); //回滚事务
+            return $this->responseError($e->getMessage());
         }
-        Log::info('用户' . $user->id . '申请提现金额为' . $can_withdraw_amount . '提现表保存成功');
+
         $withdraw_info = $this->withdrawInfo($user);
         $withdraw_info['withdraw_amount'] = 0;
 
