@@ -210,13 +210,13 @@ class UserController extends ResponseController {
                 throw new \Exception('提现失败');
             }
             $user->amount -= $can_withdraw_amount * 10000;
-            $user->save();
+            $res1 = $user->save();
 
-            $res = Withdraw::lockForUpdate()->create([
+            $res2 = Withdraw::lockForUpdate()->create([
                 'user_id' => $user->id,
                 'price'   => $can_withdraw_amount * 10000,
             ]);
-            if($user && $res){
+            if($res1 && $res2){
                 DB::commit();   // 保存修改
             }else{
                 throw new \Exception('提现失败');
@@ -231,8 +231,8 @@ class UserController extends ResponseController {
         $withdraw_info['withdraw_amount'] = 0;
 
         return $this->responseSuccess(array_merge([
-            "user_id" => $res->user_id,
-            "price"   => $res->price / 10000,
+            "user_id" => $res2->user_id,
+            "price"   => $res2->price / 10000,
         ], $withdraw_info), '提现成功，7个工作日内到账');
     }
 
