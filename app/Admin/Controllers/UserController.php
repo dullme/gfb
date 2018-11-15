@@ -361,40 +361,23 @@ class UserController extends Controller
             $str = '';
             if ($this->id < 1000000) {
                 if ($res > $aa) {
-                    $add = $res-$aa;
-                    $user = User::find($this->id);
-                    $user->increment('amount', $add);
-                    
                     $res /= 10000;
                     $aa /= 10000;
                     $str = "/ <span style='color: red'>{$res} > {$aa}";
                 } else if ($res < $aa) {
-                    $dec = $aa-$res;
-                    $user = User::find($this->id);
-                    $user->decrement('amount', $dec);
-
                     $res /= 10000;
                     $aa /= 10000;
-                    $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}--{$dec}</span>";
+                    $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
                 }
             }else{
                 if ($res > $aa) {
-                    $add = $res-$aa;
-                    $user = User::find($this->id);
-                    $user->increment('amount', $add);
-
                     $res /= 10000;
                     $aa /= 10000;
-                    $str = "/ <span style='color: darkorange'>{$res} > {$aa}--{$add}";
+                    $str = "/ <span style='color: darkorange'>{$res} > {$aa}";
                 } else if ($res < $aa) {
-                    $dec = $aa-$res;
-                    $user = User::find($this->id);
-                    $user->decrement('amount', $dec);
-
-
                     $res /= 10000;
                     $aa /= 10000;
-                    $str = "/ <span style='color: green'>{$res} < {$aa}--{$dec}</span>";
+                    $str = "/ <span style='color: green'>{$res} < {$aa}</span>";
                 }
             }
 
