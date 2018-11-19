@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CapitalPool;
+use App\Models\service;
 use Storage;
 use Cache;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,7 @@ class UserController extends ResponseController {
 
         if ($user->status != 1) {
             if ($user->status == 2) {
-                return $this->responseError('注册成功，请重新登陆');
+                return $this->responseError('该卡已激活无需重复激活');
             }
 
             return $this->responseError('该卡异常，请联系客服！');
@@ -67,7 +68,16 @@ class UserController extends ResponseController {
             return $this->responseError('激活失败');
         }
 
-        return $this->responseError('注册成功，请重新登陆');
+        $service = service::all();
+        $guzzle = new \GuzzleHttp\Client();
+        if(count($service)){
+            foreach ($service as $item){
+                $guzzle->get("http://{$item->ip}:{$item->port}/update-redis?user_id={$user_data['id']}&token=1024gfb1024");
+            }
+        }
+
+
+        return $this->responseError('激活成功！');
     }
 
     public function userInfo(Request $request) {

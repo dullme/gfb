@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Predis\Client;
 
@@ -49,6 +50,26 @@ class RouteController extends Controller
 
         if($token == '1024gfb1024'){
             $this->client->del($user_id);
+        }
+
+    }
+    public function byUserIdUpdateUserInLocalRedis(Request $request)
+    {
+        $user_id = $request->get('user_id');
+        $token = $request->get('token');
+        $user = User::find($user_id);
+        if($token == '1024gfb1024'){
+            $this->client->set($user->id, json_encode([
+                'id' => $user->id,
+                'alipay_name' => $user->alipay_name,
+                'status' => $user->status,
+                'token' => $user->remember_token,
+                'amount' => $user->amount,
+                'history_amount' => $user->history_amount,
+                'history_read_count' => $user->history_read_count,
+                'activation_at' => $user->activation_at,
+                'expiration_at' => $user->expiration_at,
+            ]));
         }
 
     }

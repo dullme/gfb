@@ -142,10 +142,17 @@ class ProfitController extends ResponseController
         $visit = $this->redis->get('v_' . $user['id'] . '_' . date('Ymd')) ?: 0;
 
         if ($visit >= $config['max_visits']) {
-            return [
-                'status' => false,
-                'message' => '今日访问已达上限'
-            ];
+            if($carbon_now->addMinutes(30)->toDateTimeString() <= $ad_end_time){
+                return [
+                    'status' => false,
+                    'message' => '系统检测到您的请求异常，如继续使用非法手段刷新可能面临封号风险！'
+                ];
+            }else{
+                return [
+                    'status' => false,
+                    'message' => '今日访问已达上限'
+                ];
+            }
         }
 
         $my_amount = $this->getLast_amount($config);
