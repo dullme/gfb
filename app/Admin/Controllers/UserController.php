@@ -6,6 +6,8 @@ use App\Admin\Extensions\ExcelExpoter;
 use App\Admin\Extensions\Tools\ChangeUserStatus;
 use App\Admin\Extensions\Tools\UserTool;
 use App\Http\Controllers\RedisController;
+use App\Models\AdminConfig;
+use App\Models\service;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -405,6 +407,10 @@ class UserController extends Controller
     {
         $status = $request->get('action');
         $changed = 0;
+
+        $service = service::all();
+        $guzzle = new \GuzzleHttp\Client();
+
         foreach (User::find($request->get('ids')) as $product) {
             if ($status == 1) {   //出售
                 if ($product->status == 0) {
@@ -414,20 +420,28 @@ class UserController extends Controller
                 }
             }
 
-            if ($status == 3) {   //禁用
-                if ($product->status == 2) {
-                    $product->status = $status;
-                    $product->remember_token = makeInvitationCode(6);
-                    $product->save();
-                    $changed++;
+            if ($status == 3 || $status == 2) {
+                if ($status == 3) {   //禁用
+                    if ($product->status == 2) {
+                        $product->status = $status;
+                        $product->remember_token = makeInvitationCode(6);
+                        $product->save();
+                        $changed++;
+                    }
                 }
-            }
 
-            if ($status == 2) {   //启用
-                if ($product->status == 3) {
-                    $product->status = $status;
-                    $product->save();
-                    $changed++;
+                if ($status == 2) {   //启用
+                    if ($product->status == 3) {
+                        $product->status = $status;
+                        $product->save();
+                        $changed++;
+                    }
+                }
+
+                if(count($service)){
+                    foreach ($service as $item){
+                        $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis?user_id={$product->id}&token=1024gfb1024");
+                    }
                 }
             }
 

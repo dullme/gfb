@@ -98,8 +98,10 @@ class ComplexController extends Controller
 
         $grid->disableCreateButton();//禁用创建按钮
         $grid->disableExport();//禁用导出数据按钮
-        $grid->disableRowSelector();//禁用行选择checkbox
+//        $grid->disableRowSelector();//禁用行选择checkbox
         $grid->disableActions();//禁用行操作列
+
+        $grid->perPages([50, 100, 200, 500, 1000]);
 
         return $grid;
     }

@@ -15,5 +15,7 @@ Route::get('/', 'RouteController@index');
 
 Route::get('download/guafen.apk', 'RouteController@download');
 Route::get('delete', 'RouteController@delete');
+Route::get('clear-redis', 'RouteController@byUserIdClearUserInLocalRedis');
+Route::get('clear-config', 'RouteController@ClearConfigInLocalRedis');
 
 //Route::get('doing', 'RouteController@doing');

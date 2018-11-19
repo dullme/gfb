@@ -151,6 +151,14 @@ return [
             'integer' => '结束用户名必须是数字',
         ],
 
+        'ip' => [
+            'required' => 'IP地址不能为空',
+        ],
+
+        'port' => [
+            'required' => '端口号不能为空',
+        ],
+
         'new_validity_period' => [
             'required' => '有效期不能为哦空',
             'integer' => '有效期必须为整数',

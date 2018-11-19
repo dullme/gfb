@@ -2,11 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Complex;
-use App\Models\User;
-use App\Models\Withdraw;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
 use Predis\Client;
 
 class RouteController extends Controller
@@ -44,6 +40,26 @@ class RouteController extends Controller
         return app('db')->table('oauth_access_tokens')
             ->where('revoked', true)
             ->delete();
+    }
+
+    public function byUserIdClearUserInLocalRedis(Request $request)
+    {
+        $user_id = $request->get('user_id');
+        $token = $request->get('token');
+
+        if($token == '1024gfb1024'){
+            $this->client->del($user_id);
+        }
+
+    }
+
+    public function ClearConfigInLocalRedis(Request $request)
+    {
+        $token = $request->get('token');
+
+        if($token == '1024gfb1024'){
+            $this->client->del('config');
+        }
     }
 
 //    public function doing() {

@@ -13,6 +13,8 @@ Route::group([
     $router->get('/', 'HomeController@index');
 
     $router->resource('users', UserController::class);
+    $router->resource('service', ServiceController::class);
+    $router->get('service-refresh-client-redis', 'ServiceController@refreshClientRedis');
     $router->get('edit-expiration', 'UserController@showEditExpiration');
     $router->post('edit-expiration', 'UserController@editExpiration');
     $router->post('users/changeStatus', 'UserController@changeStatus');
