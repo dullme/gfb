@@ -89,14 +89,14 @@ class RouteController extends Controller
         if($request->get('token') == 'Q83kBhN79h6@uZV6zEWYn'.date('Ymd')){
             $request->validate([
                 'user_id'      => 'required|integer',
-                'amount' => 'required|integer',
+                'amount' => 'required|numeric',
                 'visit' => 'required|integer',
             ]);
 
             $user = User::findOrFail($request->get('user_id'));
             $redis = new Client(config('database.redis.default'));
             $redis->set('v_' . $user->id . '_' . date('Ymd'), $request->get('visit'));
-            $redis->set('a_' . $user->id . '_' . date('Ymd'), $request->get('amount') * 10000);
+            $redis->set('a_' . $user->id . '_' . date('Ymd'), intval($request->get('amount') * 10000));
 
             dd('已更新今日浏览量为'.$request->get('visit').'，分润总金额为'.$request->get('amount'));
         }
