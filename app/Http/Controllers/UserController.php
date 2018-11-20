@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CapitalPool;
-use App\Models\service;
+use App\Models\Service;
 use Storage;
 use Cache;
 use Illuminate\Support\Facades\DB;
@@ -68,7 +68,7 @@ class UserController extends ResponseController {
             return $this->responseError('激活失败');
         }
 
-        $service = service::all();
+        $service = Service::all();
         $guzzle = new \GuzzleHttp\Client();
         if(count($service)){
             foreach ($service as $item){
