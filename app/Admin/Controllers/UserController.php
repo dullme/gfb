@@ -408,7 +408,7 @@ class UserController extends Controller
         $status = $request->get('action');
         $changed = 0;
 
-        $service = service::all();
+        $service = Service::all();
         $guzzle = new \GuzzleHttp\Client();
 
         foreach (User::find($request->get('ids')) as $product) {
