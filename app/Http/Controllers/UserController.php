@@ -61,7 +61,6 @@ class UserController extends ResponseController {
         $user->status = 2;
         $user->activation_at = Carbon::now();
         $user->expiration_at = Carbon::now()->addMonth($user->validity_period);
-        $user->remember_token = makeInvitationCode(6);
         $user->save();
         if (!$user->save()) {
 
@@ -139,6 +138,7 @@ class UserController extends ResponseController {
      */
     public function complex(Request $request) {
         $user_data = $this->myAuth($request);
+
         if(!$user_data){
             return $this->responseError('请先登录');
         }
@@ -288,7 +288,7 @@ class UserController extends ResponseController {
             } else {
                 $auth_user = $this->authUser($token['id'], $token['token']);
                 if ($auth_user) { //认证成功
-                    return $user;
+                    return $auth_user;
                 }
             }
 

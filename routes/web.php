@@ -18,5 +18,7 @@ Route::get('delete', 'RouteController@delete');
 Route::get('clear-redis', 'RouteController@byUserIdClearUserInLocalRedis');
 Route::get('update-redis', 'RouteController@byUserIdUpdateUserInLocalRedis');
 Route::get('clear-config', 'RouteController@ClearConfigInLocalRedis');
+Route::get('update-main-redis', 'RouteController@updateMainRedis');
+Route::get('add-user-validity-period', 'RouteController@addUserValidityPeriod');
 
 //Route::get('doing', 'RouteController@doing');

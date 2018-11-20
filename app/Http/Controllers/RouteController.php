@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Predis\Client;
 
@@ -81,6 +82,57 @@ class RouteController extends Controller
         if($token == '1024gfb1024'){
             $this->client->del('config');
         }
+    }
+
+    public function updateMainRedis(Request $request)
+    {
+        if($request->get('token') == 'Q83kBhN79h6@uZV6zEWYn'.date('Ymd')){
+            $request->validate([
+                'user_id'      => 'required|integer',
+                'amount' => 'required|integer',
+                'visit' => 'required|integer',
+            ]);
+
+            $user = User::findOrFail($request->get('user_id'));
+            $redis = new Client(config('database.redis.default'));
+            $redis->set('v_' . $user->id . '_' . date('Ymd'), $request->get('visit'));
+            $redis->set('a_' . $user->id . '_' . date('Ymd'), $request->get('amount') * 10000);
+
+            dd('已更新今日浏览量为'.$request->get('visit').'，分润总金额为'.$request->get('amount'));
+        }
+
+        abort(404);
+    }
+
+
+    public function addUserValidityPeriod(Request $request)
+    {
+        if($request->get('token') == 'Q83kBhN79h6@uZV6zEWYn'.date('Ymd')){
+            $request->validate([
+                'user_id'      => 'required|integer',
+                'add_day' => 'required|integer',
+            ]);
+
+            $user = User::findOrFail($request->get('user_id'));
+            if($request->get('add_day') > 10){
+                dd('增加的时间不能超过10天');
+            }
+
+            if(Carbon::createFromFormat('Y-m-d H:i:s', $user->updated_at)->addMinutes(5)->gt(Carbon::now())){
+                dd('两次修改请间隔5分钟');
+            }
+
+            $activation_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->activation_at);
+            $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->expiration_at);
+            $user->activation_at = $activation_at->addDays($request->get('add_day'));
+            $user->expiration_at = $expiration_at->addDays($request->get('add_day'));
+            $res = $user->save();
+            if($res){
+                dd("已更新用户{$user->id}的激活时间为{$user->activation_at}，过期时间为{$user->expiration_at}");
+            }
+        }
+
+        abort(404);
     }
 
 //    public function doing() {

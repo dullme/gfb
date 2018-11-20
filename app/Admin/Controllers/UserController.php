@@ -510,17 +510,29 @@ class UserController extends Controller
                     'message' => '存在不连续的用户名' . implode(',', $diff_array)
                 ]);
             } else {
-                $res = $users->map(function ($user) use ($new_validity_period){
+
+                $service = Service::all();
+                $guzzle = new \GuzzleHttp\Client();
+
+                $res = $users->map(function ($user) use ($new_validity_period, $service, $guzzle){
                     if(!is_null($user->activation_at)){
                         $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->activation_at)->addMonths($new_validity_period);
                     }else{
                         $expiration_at = null;
                     }
 
-                    return User::where('id', $user->id)->update([
+                    $userUpdate =  User::where('id', $user->id)->update([
                         'validity_period' => $new_validity_period,
                         'expiration_at'   => $expiration_at
                     ]);
+
+                    if(count($service)){
+                        foreach ($service as $item){
+                            $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis?user_id={$user->id}&token=1024gfb1024");
+                        }
+                    }
+
+                    return $userUpdate;
                 });
 
                 return response()->json([

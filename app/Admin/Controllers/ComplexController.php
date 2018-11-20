@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\AdminConfig;
 use App\Models\Complex;
 use App\Http\Controllers\Controller;
 use App\Models\User;
