@@ -7,7 +7,7 @@ use App\Admin\Extensions\Tools\ChangeUserStatus;
 use App\Admin\Extensions\Tools\UserTool;
 use App\Http\Controllers\RedisController;
 use App\Models\AdminConfig;
-use App\Models\service;
+use App\Models\Service;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
