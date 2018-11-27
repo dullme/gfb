@@ -154,17 +154,27 @@ class ProfitController extends ResponseController
                 ];
             }
         }
-
         $my_amount = $this->getLast_amount($config);
-
-        $this->redis->incrby('v_' . $user['id'] . '_' . date('Ymd'), 1);
-        $this->redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
 
         $advertisement = Cache::remember('advertisement', 60, function () {
             return Advertisement::where('status', 1)->select('img_uri', 'img')->get();
         });
 
         $res = $advertisement->random();
+
+        if(!$this->canSee()){
+            return [
+                'status'      => true,
+                'last_amount' => $my_amount / 10000,
+                'url'         => $res->img_uri ?: 'http://guafen.oss-cn-beijing.aliyuncs.com/'.$res->img,
+                'time'        => $config['ad_frequency'],
+                'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
+            ];
+        }
+
+        $this->redis->incrby('v_' . $user['id'] . '_' . date('Ymd'), 1);
+        $this->redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
+        $this->redis->set('see_'.$user['id'], Carbon::now()->addSeconds($config['ad_frequency']));
 
         return [
             'status'      => true,
