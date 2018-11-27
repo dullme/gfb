@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminConfig;
 use App\Models\CapitalPool;
 use App\Models\Service;
 use Storage;

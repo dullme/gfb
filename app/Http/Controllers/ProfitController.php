@@ -187,4 +187,16 @@ class ProfitController extends ResponseController
 
         return (int) (round($my_amount + randFloat(0.0001, 0.003), 4) * 10000);
     }
+
+    public function canSee() {
+        $last_time_see_ad = $this->redis->get('see_'.Auth()->user()->id);
+        if(!is_null($last_time_see_ad)){
+            Carbon::now();
+            $last_time_see_ad = Carbon::createFromFormat('Y-m-d H:i:s', $last_time_see_ad);
+
+            return Carbon::now()->gt($last_time_see_ad)?:false;
+        }
+
+        return true;
+    }
 }
