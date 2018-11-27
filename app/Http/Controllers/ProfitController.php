@@ -162,7 +162,7 @@ class ProfitController extends ResponseController
 
         $res = $advertisement->random();
 
-        if(!$this->canSee()){
+        if(!$this->canSee($user['id'])){
             return [
                 'status'      => true,
                 'last_amount' => $my_amount / 10000,
@@ -198,8 +198,8 @@ class ProfitController extends ResponseController
         return (int) (round($my_amount + randFloat(0.0001, 0.003), 4) * 10000);
     }
 
-    public function canSee() {
-        $last_time_see_ad = $this->redis->get('see_'.Auth()->user()->id);
+    public function canSee($user_id) {
+        $last_time_see_ad = $this->redis->get('see_'.$user_id);
         if(!is_null($last_time_see_ad)){
             Carbon::now();
             $last_time_see_ad = Carbon::createFromFormat('Y-m-d H:i:s', $last_time_see_ad);
