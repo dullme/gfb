@@ -115,6 +115,15 @@ class ProfitController extends ResponseController
             $this->client->set('config', json_encode($config));
         }
 
+
+        if(isset($config['maintenance']) && $config['maintenance'] != 'null'){
+            return [
+                'status' => false,
+                'message' => $config['maintenance']
+            ];
+        }
+
+
         $ad_start_time = Carbon::createFromTimeString($config['ad_start_time']);
         $ad_end_time = Carbon::createFromTimeString($config['ad_end_time']);
         if ($carbon_now->gt($ad_end_time) || $carbon_now->lt($ad_start_time)) {

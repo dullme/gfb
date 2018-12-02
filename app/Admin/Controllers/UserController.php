@@ -475,11 +475,14 @@ class UserController extends Controller
         $request->validate([
             'start_id'    => 'required|integer',
             'end_id'      => 'required|integer',
-            'new_validity_period' => 'required|integer|min:1',
+            'new_validity_period' => 'integer',
+            'add_validity_period' => 'integer',
         ]);
+
         $start_id = $request->get('start_id');
         $end_id = $request->get('end_id');
         $new_validity_period = $request->get('new_validity_period');
+        $add_validity_period = $request->input('add_validity_period');
         $ids = [];
         for ($i = $start_id; $i <= $end_id; $i++) {
             $ids[] = $i;
@@ -514,17 +517,32 @@ class UserController extends Controller
                 $service = Service::all();
                 $guzzle = new \GuzzleHttp\Client();
 
-                $res = $users->map(function ($user) use ($new_validity_period, $service, $guzzle){
-                    if(!is_null($user->activation_at)){
-                        $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->activation_at)->addMonths($new_validity_period);
+                $res = $users->map(function ($user) use ($new_validity_period, $add_validity_period, $service, $guzzle){
+                    if($add_validity_period > 0){
+
+                        if(!is_null($user->expiration_at)){
+                            $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->expiration_at)->addDays($add_validity_period);
+                            $userUpdate =  User::where('id', $user->id)->update([
+                                'expiration_at'   => $expiration_at
+                            ]);
+                        }
+
+
                     }else{
-                        $expiration_at = null;
+
+                        if(!is_null($user->activation_at)){
+                            $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->activation_at)->addMonths($new_validity_period);
+                        }else{
+                            $expiration_at = null;
+                        }
+
+                        $userUpdate =  User::where('id', $user->id)->update([
+                            'validity_period' => $new_validity_period,
+                            'expiration_at'   => $expiration_at
+                        ]);
                     }
 
-                    $userUpdate =  User::where('id', $user->id)->update([
-                        'validity_period' => $new_validity_period,
-                        'expiration_at'   => $expiration_at
-                    ]);
+
 
                     if(count($service)){
                         foreach ($service as $item){
@@ -535,9 +553,15 @@ class UserController extends Controller
                     return $userUpdate;
                 });
 
+                if($add_validity_period > 0){
+                    $message = '成功为'. $res->sum() .'条记录的有效期增加了'.$add_validity_period.'天';
+                }else{
+                    $message = '成功修改'. $res->sum() .'条记录的有效期为'.$new_validity_period.'个月';
+                }
+
                 return response()->json([
                     'status'  => true,
-                    'message' => '成功修改'. $res->sum() .'条记录的有效期为'.$new_validity_period.'个月'
+                    'message' => $message
                 ]);
             }
         } else {

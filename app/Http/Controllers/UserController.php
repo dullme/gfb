@@ -35,6 +35,18 @@ class UserController extends ResponseController {
     }
 
     public function updateUserInfo(Request $request) {
+        $config = $this->client->get('config');
+        if ($config) {
+            $config = json_decode($config, true);
+        } else {
+            $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
+            $this->client->set('config', json_encode($config));
+        }
+
+        if(isset($config['maintenance']) && $config['maintenance'] != 'null'){
+            return $this->responseError($config['maintenance']);
+        }
+
         $user_data = $this->myAuth($request);
         if(!$user_data){
             return $this->responseError('请先登录');

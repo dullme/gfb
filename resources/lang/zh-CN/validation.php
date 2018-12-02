@@ -160,7 +160,7 @@ return [
         ],
 
         'new_validity_period' => [
-            'required' => '有效期不能为哦空',
+            'required' => '有效期不能为空',
             'integer' => '有效期必须为整数',
             'min' => '有效期最小为:min',
         ],
