@@ -163,7 +163,7 @@ class ProfitController extends ResponseController
                 ];
             }
         }
-        $my_amount = $this->getLast_amount($config);
+        $my_amount = $this->getLast_amount($config, $user['expiration_at']);
 
         $advertisement = Cache::remember('advertisement', 60, function () {
             return Advertisement::where('status', 1)->select('img_uri', 'img')->get();
@@ -198,11 +198,19 @@ class ProfitController extends ResponseController
     /**
      * 获取分润
      * @param $config
+     * @param $expiration_at
      * @return int
      */
-    public function getLast_amount($config)
+    public function getLast_amount($config, $expiration_at)
     {
         $my_amount = round($config['daily_ad_revenue'] / $config['max_visits'], 4);
+
+        if($config['expiration_days'] != 'null'){
+            $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $expiration_at)->subDays($config['expiration_days']);
+            if($expiration_at->lt(Carbon::now())){
+                $my_amount = round($config['daily_ad_revenue_by_expiration_days'] / $config['max_visits'], 4);
+            }
+        }
 
         return (int) (round($my_amount + randFloat(0.0001, 0.003), 4) * 10000);
     }
