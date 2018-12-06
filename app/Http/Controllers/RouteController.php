@@ -75,6 +75,19 @@ class RouteController extends Controller
 
     }
 
+    /**
+     * 清空本地redis
+     * @param Request $request
+     */
+    public function ClearLocalRedis(Request $request)
+    {
+        $token = $request->get('token');
+
+        if($token == '1024gfb1024'){
+            $this->client->flushdb();
+        }
+    }
+
     public function ClearConfigInLocalRedis(Request $request)
     {
         $token = $request->get('token');

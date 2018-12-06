@@ -17,6 +17,8 @@ Route::group([
     $router->get('service-refresh-client-redis', 'ServiceController@refreshClientRedis');
     $router->get('edit-expiration', 'UserController@showEditExpiration');
     $router->post('edit-expiration', 'UserController@editExpiration');
+    $router->get('add-days', 'UserController@showAddDays');
+    $router->post('add-days', 'UserController@editAddDays');
     $router->post('users/changeStatus', 'UserController@changeStatus');
     $router->get('today-complex', 'UserController@complexToday');
 

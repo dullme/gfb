@@ -18,6 +18,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Predis\Client;
 
 class UserController extends Controller
@@ -147,8 +148,10 @@ class UserController extends Controller
 
         $grid->tools(function ($tools) {
             $url = url('admin/edit-expiration');
+            $url2 = url('admin/add-days');
             $tools->append(new UserTool());
             $tools->append("<a class='btn btn-sm btn-info' href='{$url}'>批量修改有效期</a>");
+            $tools->append("<a class='btn btn-sm btn-warning' href='{$url2}'>增加天数</a>");
             $tools->batch(function ($batch) {
                 $batch->disableDelete();
                 $batch->add('出售', new ChangeUserStatus(1));
@@ -571,5 +574,47 @@ class UserController extends Controller
             ]);
         }
 
+    }
+
+    public function showAddDays(Content $content)
+    {
+        return $content
+            ->header('增加天数')
+            ->description(' ')
+            ->body(view('admin.addDays'));
+    }
+
+    public function editAddDays(Request $request)
+    {
+        $request->validate([
+            'add_validity_period' => 'required|integer|min:1',
+        ]);
+
+        $add_days = $request->input('add_validity_period');
+
+        $users = DB::update(
+            'update users set expiration_at= DATE_ADD(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
+            [$add_days, Carbon::now()]
+        );
+
+        if($users){
+            $service = Service::all();
+            $guzzle = new \GuzzleHttp\Client();
+            if(count($service)){
+                foreach ($service as $item){
+                    $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis-all?token=1024gfb1024");
+                }
+            }
+
+            return response()->json([
+                'status'  => true,
+                'message' => '成功为'. $users .'位用户增加了'.$add_days.'天有效期,成功清空所有服务器的Redis数据！'
+            ]);
+        }
+
+        return response()->json([
+            'status'  => false,
+            'message' => '操作失败！'
+        ]);
     }
 }

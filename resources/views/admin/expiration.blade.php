@@ -4,13 +4,13 @@
 
         <div class="box-tools">
             <div class="btn-group pull-right" style="margin-right: 5px">
-                <a href="http://gfb.test/admin/users" class="btn btn-sm btn-default" title="列表"><i class="fa fa-list"></i><span class="hidden-xs">&nbsp;列表</span></a>
+                <a href="{{ url('/admin/users') }}" class="btn btn-sm btn-default" title="列表"><i class="fa fa-list"></i><span class="hidden-xs">&nbsp;列表</span></a>
             </div>
         </div>
     </div>
     <!-- /.box-header -->
     <!-- form start -->
-    <form action="http://gfb.test/admin/users" method="post" accept-charset="UTF-8" class="form-horizontal" pjax-container="">
+    <form accept-charset="UTF-8" class="form-horizontal">
 
         <div class="box-body">
 

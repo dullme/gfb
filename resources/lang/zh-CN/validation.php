@@ -164,6 +164,11 @@ return [
             'integer' => '有效期必须为整数',
             'min' => '有效期最小为:min',
         ],
+        'add_validity_period' => [
+            'required' => '新增天数不能为空',
+            'integer' => '新增天数必须为整数',
+            'min' => '新增天数最小为:min',
+        ],
     ],
 
     /*
