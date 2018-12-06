@@ -95,6 +95,34 @@ class UserController extends Controller
             ->body($this->createForm());
     }
 
+    public function destroy($id)
+    {
+        $ids = explode(',', $id);
+        $service = Service::all();
+        $guzzle = new \GuzzleHttp\Client();
+        collect($ids)->map(function ($id) use ($service, $guzzle){
+            if(count($service)){
+                foreach ($service as $item){
+                    $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis?user_id={$id}&token=1024gfb1024");
+                }
+            }
+        });
+
+        if ($this->form()->destroy($id)) {
+            $data = [
+                'status'  => true,
+                'message' => trans('admin.delete_succeeded'),
+            ];
+        } else {
+            $data = [
+                'status'  => false,
+                'message' => trans('admin.delete_failed'),
+            ];
+        }
+
+        return response()->json($data);
+    }
+
     /**
      * Make a grid builder.
      *
@@ -153,7 +181,6 @@ class UserController extends Controller
             $tools->append("<a class='btn btn-sm btn-info' href='{$url}'>批量修改有效期</a>");
             $tools->append("<a class='btn btn-sm btn-warning' href='{$url2}'>增加天数</a>");
             $tools->batch(function ($batch) {
-                $batch->disableDelete();
                 $batch->add('出售', new ChangeUserStatus(1));
                 $batch->add('冻结', new ChangeUserStatus(3));
                 $batch->add('解冻', new ChangeUserStatus(2));
