@@ -26,11 +26,11 @@ Route::post('/token/refresh', 'LoginController@refresh');
 /**
  * 需要 OAuth 认证
  */
-Route::post('/user-info', 'UserController@updateUserInfo');
-Route::get('/user-info', 'UserController@userInfo');
-Route::get('/complex', 'UserController@complex');
-Route::get('/withdraw', 'UserController@getWithdraw');
-Route::post('/withdraw', 'UserController@storeWithdraw');
-Route::get('/can-see', 'UserController@canSeeAd');
-Route::get('/image', 'ProfitController@getImage');
+Route::post('/user-info', 'UserController@updateUserInfo'); //账号激活
+Route::get('/user-info', 'UserController@userInfo'); //获取用户信息
+Route::get('/complex', 'UserController@complex'); //分润记录
+Route::get('/withdraw', 'UserController@getWithdraw'); //提现信息
+Route::post('/withdraw', 'UserController@storeWithdraw'); //提现接口
+Route::get('/can-see', 'UserController@canSeeAd'); //是否可以访问广告
+//Route::get('/image', 'ProfitController@getImage'); //获取广告
 //Route::get('/get-image', 'ProfitController@getMobileImage');

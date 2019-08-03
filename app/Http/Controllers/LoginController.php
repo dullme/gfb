@@ -89,8 +89,13 @@ class LoginController extends ResponseController
         $res = str_replace('Bearer ', '', $request->header('Authorization'));
         $token = json_decode($res, true);
         $redis = new Client(config('database.redis.local'));
+        $res = $redis->del($token['id']);
 
-        return $redis->del($token['id']);
+        if($res){
+            User::where('id', $token['id'])->update(['remember_token' => NULL]);
+        }
+
+        return $this->responseSuccess(true) ;
     }
 
     /**

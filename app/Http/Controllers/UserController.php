@@ -129,13 +129,11 @@ class UserController extends ResponseController {
         if($info){
             $info = json_decode($info , true);
         }else{
-            $withdraw = Withdraw::where('status', 2)->get();
-            $users = User::whereIn('status', [2,3])->get();
 
             $info = [
                 'ad_fee'   => CapitalPool::all()->sum('price'), //广告费总额
-                'amount'   => $users->sum('history_amount') / 10000,    //分润总额
-                'withdraw' => (int)$withdraw->sum('price') / 10000,  //提现总额
+                'amount'   => User::whereIn('status', [2,3])->sum('history_amount') / 10000,    //分润总额
+                'withdraw' => Withdraw::where('status', 2)->sum('price') / 10000,  //提现总额
             ];
 
             $this->redis->set('info', json_encode($info));
