@@ -71,13 +71,13 @@ class RedisController extends Controller {
         });
 
         $today_amount = $this->todayTotalAmount();
-        $users = Cache::remember('users', 60, function (){
-            return User::whereIn('status', [2,3])->get();
+        $history_amount = Cache::remember('users', 60, function (){
+            return User::whereIn('status', [2,3])->sum('history_amount');
         });
-        
+
         return [
             'ad_fee'   => CapitalPool::all()->sum('price'), //广告费总额
-            'amount'   => ($users->sum('history_amount') + $today_amount) / 10000,    //分润总额
+            'amount'   => ($history_amount+ $today_amount) / 10000,    //分润总额
             'today_amount'   => $today_amount / 10000,  //今日分润
             'withdraw' => $withdraw,  //提现总额
             'visits'   => $this->todayTotalVisit(),  //今日访问人数

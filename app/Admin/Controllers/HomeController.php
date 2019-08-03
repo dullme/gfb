@@ -28,15 +28,16 @@ class HomeController extends Controller {
             $withdraw = Withdraw::where('status', 2)->get();
             return (int)$withdraw->sum('price') / 10000;
         });
+
         $today_amount = $this->redis->get('tta') / 10000;
+
         $admin_users = Cache::remember('admin_users', 60, function () {
-            $users = User::all();
             return [
-                $users->where('status', 0)->count(),
-                $users->where('status', 1)->count(),
-                $users->where('status', 2)->count(),
-                $users->where('status', 2)->where('activation_at', '>=', Carbon::today())->count(),
-                $users->sum('history_amount')
+                User::where('status', 0)->count(),
+                User::where('status', 1)->count(),
+                User::where('status', 2)->count(),
+                User::where('status', 2)->where('activation_at', '>=', Carbon::today())->count(),
+                User::sum('history_amount')
             ];
         });
 

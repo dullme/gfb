@@ -637,11 +637,11 @@ class UserController extends Controller
                 'status'  => true,
                 'message' => '成功为'. $users .'位用户增加了'.$add_days.'天有效期,成功清空所有服务器的Redis数据！'
             ]);
+        }else{
+            return response()->json([
+                'status'  => false,
+                'message' => "操作失败！需要增加天数的用户数为{$users}"
+            ]);
         }
-
-        return response()->json([
-            'status'  => false,
-            'message' => '操作失败！'
-        ]);
     }
 }
