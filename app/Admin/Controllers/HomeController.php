@@ -25,8 +25,8 @@ class HomeController extends Controller {
 
     public function index(Content $content) {
         $withdraw =Cache::remember('withdraw', 60, function (){
-            $withdraw = Withdraw::where('status', 2)->get();
-            return (int)$withdraw->sum('price') / 10000;
+            $withdraw = Withdraw::where('status', 2)->sum('price');
+            return $withdraw / 10000;
         });
 
         $today_amount = $this->redis->get('tta') / 10000;

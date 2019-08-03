@@ -66,8 +66,8 @@ class RedisController extends Controller {
      */
     public function getTodayAmount() {
         $withdraw =Cache::remember('withdraw', 60, function (){
-            $withdraw = Withdraw::where('status', 2)->get();
-            return (int)$withdraw->sum('price') / 10000;
+            $withdraw = Withdraw::where('status', 2)->sum('price');
+            return $withdraw / 10000;
         });
 
         $today_amount = $this->todayTotalAmount();
@@ -76,7 +76,7 @@ class RedisController extends Controller {
         });
 
         return [
-            'ad_fee'   => CapitalPool::all()->sum('price'), //广告费总额
+            'ad_fee'   => CapitalPool::sum('price'), //广告费总额
             'amount'   => ($history_amount+ $today_amount) / 10000,    //分润总额
             'today_amount'   => $today_amount / 10000,  //今日分润
             'withdraw' => $withdraw,  //提现总额
