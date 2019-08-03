@@ -23,6 +23,7 @@ class User extends Authenticatable
         'mobile',
         'alipay_account',
         'alipay_name',
+        'realname',
         'status',
         'initial_password',
         'activation_at',

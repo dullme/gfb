@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('mobile')->nullable()->comment('联系电话');
             $table->string('alipay_account')->nullable()->comment('支付宝账户');
             $table->string('alipay_name')->nullable()->comment('支付宝账户姓名');
+            $table->string('realname')->nullable()->comment('真实姓名');
             $table->boolean('status')->default(0)->comment('状态0:待售；1待激活；2:已激活；3:已冻结');
             $table->string('password');
             $table->integer('validity_period')->default(0)->comment('有效期限/月');

@@ -56,6 +56,7 @@ class UserController extends ResponseController {
             'mobile'         => 'required|mobile',
             'alipay_account' => 'required',
             'alipay_name'    => 'required',
+            'realname'    => 'required',
         ]);
 
         $user = User::find($user_data['id']);
@@ -71,6 +72,7 @@ class UserController extends ResponseController {
         $user->mobile = $request->get('mobile');
         $user->alipay_account = $request->get('alipay_account');
         $user->alipay_name = $request->get('alipay_name');
+        $user->realname = $request->get('realname');
         $user->status = 2;
         $user->activation_at = Carbon::now();
         $user->expiration_at = Carbon::now()->addMonth($user->validity_period);
