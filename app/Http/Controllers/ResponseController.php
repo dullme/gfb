@@ -36,11 +36,10 @@ class ResponseController extends Controller
     }
 
     public function responseError($message = '网络拥堵，请稍后重试！') {
-        $this->setStatusCode(422);
 
         return $this->response([
             'message' => $message,
-            'code' => $this->getStatusCode()
+            'code' => $this->getStatusCode() == 200 ? 422 : $this->getStatusCode()
         ], 200);
     }
 

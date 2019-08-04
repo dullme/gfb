@@ -49,7 +49,7 @@ class UserController extends ResponseController {
 
         $user_data = $this->myAuth($request);
         if(!$user_data){
-            return $this->responseError('请先登录');
+            return $this->setStatusCode(401)->responseError('请先登录');
         }
 
         $request->validate([
@@ -97,7 +97,7 @@ class UserController extends ResponseController {
     public function userInfo(Request $request) {
         $user_data = $this->myAuth($request);
         if(!$user_data){
-            return $this->responseError('请先登录');
+            return $this->setStatusCode(401)->responseError('请先登录');
         }
 
         $user = User::find($user_data['id']);
@@ -153,7 +153,7 @@ class UserController extends ResponseController {
         $user_data = $this->myAuth($request);
 
         if(!$user_data){
-            return $this->responseError('请先登录');
+            return $this->setStatusCode(401)->responseError('请先登录');
         }
 
         $user = User::find($user_data['id']);
@@ -192,7 +192,7 @@ class UserController extends ResponseController {
 
         $user_data = $this->myAuth($request);
         if(!$user_data){
-            return $this->responseError('请先登录');
+            return $this->setStatusCode(401)->responseError('请先登录');
         }
 
         $user = User::find($user_data['id']);
@@ -203,7 +203,7 @@ class UserController extends ResponseController {
     public function storeWithdraw(Request $request) {
         $user_data = $this->myAuth($request);
         if(!$user_data){
-            return $this->responseError('请先登录');
+            return $this->setStatusCode(401)->responseError('请先登录');
         }
 
         $user = User::find($user_data['id']);
