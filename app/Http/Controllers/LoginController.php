@@ -160,6 +160,7 @@ class LoginController extends ResponseController
         return $this->responseSuccess([
             'Coupon'        => 'https://www.baidu.com', //优惠券
             'version'       => '1.1.1', //版本号
+            'version_tips'       => '新版本上线啦！', //版本号
             'download'      => 'https://guafen.oss-cn-beijing.aliyuncs.com/guafen.apk', //新版本下载地址
             'agreement'     => 'https://www.baidu.com', //使用协议
             'strategy'      => 'https://www.baidu.com', //挣钱攻略
