@@ -37,23 +37,25 @@ class ResponseController extends Controller
 
     public function responseError($message = '网络拥堵，请稍后重试！') {
         $this->setStatusCode(422);
-        
+
         return $this->response([
-            'message' => $message
-        ], $this->getStatusCode());
+            'message' => $message,
+            'code' => $this->getStatusCode()
+        ], 200);
     }
 
     public function responseSuccess($data, $message = 'success') {
 
         return $this->response([
             'data' => $data,
+            'code' => $this->getStatusCode(),
             'message' => $message
-        ],$this->getStatusCode());
+        ]);
     }
 
     public function response($data) {
 
-        return response()->json($data, $this->getStatusCode());
+        return response()->json($data, 200);
     }
 
 }
