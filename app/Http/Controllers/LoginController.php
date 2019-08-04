@@ -137,7 +137,6 @@ class LoginController extends ResponseController
             'task'         => 'https://h5.m.taobao.com', //任务地址
             'time'         => $config['ad_frequency'], //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
-            'task_text'    => "每天早" . $config['ad_start_time'] . "到晚" . $config['ad_end_time'] . "限时开发", //任务内容
             'banner'       => [ //轮播图
                 [
                     'img' => 'http://guafen.oss-cn-beijing.aliyuncs.com/images/11.jpg',
@@ -157,6 +156,14 @@ class LoginController extends ResponseController
      */
     public function systemInfo()
     {
+        $config = $this->client->get('config');
+
+        if ($config) {
+            $config = json_decode($config, true);
+        } else {
+            $config = AdminConfig::select('name', 'value')->get()->pluck('value', 'name')->toArray();
+            $this->client->set('config', json_encode($config));
+        }
 
         return $this->responseSuccess([
             'Coupon'        => 'https://www.baidu.com', //优惠券
@@ -166,7 +173,10 @@ class LoginController extends ResponseController
             'agreement'     => 'https://www.baidu.com', //使用协议
             'strategy'      => 'https://www.baidu.com', //挣钱攻略
             'share'         => 'https://www.baidu.com', //分享
-            'withdraw_info' => '1、单次提现金额为100元的整数倍，如100，200;2、提现申请后，T+1个工作日内提现到注册时提供的支付宝账户;3、100积分可以折算成1元，5000积分=50元，以此类推;4、什么乱七八糟的随便写了一些东西'
+            'withdraw_info' => '1、单次提现金额为100元的整数倍，如100，200;2、提现申请后，T+1个工作日内提现到注册时提供的支付宝账户;3、100积分可以折算成1元，5000积分=50元，以此类推;4、什么乱七八糟的随便写了一些东西',
+            'task_text'    => "每天早" . $config['ad_start_time'] . "到晚" . $config['ad_end_time'] . "限时开放", //任务内容
+            'start_time'    => $config['ad_start_time'], //广告开始时间
+            'end_time'    => $config['ad_end_time'], //广告结束时间
         ]);
     }
 }
