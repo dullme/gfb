@@ -136,9 +136,7 @@ class ProfitController extends ResponseController
                 return [
                     'status'      => true,
                     'last_amount' => 0,
-                    'url'         => '',
                     'time'        => $seconds,
-                    'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
                 ];
             }
 
@@ -168,9 +166,8 @@ class ProfitController extends ResponseController
 
         if(!$this->canSee($user['id'])){
             return [
-                'status'      => true,
-                'last_amount' => "已增加".($my_amount / 10000)."积分",
-                'time'        => $config['ad_frequency'],
+                'status'      => false,
+                'message' => '请求频繁'
             ];
         }
 
@@ -180,7 +177,7 @@ class ProfitController extends ResponseController
 
         return [
             'status'      => true,
-            'last_amount' => $my_amount / 10000,
+            'last_amount' => "已增加".($my_amount / 10000)."积分",
             'time'        => $config['ad_frequency'],
         ];
 

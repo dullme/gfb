@@ -137,6 +137,7 @@ class LoginController extends ResponseController
             'task'         => 'https://h5.m.taobao.com', //任务地址
             'time'         => $config['ad_frequency'], //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
+            'task_text'    => "每天早" . $config['ad_start_time'] . "到晚" . $config['ad_end_time'] . "限时开发", //任务内容
             'banner'       => [ //轮播图
                 [
                     'img' => 'http://guafen.oss-cn-beijing.aliyuncs.com/images/11.jpg',
@@ -160,7 +161,7 @@ class LoginController extends ResponseController
         return $this->responseSuccess([
             'Coupon'        => 'https://www.baidu.com', //优惠券
             'version'       => '1.1.1', //版本号
-            'version_tips'       => '新版本上线啦！', //版本号
+            'version_tips'  => '新版本上线啦！', //版本号
             'download'      => 'https://guafen.oss-cn-beijing.aliyuncs.com/guafen.apk', //新版本下载地址
             'agreement'     => 'https://www.baidu.com', //使用协议
             'strategy'      => 'https://www.baidu.com', //挣钱攻略
