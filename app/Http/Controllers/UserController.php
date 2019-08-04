@@ -122,7 +122,6 @@ class UserController extends ResponseController
             'ad_fee'             => $amount['ad_fee'], //总金额
             'amount'             => ($amount['ad_fee'] * 10000 - $amount['amount'] * 10000) / 10000,    //可分配金额
             'withdraw'           => $amount['withdraw'],  //套现总额
-            'withdraw_info'      => '1、单次提现金额为100元的整数倍，如100，200;2、提现申请后，T+1个工作日内提现到注册时提供的支付宝账户;3、100积分可以折算成1元，5000积分=50元，以此类推;4、什么乱七八糟的随便写了一些东西'
         ], $this->withdrawInfo($user)));
     }
 
