@@ -174,8 +174,8 @@ class UserController extends ResponseController {
         $amount = ($user->amount + $user_today_amount) / 10000; //可用总金额
 
         return [
-            'use_amount'              => $amount, //可用总金额
-            'use_today_amount'        => $user_today_amount / 10000, //当日浏览总金额
+            'user_amount'              => $amount, //可用总金额
+            'user_today_amount'        => $user_today_amount / 10000, //当日浏览总金额
             'user_today_visit'        => (int) $user_today_visit, //当日浏览总次数
             'withdraw_amount'         => $this->canWithdrawAmount($amount), //可提现金额
             'history_amount'          => ($user->history_amount + $user_today_amount) / 10000,  //广告费总金额

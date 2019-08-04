@@ -26,6 +26,9 @@ Route::post('/token/refresh', 'LoginController@refresh');
 //初始化接口
 Route::get('/system-info', 'LoginController@systemInfo');
 
+//淘宝任务
+Route::get('/task', 'LoginController@task');
+
 /**
  * 需要 OAuth 认证
  */
