@@ -91,7 +91,7 @@ class UserController extends ResponseController {
         }
 
 
-        return $this->responseError('激活成功！');
+        return $this->responseSuccess(true,'激活成功！');
     }
 
     public function userInfo(Request $request) {
