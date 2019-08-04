@@ -143,6 +143,17 @@ class LoginController extends ResponseController
             'strategy'  => 'https://www.baidu.com', //挣钱攻略
             'share'     => 'https://www.baidu.com', //分享
             'time'      => $config['ad_frequency'], //第一次请求任务的间隔时间
+            'announcement'      => $config['announcement'], //公告
+            'banner' => [
+                [
+                    'img' => 'http://guafen.oss-cn-beijing.aliyuncs.com/images/11.jpg',
+                    'url' => 'https://www.baidu.com'
+                ],
+                [
+                    'img' => 'http://guafen.oss-cn-beijing.aliyuncs.com/images/10.jpg',
+                    'url' => null
+                ],
+            ]
         ]);
     }
 }

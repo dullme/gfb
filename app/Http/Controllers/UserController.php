@@ -77,10 +77,6 @@ class UserController extends ResponseController {
         $user->activation_at = Carbon::now();
         $user->expiration_at = Carbon::now()->addMonth($user->validity_period);
         $user->save();
-        if (!$user->save()) {
-
-            return $this->responseError('激活失败');
-        }
 
         $service = Service::all();
         $guzzle = new \GuzzleHttp\Client();
