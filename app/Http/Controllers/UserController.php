@@ -19,7 +19,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Predis\Client;
 
-class UserController extends ResponseController {
+class UserController extends ResponseController
+{
 
     protected $client;
     protected $redis;
@@ -34,7 +35,8 @@ class UserController extends ResponseController {
         $this->redis = new Client(config('database.redis.default'));
     }
 
-    public function updateUserInfo(Request $request) {
+    public function updateUserInfo(Request $request)
+    {
         $config = $this->client->get('config');
         if ($config) {
             $config = json_decode($config, true);
@@ -43,12 +45,12 @@ class UserController extends ResponseController {
             $this->client->set('config', json_encode($config));
         }
 
-        if(isset($config['maintenance']) && $config['maintenance'] != 'null'){
+        if (isset($config['maintenance']) && $config['maintenance'] != 'null') {
             return $this->responseError($config['maintenance']);
         }
 
         $user_data = $this->myAuth($request);
-        if(!$user_data){
+        if (!$user_data) {
             return $this->setStatusCode(401)->responseError('请先登录');
         }
 
@@ -56,7 +58,7 @@ class UserController extends ResponseController {
             'mobile'         => 'required|mobile',
             'alipay_account' => 'required',
             'alipay_name'    => 'required',
-            'realname'    => 'required',
+            'realname'       => 'required',
         ]);
 
         $user = User::find($user_data['id']);
@@ -80,19 +82,20 @@ class UserController extends ResponseController {
 
         $service = Service::all();
         $guzzle = new \GuzzleHttp\Client();
-        if(count($service)){
-            foreach ($service as $item){
+        if (count($service)) {
+            foreach ($service as $item) {
                 $guzzle->get("http://{$item->ip}:{$item->port}/update-redis?user_id={$user_data['id']}&token=1024gfb1024");
             }
         }
 
 
-        return $this->responseSuccess(true,'激活成功！');
+        return $this->responseSuccess(true, '激活成功！');
     }
 
-    public function userInfo(Request $request) {
+    public function userInfo(Request $request)
+    {
         $user_data = $this->myAuth($request);
-        if(!$user_data){
+        if (!$user_data) {
             return $this->setStatusCode(401)->responseError('请先登录');
         }
 
@@ -122,15 +125,16 @@ class UserController extends ResponseController {
         ], $this->withdrawInfo($user)));
     }
 
-    public function getTodayAmount() {
+    public function getTodayAmount()
+    {
         $info = $this->redis->get('info');
-        if($info){
-            $info = json_decode($info , true);
-        }else{
+        if ($info) {
+            $info = json_decode($info, true);
+        } else {
 
             $info = [
                 'ad_fee'   => CapitalPool::all()->sum('price'), //广告费总额
-                'amount'   => User::whereIn('status', [2,3])->sum('history_amount') / 10000,    //分润总额
+                'amount'   => User::whereIn('status', [2, 3])->sum('history_amount') / 10000,    //分润总额
                 'withdraw' => Withdraw::where('status', 2)->sum('price') / 10000,  //提现总额
             ];
 
@@ -145,10 +149,11 @@ class UserController extends ResponseController {
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function complex(Request $request) {
+    public function complex(Request $request)
+    {
         $user_data = $this->myAuth($request);
 
-        if(!$user_data){
+        if (!$user_data) {
             return $this->setStatusCode(401)->responseError('请先登录');
         }
 
@@ -165,7 +170,8 @@ class UserController extends ResponseController {
     }
 
 
-    public function withdrawInfo($user) {
+    public function withdrawInfo($user)
+    {
         $user_today_amount = $this->redis->get('a_' . $user->id . '_' . date('Ymd'));
         $user_today_amount = $user_today_amount ? $user_today_amount : 0;
         $user_today_visit = $this->redis->get('v_' . $user->id . '_' . date('Ymd')) ?: 0;;
@@ -174,9 +180,10 @@ class UserController extends ResponseController {
         $amount = ($user->amount + $user_today_amount) / 10000; //可用总金额
 
         return [
-            'user_amount'              => $amount, //可用总金额
-            'user_today_amount'        => $user_today_amount / 10000, //当日浏览总金额
-            'user_today_visit'        => (int) $user_today_visit, //当日浏览总次数
+            'user_amount'             => $amount, //可用总金额（可提现金额）
+            'user_today_amount'       => $user_today_amount / 10000, //当日浏览总金额 （今日金额）
+            'user_today_integral'     => $user_today_amount, //当日浏览总金额 （今日积分）
+            'user_today_visit'        => (int) $user_today_visit, //当日浏览总次数 （浏览次数）
             'withdraw_amount'         => $this->canWithdrawAmount($amount), //可提现金额
             'history_amount'          => ($user->history_amount + $user_today_amount) / 10000,  //广告费总金额
             'withdraw_finished'       => (int) $withdraw_finished->sum('price') / 10000,  //提现总金额
@@ -184,10 +191,11 @@ class UserController extends ResponseController {
         ];
     }
 
-    public function getWithdraw(Request $request) {
+    public function getWithdraw(Request $request)
+    {
 
         $user_data = $this->myAuth($request);
-        if(!$user_data){
+        if (!$user_data) {
             return $this->setStatusCode(401)->responseError('请先登录');
         }
 
@@ -196,15 +204,16 @@ class UserController extends ResponseController {
         return $this->responseSuccess($this->withdrawInfo($user));
     }
 
-    public function storeWithdraw(Request $request) {
+    public function storeWithdraw(Request $request)
+    {
         $user_data = $this->myAuth($request);
-        if(!$user_data){
+        if (!$user_data) {
             return $this->setStatusCode(401)->responseError('请先登录');
         }
 
         $user = User::find($user_data['id']);
 
-        if($user->status != 2){
+        if ($user->status != 2) {
             return $this->responseError('该卡异常，请联系客服！');
         }
 
@@ -223,9 +232,9 @@ class UserController extends ResponseController {
         }
 
         DB::beginTransaction(); //开启事务
-        try{
+        try {
             $user = User::lockForUpdate()->find($user->id);
-            if (($user->amount + $user_today_amount) - ($can_withdraw_amount * 10000) < 0){
+            if (($user->amount + $user_today_amount) - ($can_withdraw_amount * 10000) < 0) {
                 throw new \Exception('提现失败');
             }
             $user->amount -= $can_withdraw_amount * 10000;
@@ -235,14 +244,15 @@ class UserController extends ResponseController {
                 'user_id' => $user->id,
                 'price'   => $can_withdraw_amount * 10000,
             ]);
-            if($res1 && $res2){
+            if ($res1 && $res2) {
                 DB::commit();   // 保存修改
-            }else{
+            } else {
                 throw new \Exception('提现失败');
             }
 
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             DB::rollBack(); //回滚事务
+
             return $this->responseError($e->getMessage());
         }
 
@@ -260,7 +270,8 @@ class UserController extends ResponseController {
      * @param $user_amount
      * @return float|int
      */
-    public function canWithdrawAmount($user_amount) {
+    public function canWithdrawAmount($user_amount)
+    {
         $value = (int) ((float) $user_amount / 100);
 
         return $value ? $value * 100 : 0;
@@ -269,7 +280,8 @@ class UserController extends ResponseController {
     /**
      * 是否可以浏览广告
      */
-    public function canSeeAd() {
+    public function canSeeAd()
+    {
         $config = $this->client->get('config');
 
         if ($config) {
