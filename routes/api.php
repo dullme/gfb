@@ -23,6 +23,9 @@ Route::post('/logout', 'LoginController@userLogout');
 //重置Token
 Route::post('/token/refresh', 'LoginController@refresh');
 
+//初始化接口
+Route::get('/system-info', 'LoginController@systemInfo');
+
 /**
  * 需要 OAuth 认证
  */

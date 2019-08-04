@@ -106,4 +106,20 @@ class LoginController extends ResponseController
 
         return $this->proxy->refresh();
     }
+
+    /**
+     * 初始化接口
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function systemInfo()
+    {
+        return $this->responseSuccess([
+            'task' => 'https://h5.m.taobao.com', //淘宝任务
+            'Coupon' => 'https://www.baidu.com', //优惠券
+            'version' => '1.1.1', //版本号
+            'agreement' => 'https://www.baidu.com', //使用协议
+            'strategy' => 'https://www.baidu.com', //挣钱攻略
+            'share' => 'https://www.baidu.com', //分享
+        ]);
+    }
 }
