@@ -165,19 +165,12 @@ class ProfitController extends ResponseController
         }
         $my_amount = $this->getLast_amount($config, $user['expiration_at']);
 
-        $advertisement = Cache::remember('advertisement', 60, function () {
-            return Advertisement::where('status', 1)->select('img_uri', 'img')->get();
-        });
-
-        $res = $advertisement->random();
 
         if(!$this->canSee($user['id'])){
             return [
                 'status'      => true,
-                'last_amount' => $my_amount / 10000,
-                'url'         => $res->img_uri ?: 'http://guafen.oss-cn-beijing.aliyuncs.com/'.$res->img,
+                'last_amount' => "已增加".($my_amount / 10000)."积分",
                 'time'        => $config['ad_frequency'],
-                'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
             ];
         }
 
@@ -188,9 +181,7 @@ class ProfitController extends ResponseController
         return [
             'status'      => true,
             'last_amount' => $my_amount / 10000,
-            'url'         => $res->img_uri ?: 'http://guafen.oss-cn-beijing.aliyuncs.com/'.$res->img,
             'time'        => $config['ad_frequency'],
-            'text'        => $config['announcement'] != 'null' ? $config['announcement'] : null,
         ];
 
     }
