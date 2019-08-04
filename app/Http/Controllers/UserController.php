@@ -181,8 +181,8 @@ class UserController extends ResponseController
 
         return [
             'user_amount'             => $amount, //可用总金额（可提现金额）
-            'user_today_amount'       => $user_today_amount / 10000, //当日浏览总金额 （今日金额）
-            'user_today_integral'     => $user_today_amount, //当日浏览总金额 （今日积分）
+            'user_today_amount'       => ($user_today_amount / 10000).'元', //当日浏览总金额 （今日金额）
+            'user_today_integral'     => $user_today_amount.'积分', //当日浏览总金额 （今日积分）
             'user_today_visit'        => (int) $user_today_visit, //当日浏览总次数 （浏览次数）
             'withdraw_amount'         => $this->canWithdrawAmount($amount), //可提现金额
             'history_amount'          => ($user->history_amount + $user_today_amount) / 10000,  //广告费总金额
