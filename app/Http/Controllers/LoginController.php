@@ -134,7 +134,7 @@ class LoginController extends ResponseController
         }
 
         return $this->responseSuccess([
-            'task'         => 'https://h5.m.taobao.com', //任务地址
+            'task'         => 'https://taobao.com', //任务地址
             'time'         => $config['ad_frequency'], //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
             'banner'       => [ //轮播图
