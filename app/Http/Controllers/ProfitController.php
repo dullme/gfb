@@ -177,7 +177,7 @@ class ProfitController extends ResponseController
 
         return [
             'status'      => true,
-            'last_amount' => "已增加".($my_amount / 10000)."积分",
+            'last_amount' => "已增加{$my_amount}积分",
             'time'        => $config['ad_frequency'],
         ];
 
@@ -191,16 +191,19 @@ class ProfitController extends ResponseController
      */
     public function getLast_amount($config, $expiration_at)
     {
-        $my_amount = round($config['daily_ad_revenue'] / $config['max_visits'], 4);
 
-        if($config['expiration_days'] != 'null'){
-            $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $expiration_at)->subDays($config['expiration_days']);
-            if($expiration_at->lt(Carbon::now())){
-                $my_amount = round($config['daily_ad_revenue_by_expiration_days'] / $config['max_visits'], 4);
-            }
-        }
+        return (int) (round(intval($config['single_point']) / $config['redeem'], 4) * 10000);
 
-        return (int) (round($my_amount + randFloat(0.0001, 0.003), 4) * 10000);
+//        $my_amount = round($config['daily_ad_revenue'] / $config['max_visits'], 4);
+
+//        if($config['expiration_days'] != 'null'){
+//            $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $expiration_at)->subDays($config['expiration_days']);
+//            if($expiration_at->lt(Carbon::now())){
+//                $my_amount = round($config['daily_ad_revenue_by_expiration_days'] / $config['max_visits'], 4);
+//            }
+//        }
+
+//        return (int) (round($my_amount + randFloat(0.0001, 0.003), 4) * 10000);
     }
 
     public function canSee($user_id) {
