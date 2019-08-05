@@ -167,7 +167,7 @@ class LoginController extends ResponseController
             'Coupon'        => $config['coupon'], //优惠券
             'version'       => $config['version'], //版本号
             'version_tips'  => $config['version_tips'], //版本提示
-            'download'      => $config['download'], //新版本下载地址
+            'download'      => $config['app_download'], //新版本下载地址
             'agreement'     => $config['agreement'], //使用协议
             'strategy'      => $config['strategy'], //挣钱攻略
             'share'         => $config['share'], //分享
