@@ -31,5 +31,6 @@ Route::group([
     $router->post('withdraw/changeStatus', 'WithdrawController@changeStatus');
 
     $router->resource('capital-pool', CapitalPoolController::class);
+    $router->resource('page', PageController::class);
 
 });

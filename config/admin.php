@@ -289,7 +289,11 @@ return [
     |
     */
     'extensions' => [
+        'media-manager' => [
 
+            // Select a local disk that you configured in `config/filesystem.php`
+            'disk' => 'local'
+        ],
     ],
 
     'local_ip' => env('LOCAL_IP', '127.0.0.1')
