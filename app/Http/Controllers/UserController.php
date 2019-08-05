@@ -118,7 +118,7 @@ class UserController extends ResponseController
             'alipay_name'        => $user->alipay_name,
             'activation_date_at' => substr($user->activation_at, 0, 10),
             'activation_time_at' => substr($user->activation_at, 11),
-            'expiration_at'      => $user->expiration_at,
+            'expiration_at'      => Carbon::createFromFormat('Y-m-d H:i:s',$user->expiration_at)->diffInDays().'天',
             'ad_fee'             => $amount['ad_fee'], //总金额
             'amount'             => ($amount['ad_fee'] * 10000 - $amount['amount'] * 10000) / 10000,    //可分配金额
             'withdraw'           => $amount['withdraw'],  //套现总额
@@ -182,7 +182,7 @@ class UserController extends ResponseController
         return [
             'user_amount'             => $amount, //可用总金额（可提现金额）
             'user_today_amount'       => ($user_today_amount / 10000) . '元', //当日浏览总金额 （今日金额）
-            'user_today_integral'     => $user_today_amount . '积分', //当日浏览总金额 （今日积分）
+            'user_today_integral'     => $user_today_amount, //当日浏览总金额 （今日积分）
             'user_today_visit'        => (int) $user_today_visit, //当日浏览总次数 （浏览次数）
             'withdraw_amount'         => $this->canWithdrawAmount($amount), //可提现金额
             'history_amount'          => ($user->history_amount + $user_today_amount) / 10000,  //广告费总金额
