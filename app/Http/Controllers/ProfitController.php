@@ -175,6 +175,8 @@ class ProfitController extends ResponseController
         $this->redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
         $this->redis->set('see_'.$user['id'], Carbon::now()->addSeconds($config['ad_frequency']));
 
+        $my_amount = $my_amount / 100;
+
         return [
             'status'      => true,
             'last_amount' => "已增加{$my_amount}积分",
