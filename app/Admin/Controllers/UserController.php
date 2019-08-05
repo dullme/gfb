@@ -138,7 +138,7 @@ class UserController extends Controller
         $grid->id('用户名');
         $grid->original_price('发行价');
         $grid->retail_price('零售价');
-        $grid->validity_period('有效期限/月')->sortable();
+        $grid->validity_period('有效期限/天')->sortable();
         $grid->mobile('电话');
         $grid->alipay_account('支付宝账户');
         $grid->alipay_name('支付宝账户姓名');

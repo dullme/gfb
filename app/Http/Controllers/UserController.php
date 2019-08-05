@@ -77,7 +77,7 @@ class UserController extends ResponseController
         $user->realname = $request->get('realname');
         $user->status = 2;
         $user->activation_at = Carbon::now();
-        $user->expiration_at = Carbon::now()->addMonth($user->validity_period);
+        $user->expiration_at = Carbon::now()->addDays($user->validity_period);
         $user->save();
 
         $service = Service::all();
