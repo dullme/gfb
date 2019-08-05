@@ -164,7 +164,7 @@ class LoginController extends ResponseController
         }
 
         return $this->responseSuccess([
-            'Coupon'        => $config['coupon'], //优惠券
+            'coupon'        => $config['coupon'], //优惠券
             'version'       => $config['version'], //版本号
             'version_tips'  => $config['version_tips'], //版本提示
             'download'      => $config['app_download'], //新版本下载地址

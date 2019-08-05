@@ -6,6 +6,8 @@
         <title>{{ $page->title }}</title>
     </head>
     <body>
-        {!! $page->text !!}
+        <div style="width: 100%">
+            {!! $page->text !!}
+        </div>
     </body>
 </html>
