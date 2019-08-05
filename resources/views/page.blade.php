@@ -5,7 +5,7 @@
         <meta name = "viewport" content="width=device-width,initial-scale=1.0 user-scalable = no , maximum-scale=1.0">
         <title>{{ $page->title }}</title>
     </head>
-    <body>
+    <body style="margin: 0; padding: 0;">
         <div style="width: 100%">
             {!! $page->text !!}
         </div>
