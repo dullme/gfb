@@ -136,7 +136,7 @@ class LoginController extends ResponseController
 
         $advertisement = Advertisement::where('status', 1)->select('img', 'img_uri as url')->orderBy('id', 'DESC')->take(5)->get();
         $advertisement = $advertisement->map(function ($item){
-            $item['img'] = 'http://guafen.oss-cn-beijing.aliyuncs.com/'.$item['img'];
+            $item['img'] = 'http://taofubao.oss-cn-beijing.aliyuncs.com/'.$item['img'];
             return $item;
         });
 
