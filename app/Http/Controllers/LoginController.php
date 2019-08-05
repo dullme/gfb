@@ -134,7 +134,7 @@ class LoginController extends ResponseController
         }
 
         return $this->responseSuccess([
-            'task'         => 'https://taobao.com', //任务地址
+            'task'         => $config['task'], //任务地址
             'time'         => $config['ad_frequency'], //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
             'banner'       => [ //轮播图
@@ -166,14 +166,14 @@ class LoginController extends ResponseController
         }
 
         return $this->responseSuccess([
-            'Coupon'        => 'https://www.baidu.com', //优惠券
-            'version'       => '1.1.1', //版本号
-            'version_tips'  => '新版本上线啦！', //版本号
-            'download'      => 'https://guafen.oss-cn-beijing.aliyuncs.com/guafen.apk', //新版本下载地址
-            'agreement'     => 'https://www.baidu.com', //使用协议
-            'strategy'      => 'https://www.baidu.com', //挣钱攻略
-            'share'         => 'https://www.baidu.com', //分享
-            'withdraw_info' => '1、单次提现金额为100元的整数倍，如100，200;2、提现申请后，T+1个工作日内提现到注册时提供的支付宝账户;3、100积分可以折算成1元，5000积分=50元，以此类推;4、什么乱七八糟的随便写了一些东西',
+            'Coupon'        => $config['coupon'], //优惠券
+            'version'       => $config['version'], //版本号
+            'version_tips'  => $config['version_tips'], //版本提示
+            'download'      => $config['download'], //新版本下载地址
+            'agreement'     => $config['agreement'], //使用协议
+            'strategy'      => $config['strategy'], //挣钱攻略
+            'share'         => $config['share'], //分享
+            'withdraw_info' => $config['withdraw_info'],
             'task_text'    => "每天早" . $config['ad_start_time'] . "到晚" . $config['ad_end_time'] . "限时开放", //任务内容
             'start_time'    => $config['ad_start_time'], //广告开始时间
             'end_time'    => $config['ad_end_time'], //广告结束时间
