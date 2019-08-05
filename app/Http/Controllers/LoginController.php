@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Proxy\TokenProxy;
 use App\Http\Requests\LoginRequest;
 use App\Models\AdminConfig;
+use App\Models\Advertisement;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -133,20 +134,17 @@ class LoginController extends ResponseController
             $this->client->set('config', json_encode($config));
         }
 
+        $advertisement = Advertisement::where('status', 1)->select('img', 'img_uri as url')->orderBy('id', 'DESC')->take(5)->get();
+        $advertisement = $advertisement->map(function ($item){
+            $item['img'] = 'http://guafen.oss-cn-beijing.aliyuncs.com/'.$item['img'];
+            return $item;
+        });
+
         return $this->responseSuccess([
             'task'         => $config['task'], //任务地址
             'time'         => intval($config['ad_frequency']), //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
-            'banner'       => [ //轮播图
-                [
-                    'img' => 'http://guafen.oss-cn-beijing.aliyuncs.com/images/11.jpg',
-                    'url' => 'https://www.baidu.com'
-                ],
-                [
-                    'img' => 'http://guafen.oss-cn-beijing.aliyuncs.com/images/10.jpg',
-                    'url' => null
-                ],
-            ]
+            'banner'       => $advertisement
         ]);
     }
 

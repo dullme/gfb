@@ -13,8 +13,8 @@ function getUserStatus($key = null){
 
 function getAdvertisementStatus($key = null){
     $data = [
-        '0' => '下架',
-        '1' => '上架',
+        '0' => '隐藏',
+        '1' => '显示',
     ];
 
     return is_null($key) ? $data : $data[$key];
