@@ -23,8 +23,8 @@ class PageController extends Controller
     public function index(Content $content)
     {
         return $content
-            ->header('Index')
-            ->description('description')
+            ->header('单网页')
+            ->description(' ')
             ->body($this->grid());
     }
 
@@ -38,8 +38,8 @@ class PageController extends Controller
     public function show($id, Content $content)
     {
         return $content
-            ->header('Detail')
-            ->description('description')
+            ->header('详情')
+            ->description(' ')
             ->body($this->detail($id));
     }
 
@@ -53,8 +53,8 @@ class PageController extends Controller
     public function edit($id, Content $content)
     {
         return $content
-            ->header('Edit')
-            ->description('description')
+            ->header('编辑')
+            ->description(' ')
             ->body($this->form()->edit($id));
     }
 
@@ -67,8 +67,8 @@ class PageController extends Controller
     public function create(Content $content)
     {
         return $content
-            ->header('Create')
-            ->description('description')
+            ->header('新增')
+            ->description(' ')
             ->body($this->form());
     }
 
@@ -80,8 +80,25 @@ class PageController extends Controller
     protected function grid()
     {
         $grid = new Grid(new Page);
+        $grid->model()->orderBy('id', 'DESC');
+        $grid->title('标题');
+        $grid->id('地址')->display(function ($id){
+            return url('page/'.$id);
+        });
 
+        $grid->actions(function ($actions) {
 
+//            // 去掉删除
+//            $actions->disableDelete();
+
+            // 去掉编辑
+//            $actions->disableEdit();
+
+            // 去掉查看
+            $actions->disableView();
+        });
+
+        $grid->disableExport();//禁用导出数据按钮
 
         return $grid;
     }
@@ -110,7 +127,8 @@ class PageController extends Controller
     {
         $form = new Form(new Page);
 
-
+        $form->text('title', '标题')->rules('required');
+        $form->UEditor('text', '内容')->rules('required');
 
         return $form;
     }

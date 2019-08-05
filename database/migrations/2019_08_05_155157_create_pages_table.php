@@ -15,8 +15,9 @@ class CreatePagesTable extends Migration
     {
         Schema::create('pages', function (Blueprint $table) {
             $table->increments('id');
-            $table->longText('text');
+            $table->string('title')->comment('标题');
             $table->string('url')->nullable()->comment('当前页地址');
+            $table->longText('text');
             $table->timestamps();
         });
     }

@@ -23,3 +23,5 @@ Route::get('update-main-redis', 'RouteController@updateMainRedis');
 Route::get('add-user-validity-period', 'RouteController@addUserValidityPeriod');
 
 //Route::get('doing', 'RouteController@doing');
+
+Route::get('page/{id}', 'PageController@show');
