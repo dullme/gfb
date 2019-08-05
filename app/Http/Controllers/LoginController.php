@@ -135,7 +135,7 @@ class LoginController extends ResponseController
 
         return $this->responseSuccess([
             'task'         => $config['task'], //任务地址
-            'time'         => $config['ad_frequency'], //第一次请求任务的间隔时间
+            'time'         => intval($config['ad_frequency']), //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
             'banner'       => [ //轮播图
                 [

@@ -180,7 +180,7 @@ class ProfitController extends ResponseController
         return [
             'status'      => true,
             'last_amount' => "已增加{$my_amount}积分",
-            'time'        => $config['ad_frequency'],
+            'time'        => intval($config['ad_frequency']),
         ];
 
     }

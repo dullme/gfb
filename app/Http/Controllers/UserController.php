@@ -293,7 +293,7 @@ class UserController extends ResponseController
 
         return $this->responseSuccess([
             'status' => true,
-            'time'   => $config['ad_frequency'],
+            'time'   => intval($config['ad_frequency']),
             'text'   => $config['announcement'] != 'null' ? $config['announcement'] : null,
         ]);
     }
