@@ -211,7 +211,7 @@ class UserController extends Controller
         $show->id('用户名');
         $show->original_price('发行价');
         $show->retail_price('零售价');
-        $show->validity_period('有效期限/月');
+        $show->validity_period('有效期限/天');
         $show->mobile('电话');
         $show->alipay_account('支付宝账号');
         $show->alipay_name('支付宝用户名');
@@ -237,7 +237,7 @@ class UserController extends Controller
         $form = new Form(new User);
 
         $form->number('number', '新增数量')->rules('required|numeric|min:1|max:50')->default(1);
-        $form->number('validity_period', '有效期限/月')->rules('required|numeric|min:1')->default(3);
+        $form->number('validity_period', '有效期限/天')->rules('required|numeric|min:1')->default(3);
         $form->decimal('original_price', '发行价')->rules('required|numeric');
         $form->decimal('retail_price', '零售价')->rules('required|numeric');
 
@@ -259,7 +259,7 @@ class UserController extends Controller
         $form->text('id', '用户名')->readOnly();
         $form->decimal('original_price', '发行价');
         $form->decimal('retail_price', '零售价');
-//        $form->number('validity_period', '有效期限/月');
+//        $form->number('validity_period', '有效期限/天');
         $form->text('alipay_name', '支付宝用户名');
         $form->text('alipay_account', '支付宝账号');
         $form->text('mobile', '联系电话');
