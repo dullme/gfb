@@ -185,7 +185,7 @@ class ProfitController extends ResponseController
 
         return [
             'status'      => true,
-            'url'         => $res->img_uri ?: 'http://guafen.oss-cn-beijing.aliyuncs.com/'.$res->img,
+            'url'         => $res->img_uri ?: 'http://taofubao.oss-cn-beijing.aliyuncs.com/'.$res->img,
             'text' => '获取积分中...',
             'last_amount' => "已增加{$my_amount}积分",
             'time'        => intval($config['ad_frequency']),
