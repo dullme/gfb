@@ -111,7 +111,29 @@ class UserController extends ResponseController
 
         $amount = $this->getTodayAmount();
 
+        $a = $this->withdrawInfo($user);
+
         return $this->responseSuccess(array_merge([
+            'amount' => [
+                [
+                    'name' => '今日金额',
+                    'text' => $a['user_today_amount'],
+                ],
+                [
+                    'name' => '昨日金额',
+                    'text' => 44.5,
+                ],
+            ],
+            'integral' => [
+                [
+                    'name' => '今日积分',
+                    'text' => $a['user_today_integral'],
+                ],
+                [
+                    'name' => '昨日积分',
+                    'text' => 44500,
+                ],
+            ],
             'username'           => $user->id,
             'mobile'             => $user->mobile,
             'alipay_account'     => $user->alipay_account,
