@@ -166,6 +166,18 @@ class UserController extends ResponseController
             'visits'             => $visits ?: 0,
             'history_read_count' => $user->history_read_count,
             'history_amount'     => $user->history_amount / 10000,
+            'others' => [
+                [
+                    'title' => '标题',
+                    'name' => '自定义名称',
+                    'text' => '对应的值',
+                ],
+                [
+                    'title' => '标题2',
+                    'name' => '自定义名称2',
+                    'text' => '对应的值2',
+                ],
+            ]
         ]);
     }
 
