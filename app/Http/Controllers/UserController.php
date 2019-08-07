@@ -162,22 +162,26 @@ class UserController extends ResponseController
         $visits = $this->redis->get('v_' . $user->id . '_' . date('Ymd'));
 
         return $this->responseSuccess([
-            'today_amount'       => $today_amount ? $today_amount / 10000 : 0,
-            'visits'             => $visits ?: 0,
-            'history_read_count' => $user->history_read_count,
-            'history_amount'     => $user->history_amount / 10000,
-            'others' => [
-                [
-                    'title' => '标题',
-                    'name' => '自定义名称',
-                    'text' => '对应的值',
-                ],
-                [
-                    'title' => '标题2',
-                    'name' => '自定义名称2',
-                    'text' => '对应的值2',
-                ],
-            ]
+            [
+                'title' => '积分记录',
+                'name' => '今日积分',
+                'text' => $today_amount ? $today_amount / 10000 : 0,
+            ],
+            [
+                'title' => '积分历史',
+                'name' => '昨日积分',
+                'text' => '333',
+            ],
+            [
+                'title' => '浏览记录',
+                'name' => '今日浏览数',
+                'text' => $visits ?: 0,
+            ],
+            [
+                'title' => '提现',
+                'name' => '提现总金额',
+                'text' => $user->history_amount / 10000,
+            ],
         ]);
     }
 
