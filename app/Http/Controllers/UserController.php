@@ -114,7 +114,7 @@ class UserController extends ResponseController
         $a = $this->withdrawInfo($user);
 
         return $this->responseSuccess(array_merge([
-            'amount' => [
+            'text_amount' => [
                 [
                     'name' => '今日金额',
                     'text' => $a['user_today_amount'],
@@ -124,7 +124,7 @@ class UserController extends ResponseController
                     'text' => 44.5,
                 ],
             ],
-            'integral' => [
+            'text_integral' => [
                 [
                     'name' => '今日积分',
                     'text' => $a['user_today_integral'],
