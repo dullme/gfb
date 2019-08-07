@@ -114,25 +114,33 @@ class UserController extends ResponseController
         $a = $this->withdrawInfo($user);
 
         return $this->responseSuccess(array_merge([
-            'text_amount' => [
+            'index_text' => [
                 [
-                    'name' => '今日金额',
-                    'text' => $a['user_today_amount'],
+                    'name' => '积分折算',
+                    'text' => [
+                        [
+                            'name' => '今日金额',
+                            'text' => $a['user_today_amount'],
+                        ],
+                        [
+                            'name' => '昨日金额',
+                            'text' => 44.5,
+                        ],
+                    ]
                 ],
                 [
-                    'name' => '昨日金额',
-                    'text' => 44.5,
-                ],
-            ],
-            'text_integral' => [
-                [
-                    'name' => '今日积分',
-                    'text' => $a['user_today_integral'],
-                ],
-                [
-                    'name' => '昨日积分',
-                    'text' => 44500,
-                ],
+                    'name' => '现金折算',
+                    'text' => [
+                        [
+                            'name' => '今日积分',
+                            'text' => $a['user_today_integral'],
+                        ],
+                        [
+                            'name' => '昨日积分',
+                            'text' => 44500,
+                        ],
+                    ]
+                ]
             ],
             'username'           => $user->id,
             'mobile'             => $user->mobile,
