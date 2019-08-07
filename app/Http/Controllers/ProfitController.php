@@ -137,6 +137,7 @@ class ProfitController extends ResponseController
                     'status'      => true,
                     'last_amount' => 0,
                     'time'        => $seconds,
+                    'url' => ''
                 ];
             }
 
@@ -171,6 +172,11 @@ class ProfitController extends ResponseController
             ];
         }
 
+        $advertisement = Cache::remember('advertisement', 60, function () {
+            return Advertisement::where('status', 1)->select('img_uri', 'img')->get();
+        });
+        $res = $advertisement->random();
+
         $this->redis->incrby('v_' . $user['id'] . '_' . date('Ymd'), 1);
         $this->redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
         $this->redis->set('see_'.$user['id'], Carbon::now()->addSeconds($config['ad_frequency']));
@@ -179,6 +185,8 @@ class ProfitController extends ResponseController
 
         return [
             'status'      => true,
+            'url'         => $res->img_uri ?: 'http://guafen.oss-cn-beijing.aliyuncs.com/'.$res->img,
+            'text' => '获取积分中...',
             'last_amount' => "已增加{$my_amount}积分",
             'time'        => intval($config['ad_frequency']),
         ];
