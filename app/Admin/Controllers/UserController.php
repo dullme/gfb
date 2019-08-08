@@ -136,8 +136,8 @@ class UserController extends Controller
         $grid->model()->where('status', $status)->orderBy('id', 'desc');
 
         $grid->id('用户名');
-        $grid->original_price('发行价');
-        $grid->retail_price('零售价');
+//        $grid->original_price('发行价');
+//        $grid->retail_price('零售价');
         $grid->validity_period('有效期限/天')->sortable();
         $grid->mobile('电话');
         $grid->alipay_account('支付宝账户');
@@ -160,6 +160,7 @@ class UserController extends Controller
 
             return $value ?: '—';
         })->sortable();
+        $grid->remarks('备注');
 
         $grid->actions(function ($action) {
             $action->disableDelete();
@@ -179,7 +180,7 @@ class UserController extends Controller
             $url2 = url('admin/add-days');
             $tools->append(new UserTool());
             $tools->append("<a class='btn btn-sm btn-info' href='{$url}'>批量修改有效期</a>");
-            $tools->append("<a class='btn btn-sm btn-warning' href='{$url2}'>增加天数</a>");
+            $tools->append("<a class='btn btn-sm btn-warning' href='{$url2}'>增加/减少天数</a>");
             $tools->batch(function ($batch) {
                 $batch->add('出售', new ChangeUserStatus(1));
                 $batch->add('冻结', new ChangeUserStatus(3));
@@ -209,8 +210,8 @@ class UserController extends Controller
         $show = new Show(User::findOrFail($id));
 
         $show->id('用户名');
-        $show->original_price('发行价');
-        $show->retail_price('零售价');
+//        $show->original_price('发行价');
+//        $show->retail_price('零售价');
         $show->validity_period('有效期限/天');
         $show->mobile('电话');
         $show->alipay_account('支付宝账号');
@@ -223,6 +224,7 @@ class UserController extends Controller
 
             return $value ? substr($value, 0, 10) : '—';
         });
+        $show->remarks('备注');
 
         return $show;
     }
@@ -238,8 +240,8 @@ class UserController extends Controller
 
         $form->number('number', '新增数量')->rules('required|numeric|min:1|max:50')->default(1);
         $form->number('validity_period', '有效期限/天')->rules('required|numeric|min:1')->default(3);
-        $form->decimal('original_price', '发行价')->rules('required|numeric');
-        $form->decimal('retail_price', '零售价')->rules('required|numeric');
+//        $form->decimal('original_price', '发行价')->rules('required|numeric');
+//        $form->decimal('retail_price', '零售价')->rules('required|numeric');
 
         $form->tools(function (Form\Tools $tools) {
             $tools->disableDelete();
@@ -257,8 +259,8 @@ class UserController extends Controller
         $form = new Form(new User);
 
         $form->text('id', '用户名')->readOnly();
-        $form->decimal('original_price', '发行价');
-        $form->decimal('retail_price', '零售价');
+//        $form->decimal('original_price', '发行价');
+//        $form->decimal('retail_price', '零售价');
 //        $form->number('validity_period', '有效期限/天');
         $form->text('alipay_name', '支付宝用户名');
         $form->text('alipay_account', '支付宝账号');
@@ -272,6 +274,8 @@ class UserController extends Controller
             ->default(function ($form) {
                 return $form->model()->password;
             });
+
+        $form->textarea('remarks', '备注');
 
         $form->ignore(['password_confirmation']);
         $form->tools(function (Form\Tools $tools) {
@@ -295,20 +299,20 @@ class UserController extends Controller
         $request->validate([
             'number'          => 'required|numeric|min:1|max:10000',
             'validity_period' => 'required|numeric|min:1',
-            'original_price'  => 'required|numeric',
-            'retail_price'    => 'required|numeric',
+//            'original_price'  => 'required|numeric',
+//            'retail_price'    => 'required|numeric',
         ]);
         $datetime = Carbon::now();
-        $original_price = $request->get('original_price');
-        $retail_price = $request->get('retail_price');
+//        $original_price = $request->get('original_price');
+//        $retail_price = $request->get('retail_price');
         $validity_period = $request->get('validity_period');
 
         for ($i = 0; $i < $request->get('number'); $i++) {
             $password = makeInvitationCode(6);
             $data[$i]['password'] = md5($password);
             $data[$i]['initial_password'] = $password;
-            $data[$i]['original_price'] = $original_price;
-            $data[$i]['retail_price'] = $retail_price;
+//            $data[$i]['original_price'] = $original_price;
+//            $data[$i]['retail_price'] = $retail_price;
             $data[$i]['created_at'] = $datetime;
             $data[$i]['updated_at'] = $datetime;
             $data[$i]['validity_period'] = $validity_period;
@@ -606,7 +610,7 @@ class UserController extends Controller
     public function showAddDays(Content $content)
     {
         return $content
-            ->header('增加天数')
+            ->header('增加/减少天数')
             ->description(' ')
             ->body(view('admin.addDays'));
     }
@@ -615,14 +619,27 @@ class UserController extends Controller
     {
         $request->validate([
             'add_validity_period' => 'required|integer|min:1',
+            'type' => 'required|integer|min:1',
         ]);
 
         $add_days = $request->input('add_validity_period');
+        $type = $request->input('type');
 
-        $users = DB::update(
-            'update users set expiration_at= DATE_ADD(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
-            [$add_days, Carbon::now()]
-        );
+        if($type == 1){ //增加
+            $type_text = '增加';
+            $users = DB::update(
+                'update users set expiration_at= DATE_ADD(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
+                [$add_days, Carbon::now()]
+            );
+        }else{ //减少
+            $type_text = '减少';
+            $users = DB::update(
+                'update users set expiration_at= DATE_SUB(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
+                [$add_days, Carbon::now()]
+            );
+        }
+
+
 
         if($users){
             $service = Service::all();
@@ -635,7 +652,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status'  => true,
-                'message' => '成功为'. $users .'位用户增加了'.$add_days.'天有效期,成功清空所有服务器的Redis数据！'
+                'message' => '成功为'. $users .'位用户'.$type_text.'了'.$add_days.'天有效期,成功清空所有服务器的Redis数据！'
             ]);
         }else{
             return response()->json([

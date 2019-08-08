@@ -124,7 +124,7 @@ class UserController extends ResponseController
                         ],
                         [
                             'name' => '昨日金额',
-                            'text' => 44.5,
+                            'text' => $a['user_amount'],
                         ],
                     ]
                 ],
@@ -137,7 +137,7 @@ class UserController extends ResponseController
                         ],
                         [
                             'name' => '昨日积分',
-                            'text' => 44500,
+                            'text' => $a['user_amount'] * 100,
                         ],
                     ]
                 ]
@@ -189,7 +189,8 @@ class UserController extends ResponseController
 
         $user = User::find($user_data['id']);
         $today_amount = $this->redis->get('a_' . $user->id . '_' . date('Ymd'));
-        $visits = $this->redis->get('v_' . $user->id . '_' . date('Ymd'));
+//        $visits = $this->redis->get('v_' . $user->id . '_' . date('Ymd'));
+        $a = $this->withdrawInfo($user);
 
         return $this->responseSuccess([
             [
@@ -200,13 +201,13 @@ class UserController extends ResponseController
             [
                 'title' => '积分历史',
                 'name' => '昨日积分',
-                'text' => '333',
+                'text' => $a['user_amount'] * 100,
             ],
-            [
-                'title' => '浏览记录',
-                'name' => '今日浏览数',
-                'text' => $visits ?: 0,
-            ],
+//            [
+//                'title' => '浏览记录',
+//                'name' => '今日浏览数',
+//                'text' => $visits ?: 0,
+//            ],
             [
                 'title' => '提现',
                 'name' => '提现总金额',
