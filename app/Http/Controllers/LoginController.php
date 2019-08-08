@@ -136,6 +136,13 @@ class LoginController extends ResponseController
 
         $banner = explode(';', $config['banner']);
 
+        $banner = collect($banner)->map(function ($item){
+            return [
+                'img' => $item,
+                'url' => null,
+            ];
+        });
+
         return $this->responseSuccess([
             'task'         => $config['task'], //任务地址
             'time'         => intval($config['ad_frequency']), //第一次请求任务的间隔时间
