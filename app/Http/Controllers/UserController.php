@@ -137,7 +137,7 @@ class UserController extends ResponseController
                         ],
                         [
                             'name' => '昨日积分',
-                            'text' => $a['user_amount'] * 100,
+                            'text' => intval($a['user_amount'] * 100),
                         ],
                     ]
                 ]
@@ -201,7 +201,7 @@ class UserController extends ResponseController
             [
                 'title' => '积分历史',
                 'name' => '昨日积分',
-                'text' => $a['user_amount'] * 100,
+                'text' => intval($a['user_amount'] * 100),
             ],
 //            [
 //                'title' => '浏览记录',
@@ -224,7 +224,7 @@ class UserController extends ResponseController
         $user_today_visit = $this->redis->get('v_' . $user->id . '_' . date('Ymd')) ?: 0;;
         $withdraw_finished = Withdraw::where('user_id', $user->id);
 
-        $amount = ($user->amount + $user_today_amount) / 10000; //可用总金额
+        $amount = $user->amount / 10000; //可用总金额
 
         return [
             'user_amount'             => $amount, //可用总金额（可提现金额）
