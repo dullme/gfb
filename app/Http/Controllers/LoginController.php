@@ -134,9 +134,14 @@ class LoginController extends ResponseController
             $this->client->set('config', json_encode($config));
         }
 
+        $advertisement = Cache::remember('advertisement', 60, function () {
+            return Advertisement::where('status', 1)->select('img_uri', 'img')->get();
+        });
+        $res = $advertisement->random();
+
         $banner = explode(';', $config['banner']);
 
-        $banner = collect($banner)->map(function ($item){
+        $banner = collect($banner)->map(function ($item) {
             return [
                 'img' => $item,
                 'url' => null,
@@ -147,7 +152,9 @@ class LoginController extends ResponseController
             'task'         => $config['task'], //任务地址
             'time'         => intval($config['ad_frequency']), //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
-            'banner'       => $banner
+            'banner'       => $banner,
+            'url'          => $res->img_uri ?: 'http://taofubao.oss-cn-beijing.aliyuncs.com/' . $res->img,
+            'text'         => $config['first_task_text'],
         ]);
     }
 
@@ -175,9 +182,9 @@ class LoginController extends ResponseController
             'strategy'      => $config['strategy'], //挣钱攻略
             'share'         => $config['share'], //分享
             'withdraw_info' => $config['withdraw_info'],
-            'task_text'    => "每天早" . $config['ad_start_time'] . "到晚" . $config['ad_end_time'] . "限时开放", //任务内容
+            'task_text'     => "每天早" . $config['ad_start_time'] . "到晚" . $config['ad_end_time'] . "限时开放", //任务内容
             'start_time'    => $config['ad_start_time'], //广告开始时间
-            'end_time'    => $config['ad_end_time'], //广告结束时间
+            'end_time'      => $config['ad_end_time'], //广告结束时间
         ]);
     }
 }

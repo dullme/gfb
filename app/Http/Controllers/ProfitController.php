@@ -35,18 +35,18 @@ class ProfitController extends ResponseController
             $user = $this->getUserFromRedis($token['id']);
             if ($user && $user['token'] == $token['token']) {  //认证成功
                 $ready = $this->ready($user, $request);
-                if($ready['status']){
+                if ($ready['status']) {
                     return $this->responseSuccess($ready);
-                }else{
+                } else {
                     return $this->responseError($ready['message']);
                 }
             } else {
                 $auth_user = $this->authUser($token['id'], $token['token']);
                 if ($auth_user) { //认证成功
                     $ready = $this->ready($auth_user, $request);
-                    if($ready['status']){
+                    if ($ready['status']) {
                         return $this->responseSuccess($ready);
-                    }else{
+                    } else {
                         return $this->responseError($ready['message']);
                     }
                 }
@@ -94,14 +94,14 @@ class ProfitController extends ResponseController
     {
         if ($user['status'] == 1 || $user['status'] == 3) {
             return [
-                'status' => false,
+                'status'  => false,
                 'message' => '请重新登陆'
             ];
         }
         $carbon_now = Carbon::now();
         if ($carbon_now >= $user['expiration_at']) {
             return [
-                'status' => false,
+                'status'  => false,
                 'message' => '该卡已过期'
             ];
         }
@@ -116,9 +116,9 @@ class ProfitController extends ResponseController
         }
 
 
-        if(isset($config['maintenance']) && $config['maintenance'] != 'null'){
+        if (isset($config['maintenance']) && $config['maintenance'] != 'null') {
             return [
-                'status' => false,
+                'status'  => false,
                 'message' => $config['maintenance']
             ];
         }
@@ -127,22 +127,23 @@ class ProfitController extends ResponseController
         $ad_start_time = Carbon::createFromTimeString($config['ad_start_time']);
         $ad_end_time = Carbon::createFromTimeString($config['ad_end_time']);
         if ($carbon_now->gt($ad_end_time) || $carbon_now->lt($ad_start_time)) {
-            if($request->headers->get('user-agent') == 'okhttp/3.8.0'){
+            if ($request->headers->get('user-agent') == 'okhttp/3.8.0') {
                 if ($carbon_now->gt($ad_start_time)) {
                     $seconds = $carbon_now->diffInSeconds($ad_start_time->addDay());
                 } else {
                     $seconds = $carbon_now->diffInSeconds($ad_start_time);
                 }
+
                 return [
                     'status'      => true,
                     'last_amount' => 0,
                     'time'        => $seconds,
-                    'url' => ''
+                    'url'         => ''
                 ];
             }
 
             return [
-                'status' => false,
+                'status'  => false,
                 'message' => '广告开始结束时间为' . $config['ad_start_time'] . '-' . $config['ad_end_time']
             ];
         }
@@ -150,14 +151,14 @@ class ProfitController extends ResponseController
         $visit = $this->redis->get('v_' . $user['id'] . '_' . date('Ymd')) ?: 0;
 
         if ($visit >= $config['max_visits']) {
-            if($carbon_now->addMinutes(30)->toDateTimeString() <= $ad_end_time){
+            if ($carbon_now->addMinutes(30)->toDateTimeString() <= $ad_end_time) {
                 return [
-                    'status' => false,
+                    'status'  => false,
                     'message' => '系统检测到您的请求异常，如继续使用非法手段刷新可能面临封号风险！'
                 ];
-            }else{
+            } else {
                 return [
-                    'status' => false,
+                    'status'  => false,
                     'message' => '今日访问已达上限'
                 ];
             }
@@ -165,9 +166,9 @@ class ProfitController extends ResponseController
         $my_amount = $this->getLast_amount($config, $user['expiration_at']);
 
 
-        if(!$this->canSee($user['id'])){
+        if (!$this->canSee($user['id'])) {
             return [
-                'status'      => false,
+                'status'  => false,
                 'message' => '请求频繁'
             ];
         }
@@ -179,15 +180,15 @@ class ProfitController extends ResponseController
 
         $this->redis->incrby('v_' . $user['id'] . '_' . date('Ymd'), 1);
         $this->redis->incrby('a_' . $user['id'] . '_' . date('Ymd'), $my_amount);
-        $this->redis->set('see_'.$user['id'], Carbon::now()->addSeconds($config['ad_frequency']));
+        $this->redis->set('see_' . $user['id'], Carbon::now()->addSeconds($config['ad_frequency']));
 
         $my_amount = $my_amount / 100;
 
         return [
             'status'      => true,
-            'url'         => $res->img_uri ?: 'http://taofubao.oss-cn-beijing.aliyuncs.com/'.$res->img,
-            'type' => 'image',
-            'text' => '正在适配系统IP...获取积分中',
+            'url'         => $res->img_uri ?: 'http://taofubao.oss-cn-beijing.aliyuncs.com/' . $res->img,
+            'type'        => 'image',
+            'text'        => $config['second_task_text'],
             'last_amount' => "已增加{$my_amount}积分",
             'time'        => intval($config['ad_frequency']),
         ];
@@ -217,13 +218,14 @@ class ProfitController extends ResponseController
 //        return (int) (round($my_amount + randFloat(0.0001, 0.003), 4) * 10000);
     }
 
-    public function canSee($user_id) {
-        $last_time_see_ad = $this->redis->get('see_'.$user_id);
-        if(!is_null($last_time_see_ad)){
+    public function canSee($user_id)
+    {
+        $last_time_see_ad = $this->redis->get('see_' . $user_id);
+        if (!is_null($last_time_see_ad)) {
             Carbon::now();
             $last_time_see_ad = Carbon::createFromFormat('Y-m-d H:i:s', $last_time_see_ad);
 
-            return Carbon::now()->gt($last_time_see_ad)?:false;
+            return Carbon::now()->gt($last_time_see_ad) ?: false;
         }
 
         return true;
