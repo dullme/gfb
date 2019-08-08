@@ -134,17 +134,13 @@ class LoginController extends ResponseController
             $this->client->set('config', json_encode($config));
         }
 
-        $advertisement = Advertisement::where('status', 1)->select('img', 'img_uri as url')->orderBy('id', 'DESC')->take(5)->get();
-        $advertisement = $advertisement->map(function ($item){
-            $item['img'] = 'http://taofubao.oss-cn-beijing.aliyuncs.com/'.$item['img'];
-            return $item;
-        });
+        $banner = explode(';', $config['banner']);
 
         return $this->responseSuccess([
             'task'         => $config['task'], //任务地址
             'time'         => intval($config['ad_frequency']), //第一次请求任务的间隔时间
             'announcement' => $config['announcement'] == 'null' ? null : $config['announcement'], //公告
-            'banner'       => $advertisement
+            'banner'       => $banner
         ]);
     }
 
