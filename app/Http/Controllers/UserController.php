@@ -196,7 +196,7 @@ class UserController extends ResponseController
             [
                 'title' => '积分记录',
                 'name' => '今日积分',
-                'text' => $today_amount ? $today_amount / 10000 : 0,
+                'text' => $a['user_today_integral'],
             ],
             [
                 'title' => '积分历史',
