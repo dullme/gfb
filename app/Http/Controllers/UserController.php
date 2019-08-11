@@ -191,7 +191,7 @@ class UserController extends ResponseController
         $today_amount = $this->redis->get('a_' . $user->id . '_' . date('Ymd'));
 //        $visits = $this->redis->get('v_' . $user->id . '_' . date('Ymd'));
         $a = $this->withdrawInfo($user);
-
+        $withdraw_finished = Withdraw::where('user_id', $user->id);
         return $this->responseSuccess([
             [
                 'title' => '积分记录',
@@ -211,7 +211,7 @@ class UserController extends ResponseController
             [
                 'title' => '提现',
                 'name' => '提现总金额',
-                'text' => $user->history_amount / 10000,
+                'text' => (int) $withdraw_finished->sum('price') / 10000,
             ],
         ]);
     }
