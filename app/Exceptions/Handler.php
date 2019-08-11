@@ -52,9 +52,10 @@ class Handler extends ExceptionHandler
 
             $data = [
                 'message' => $errors,
+                'code' => 422
             ];
 
-            return response()->json($data, 422);
+            return response()->json($data, 200);
         }
 
         return parent::render($request, $exception);
