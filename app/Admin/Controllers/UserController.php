@@ -348,8 +348,9 @@ class UserController extends Controller
 
         $grid->id('用户名');
         $grid->mobile('电话');
+        $grid->realname('姓名');
         $grid->alipay_account('支付宝账户');
-        $grid->alipay_name('支付宝账户姓名');
+        $grid->alipay_name('支付宝账户名');
         $grid->activation_at('激活时间')->display(function ($value) {
 
             return $value ? substr($value, 0, 10) : '—';
