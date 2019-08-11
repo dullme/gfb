@@ -34,3 +34,14 @@ Route::group([
     $router->resource('page', PageController::class);
 
 });
+
+Route::group([
+    'prefix'        => config('admin.route.prefix'),
+    'namespace'     => config('admin.route.namespace'),
+    'middleware'    => config('admin.route.middleware'),
+], function (Router $router) {
+    Route::put('auth/setting', 'AuthController@putSetting');
+});
+
+
+
