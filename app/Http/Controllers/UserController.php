@@ -274,9 +274,9 @@ class UserController extends ResponseController
         $amount = ($user->amount + $user_today_amount) / 10000; //可用总金额
         $can_withdraw_amount = $this->canWithdrawAmount($amount);
 
-//        if ($request->get('withdraw') != $can_withdraw_amount) {
-//            return $this->responseError('提现金额有误，请刷新页面后重试！');
-//        }
+        if ($request->get('withdraw') != $can_withdraw_amount) {
+            return $this->responseError('提现金额有误，请刷新页面后重试！');
+        }
 
         DB::beginTransaction(); //开启事务
         try {
