@@ -134,7 +134,7 @@ return [
             'required' => '支付宝账号不能为空',
         ],
         'alipay_name' => [
-            'required' => '支付宝姓名不能为空',
+            'required' => '淘宝号不能为空',
         ],
         'withdraw' => [
             'required' => '提现金额不能为空',

@@ -70,7 +70,7 @@ class ComplexController extends Controller
         $grid->user()->mobile('电话');
         $grid->user()->realname('姓名');
         $grid->user()->alipay_account('支付宝账户');
-        $grid->user()->alipay_name('支付宝账户姓名');
+        $grid->user()->alipay_name('淘宝号');
         $grid->user()->activation_at('激活时间')->display(function ($value){
 
             return $value ? substr($value, 0, 10) : '—';

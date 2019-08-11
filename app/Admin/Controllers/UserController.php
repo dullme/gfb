@@ -142,7 +142,7 @@ class UserController extends Controller
         $grid->mobile('电话');
         $grid->realname('姓名');
         $grid->alipay_account('支付宝账户');
-        $grid->alipay_name('支付宝账户姓名');
+        $grid->alipay_name('淘宝号');
         $grid->status('状态')->display(function ($status) {
             $color = array_get(User::$statusColors, $status, 'grey');
             $status = getUserStatus($status);
@@ -217,7 +217,7 @@ class UserController extends Controller
         $show->mobile('电话');
         $show->realname('姓名');
         $show->alipay_account('支付宝账号');
-        $show->alipay_name('支付宝用户名');
+        $show->alipay_name('淘宝号');
         $show->status('状态')->as(function ($status) {
 
             return getUserStatus($status);
@@ -265,7 +265,7 @@ class UserController extends Controller
 //        $form->decimal('retail_price', '零售价');
 //        $form->number('validity_period', '有效期限/天');
         $form->text('realname', '姓名');
-        $form->text('alipay_name', '支付宝用户名');
+        $form->text('alipay_name', '淘宝号');
         $form->text('alipay_account', '支付宝账号');
         $form->text('mobile', '联系电话');
 
@@ -353,7 +353,7 @@ class UserController extends Controller
         $grid->mobile('电话');
         $grid->realname('姓名');
         $grid->alipay_account('支付宝账户');
-        $grid->alipay_name('支付宝账户名');
+        $grid->alipay_name('淘宝号');
         $grid->activation_at('激活时间')->display(function ($value) {
 
             return $value ? substr($value, 0, 10) : '—';

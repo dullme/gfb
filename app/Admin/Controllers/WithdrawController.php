@@ -95,7 +95,7 @@ class WithdrawController extends Controller {
         $grid->user()->id('用户名');
         $grid->created_at('申请日期');
         $grid->user()->realname('姓名');
-        $grid->user()->alipay_name('支付宝账户姓名');
+        $grid->user()->alipay_name('淘宝号');
         $grid->user()->mobile('电话');
         $grid->user()->alipay_account('支付宝账户');
         $grid->price('申请金额')->display(function ($price) {
@@ -131,7 +131,7 @@ class WithdrawController extends Controller {
         $excel = new ExcelExpoter();
         $excel->setAttr(
             ['ID', '账户','姓名', '支付宝账号', '金额', '申请时间'],
-            ['id', 'user.id', 'user.alipay_name', 'user.alipay_account','price', 'created_at'],
+            ['id', 'user.id', 'user.realname', 'user.alipay_account','price', 'created_at'],
             ['price']
         );
         $grid->exporter($excel);
