@@ -194,6 +194,9 @@ class UserController extends ResponseController
 //        $visits = $this->redis->get('v_' . $user->id . '_' . date('Ymd'));
         $a = $this->withdrawInfo($user);
         $withdraw_finished = Withdraw::where('user_id', $user->id);
+
+        $history_amount = Complex::where('user_id', 1697195)->whereBetween('created_at', [Carbon::now()->subDays(1)->startOfDay(), Carbon::now()->subDay()->endOfDay()])->sum('history_amount');
+
         return $this->responseSuccess([
             [
                 'title' => '积分记录',
@@ -203,7 +206,7 @@ class UserController extends ResponseController
             [
                 'title' => '积分历史',
                 'name' => '昨日积分',
-                'text' => intval($a['user_amount'] * 100),
+                'text' => $history_amount/100,
             ],
 //            [
 //                'title' => '浏览记录',
