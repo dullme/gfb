@@ -324,7 +324,10 @@ class UserController extends ResponseController
      */
     public function canWithdrawAmount($user_amount)
     {
-        $value = (int) ((float) $user_amount / 100);
+//        $value = (int) ((float) $user_amount / 100);
+//
+//        return $value ? $value * 100 : 0;
+        $value = intval(intval($user_amount) / 100);
 
         return $value ? $value * 100 : 0;
     }
