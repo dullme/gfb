@@ -232,7 +232,7 @@ class UserController extends ResponseController
         $amount = $user->amount / 10000; //可用总金额
 
         return [
-            'user_amount'             => round(($amount + $user_today_amount) / 10000, 2), //可用总金额（可提现金额）
+            'user_amount'             => round(($user->amount + $user_today_amount) / 10000, 2), //可用总金额（可提现金额）
             'user_today_amount'       => ($user_today_amount / 10000), //当日浏览总金额 （今日金额）
             'user_today_integral'     => ($user_today_amount / 100), //当日浏览总金额 （今日积分）
             'user_today_visit'        => (int) $user_today_visit, //当日浏览总次数 （浏览次数）
