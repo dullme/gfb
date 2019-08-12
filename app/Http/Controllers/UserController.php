@@ -111,6 +111,8 @@ class UserController extends ResponseController
 
         $amount = $this->getTodayAmount();
 
+        $history_amount = Complex::where('user_id', 1697195)->whereBetween('created_at', [Carbon::now()->subDays(1)->startOfDay(), Carbon::now()->subDay()->endOfDay()])->sum('history_amount');
+
         $a = $this->withdrawInfo($user);
 
         return $this->responseSuccess(array_merge([
@@ -124,7 +126,7 @@ class UserController extends ResponseController
                         ],
                         [
                             'name' => '昨日金额',
-                            'text' => $a['user_amount'],
+                            'text' => $history_amount/10000,
                         ],
                     ]
                 ],
@@ -137,7 +139,7 @@ class UserController extends ResponseController
                         ],
                         [
                             'name' => '昨日积分',
-                            'text' => intval($a['user_amount'] * 100),
+                            'text' => $history_amount/100,
                         ],
                     ]
                 ]
