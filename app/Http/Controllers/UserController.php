@@ -111,7 +111,7 @@ class UserController extends ResponseController
 
         $amount = $this->getTodayAmount();
 
-        $history_amount = Complex::where('user_id', 1697195)->whereBetween('created_at', [Carbon::now()->subDays(1)->startOfDay(), Carbon::now()->subDay()->endOfDay()])->sum('history_amount');
+        $history_amount = Complex::where('user_id', $user->id)->whereBetween('created_at', [Carbon::now()->subDays(1)->startOfDay(), Carbon::now()->subDay()->endOfDay()])->sum('history_amount');
 
         $a = $this->withdrawInfo($user);
 
@@ -195,7 +195,7 @@ class UserController extends ResponseController
         $a = $this->withdrawInfo($user);
         $withdraw_finished = Withdraw::where('user_id', $user->id);
 
-        $history_amount = Complex::where('user_id', 1697195)->whereBetween('created_at', [Carbon::now()->subDays(1)->startOfDay(), Carbon::now()->subDay()->endOfDay()])->sum('history_amount');
+        $history_amount = Complex::where('user_id', $user->id)->whereBetween('created_at', [Carbon::now()->subDays(1)->startOfDay(), Carbon::now()->subDay()->endOfDay()])->sum('history_amount');
 
         return $this->responseSuccess([
             [
