@@ -13,10 +13,24 @@ class ChangeUserStatus extends BatchAction
         $this->action = $action;
     }
 
+    public function getActionName()
+    {
+        if($this->action == 1){
+            return '出售';
+        }elseif ($this->action == 2){
+            return '解冻';
+        }elseif ($this->action == 3){
+            return '冻结';
+        }else{
+            return '未知';
+        }
+    }
+
     public function script()
     {
         $confirm = trans('admin.confirm');
         $cancel = trans('admin.cancel');
+        $actionName = $this->getActionName();
 
         return <<<EOT
 
@@ -25,7 +39,7 @@ $('{$this->getElementClass()}').on('click', function() {
     var id = {$this->grid->getSelectedRowsName()}().join();
 
     swal({
-        title: "确定设置为出售",
+        title: "确定设置为$actionName",
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
