@@ -15,6 +15,7 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id')->comment('用户名');
+            $table->integer('staff_id')->unsigned()->default(0)->comment('外键：staff的主键');
             $table->string('avatar')->nullable()->comment('头像');
             $table->decimal('original_price', 10, 2)->comment('发行价');
             $table->decimal('retail_price', 10, 2)->comment('零售价');

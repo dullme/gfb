@@ -95,6 +95,11 @@ class WithdrawController extends Controller {
         $grid->user()->id('用户名');
         $grid->created_at('申请日期');
         $grid->user()->realname('姓名');
+
+        $grid->column('staff_name', '所属员工')->display(function () {
+            return optional(optional($this->user)->staff)->name;
+        });
+
         $grid->user()->alipay_name('淘宝号');
         $grid->user()->mobile('电话');
         $grid->user()->alipay_account('支付宝账户');
@@ -115,6 +120,18 @@ class WithdrawController extends Controller {
             $filter->equal('user.mobile', '电话');
             $filter->equal('user.alipay_account', '支付宝账户');
             $filter->between('created_at', '申请日期')->datetime();
+//            $filter->like('user.staff.name', '所属员工');
+            $filter->where(function ($query) {
+                $query->whereHas('user.staff', function ($query) {
+                    $query->where('name', 'like', "%{$this->input}%");
+                });
+
+            }, '所属员工');
+        });
+
+        $grid->footer(function ($query) {
+            $data = $query->sum('price') /10000;
+            return "<div style='padding: 10px;'>总申请金额 ： $data</div>";
         });
 
         $grid->disableCreateButton();//禁用创建按钮

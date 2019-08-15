@@ -18,6 +18,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'email', 'password',
+        'staff_id',
         'original_price',
         'retail_price',
         'mobile',
@@ -66,6 +67,11 @@ class User extends Authenticatable
     public function withdraws() {
 
         return $this->hasMany(Withdraw::class);
+    }
+
+    public function staff()
+    {
+        return $this->belongsTo(Staff::class);
     }
 
 }

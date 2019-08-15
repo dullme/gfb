@@ -32,6 +32,7 @@ Route::group([
 
     $router->resource('capital-pool', CapitalPoolController::class);
     $router->resource('page', PageController::class);
+    $router->resource('staff', StaffController::class);
 
 });
 

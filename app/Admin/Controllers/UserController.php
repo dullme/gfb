@@ -136,6 +136,12 @@ class UserController extends Controller
         $grid->model()->where('status', $status)->orderBy('id', 'desc');
 
         $grid->id('用户名');
+        $grid->staff('所属员工')->display(function ($staff){
+            if($staff){
+                return $staff['name'];
+            }
+            return '-';
+        });
 //        $grid->original_price('发行价');
 //        $grid->retail_price('零售价');
         $grid->validity_period('有效期限/天')->sortable();
@@ -174,6 +180,7 @@ class UserController extends Controller
             $filter->between('id', '用户名');
             $filter->like('mobile', '电话');
             $filter->date('activation_at', '激活时间');
+            $filter->like('staff.name', '所属员工');
         });
 
         $grid->tools(function ($tools) {
