@@ -86,6 +86,13 @@ class StaffController extends Controller
         $grid->mobile('电话');
         $grid->created_at('添加时间');
 
+        //筛选
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+            $filter->like('name', '姓名');
+            $filter->like('mobile', '电话');
+        });
+
         return $grid;
     }
 

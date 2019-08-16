@@ -182,7 +182,7 @@ class UserController extends Controller
             $filter->between('id', '用户名');
             $filter->like('mobile', '电话');
             $filter->date('activation_at', '激活时间');
-            $filter->like('staff.name', '所属员工');
+            $filter->equal('staff.name', '所属员工');
         });
 
         $grid->tools(function ($tools) {

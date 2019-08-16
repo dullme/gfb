@@ -123,7 +123,7 @@ class WithdrawController extends Controller {
 //            $filter->like('user.staff.name', '所属员工');
             $filter->where(function ($query) {
                 $query->whereHas('user.staff', function ($query) {
-                    $query->where('name', 'like', "%{$this->input}%");
+                    $query->where('name',  $this->input);
                 });
 
             }, '所属员工');
