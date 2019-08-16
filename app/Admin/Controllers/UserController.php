@@ -8,6 +8,7 @@ use App\Admin\Extensions\Tools\UserTool;
 use App\Http\Controllers\RedisController;
 use App\Models\AdminConfig;
 use App\Models\Service;
+use App\Models\Staff;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -46,7 +47,7 @@ class UserController extends Controller
     public function index(Content $content)
     {
         return $content
-            ->header('用户管理'.env('LOCAL_IP'))
+            ->header('用户管理' . env('LOCAL_IP'))
             ->description(' ')
             ->body($this->grid());
     }
@@ -100,9 +101,9 @@ class UserController extends Controller
         $ids = explode(',', $id);
         $service = Service::all();
         $guzzle = new \GuzzleHttp\Client();
-        collect($ids)->map(function ($id) use ($service, $guzzle){
-            if(count($service)){
-                foreach ($service as $item){
+        collect($ids)->map(function ($id) use ($service, $guzzle) {
+            if (count($service)) {
+                foreach ($service as $item) {
                     $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis?user_id={$id}&token=1024gfb1024");
                 }
             }
@@ -136,10 +137,11 @@ class UserController extends Controller
         $grid->model()->where('status', $status)->orderBy('id', 'desc');
 
         $grid->id('用户名');
-        $grid->staff('所属员工')->display(function ($staff){
-            if($staff){
+        $grid->staff('所属员工')->display(function ($staff) {
+            if ($staff) {
                 return $staff['name'];
             }
+
             return '-';
         });
 //        $grid->original_price('发行价');
@@ -186,8 +188,10 @@ class UserController extends Controller
         $grid->tools(function ($tools) {
             $url = url('admin/edit-expiration');
             $url2 = url('admin/add-days');
+            $url3 = url('admin/edit-staff');
             $tools->append(new UserTool());
             $tools->append("<a class='btn btn-sm btn-info' href='{$url}'>批量修改有效期</a>");
+            $tools->append("<a class='btn btn-sm btn-google' href='{$url3}'>批量设置员工</a>");
             $tools->append("<a class='btn btn-sm btn-warning' href='{$url2}'>增加/减少天数</a>");
             $tools->batch(function ($batch) {
                 $batch->add('出售', new ChangeUserStatus(1));
@@ -416,7 +420,7 @@ class UserController extends Controller
                     $aa /= 10000;
                     $str = "/ <span style='color: deepskyblue'>{$res} < {$aa}</span>";
                 }
-            }else{
+            } else {
                 if ($res > $aa) {
                     $res /= 10000;
                     $aa /= 10000;
@@ -483,8 +487,8 @@ class UserController extends Controller
                     }
                 }
 
-                if(count($service)){
-                    foreach ($service as $item){
+                if (count($service)) {
+                    foreach ($service as $item) {
                         $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis?user_id={$product->id}&token=1024gfb1024");
                     }
                 }
@@ -507,6 +511,78 @@ class UserController extends Controller
         return response()->json($data);
     }
 
+    public function showEditStaff(Content $content)
+    {
+        $staffs = Staff::all();
+
+        return $content
+            ->header('批量设置员工')
+            ->description(' ')
+            ->body(view('admin.staff', compact('staffs')));
+    }
+
+    public function editStaff(Request $request)
+    {
+        $request->validate([
+            'start_id' => 'required|integer',
+            'end_id'   => 'required|integer',
+            'staff_id' => 'required|integer',
+            'staff_list_qiangzhi' => 'required|integer',
+        ]);
+        $start_id = $request->get('start_id');
+        $end_id = $request->get('end_id');
+        $staff_id = $request->get('staff_id');
+        $staff_list_qiangzhi = $request->get('staff_list_qiangzhi');
+
+        $ids = [];
+        for ($i = $start_id; $i <= $end_id; $i++) {
+            $ids[] = $i;
+        }
+
+        if (count($ids) > 1000) {
+            return response()->json([
+                'status'  => false,
+                'message' => '修改的用户最多为1000个'
+            ]);
+        }
+        $users = User::whereBetween('id', [$start_id, $end_id])->get();
+
+        if (count($users)) {
+
+            $has_staff = $users->where('staff_id', '!=', 0)->count();
+
+            if($has_staff && $staff_list_qiangzhi == 0){
+                return response()->json([
+                    'status'  => 222,
+                    'message' => "{$has_staff}个账号已有归属，请选择强制覆盖原有归属进行更改",
+                    'change' => [
+                        'start_id' => $start_id,
+                        'end_id' => $end_id,
+                        'staff_id' => $staff_id,
+                    ]
+                ]);
+            }else{
+
+                $userUpdate = User::whereBetween('id', [$start_id, $end_id])->update([
+                    'staff_id' => $staff_id
+                ]);
+
+                return response()->json([
+                    'status'  => 200,
+                    'message' => '成功修改' . $userUpdate . '条记录'
+                ]);
+            }
+
+
+        } else {
+            return response()->json([
+                'status'  => false,
+                'message' => '该区间不存在用户'
+            ]);
+        }
+
+    }
+
     public function showEditExpiration(Content $content)
     {
         return $content
@@ -518,8 +594,8 @@ class UserController extends Controller
     public function editExpiration(Request $request)
     {
         $request->validate([
-            'start_id'    => 'required|integer',
-            'end_id'      => 'required|integer',
+            'start_id'            => 'required|integer',
+            'end_id'              => 'required|integer',
             'new_validity_period' => 'integer',
             'add_validity_period' => 'integer',
         ]);
@@ -533,7 +609,7 @@ class UserController extends Controller
             $ids[] = $i;
         }
 
-        if(count($ids) > 1000){
+        if (count($ids) > 1000) {
             return response()->json([
                 'status'  => false,
                 'message' => '修改的用户最多为1000个'
@@ -562,35 +638,34 @@ class UserController extends Controller
                 $service = Service::all();
                 $guzzle = new \GuzzleHttp\Client();
 
-                $res = $users->map(function ($user) use ($new_validity_period, $add_validity_period, $service, $guzzle){
-                    if($add_validity_period > 0){
+                $res = $users->map(function ($user) use ($new_validity_period, $add_validity_period, $service, $guzzle) {
+                    if ($add_validity_period > 0) {
 
-                        if(!is_null($user->expiration_at)){
+                        if (!is_null($user->expiration_at)) {
                             $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->expiration_at)->addDays($add_validity_period);
-                            $userUpdate =  User::where('id', $user->id)->update([
-                                'expiration_at'   => $expiration_at
+                            $userUpdate = User::where('id', $user->id)->update([
+                                'expiration_at' => $expiration_at
                             ]);
                         }
 
 
-                    }else{
+                    } else {
 
-                        if(!is_null($user->activation_at)){
+                        if (!is_null($user->activation_at)) {
                             $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->activation_at)->addMonths($new_validity_period);
-                        }else{
+                        } else {
                             $expiration_at = null;
                         }
 
-                        $userUpdate =  User::where('id', $user->id)->update([
+                        $userUpdate = User::where('id', $user->id)->update([
                             'validity_period' => $new_validity_period,
                             'expiration_at'   => $expiration_at
                         ]);
                     }
 
 
-
-                    if(count($service)){
-                        foreach ($service as $item){
+                    if (count($service)) {
+                        foreach ($service as $item) {
                             $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis?user_id={$user->id}&token=1024gfb1024");
                         }
                     }
@@ -598,10 +673,10 @@ class UserController extends Controller
                     return $userUpdate;
                 });
 
-                if($add_validity_period > 0){
-                    $message = '成功为'. $res->sum() .'条记录的有效期增加了'.$add_validity_period.'天';
-                }else{
-                    $message = '成功修改'. $res->sum() .'条记录的有效期为'.$new_validity_period.'个月';
+                if ($add_validity_period > 0) {
+                    $message = '成功为' . $res->sum() . '条记录的有效期增加了' . $add_validity_period . '天';
+                } else {
+                    $message = '成功修改' . $res->sum() . '条记录的有效期为' . $new_validity_period . '个月';
                 }
 
                 return response()->json([
@@ -630,19 +705,19 @@ class UserController extends Controller
     {
         $request->validate([
             'add_validity_period' => 'required|integer|min:1',
-            'type' => 'required|integer|min:1',
+            'type'                => 'required|integer|min:1',
         ]);
 
         $add_days = $request->input('add_validity_period');
         $type = $request->input('type');
 
-        if($type == 1){ //增加
+        if ($type == 1) { //增加
             $type_text = '增加';
             $users = DB::update(
                 'update users set expiration_at= DATE_ADD(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
                 [$add_days, Carbon::now()]
             );
-        }else{ //减少
+        } else { //减少
             $type_text = '减少';
             $users = DB::update(
                 'update users set expiration_at= DATE_SUB(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
@@ -651,21 +726,20 @@ class UserController extends Controller
         }
 
 
-
-        if($users){
+        if ($users) {
             $service = Service::all();
             $guzzle = new \GuzzleHttp\Client();
-            if(count($service)){
-                foreach ($service as $item){
+            if (count($service)) {
+                foreach ($service as $item) {
                     $guzzle->get("http://{$item->ip}:{$item->port}/clear-redis-all?token=1024gfb1024");
                 }
             }
 
             return response()->json([
                 'status'  => true,
-                'message' => '成功为'. $users .'位用户'.$type_text.'了'.$add_days.'天有效期,成功清空所有服务器的Redis数据！'
+                'message' => '成功为' . $users . '位用户' . $type_text . '了' . $add_days . '天有效期,成功清空所有服务器的Redis数据！'
             ]);
-        }else{
+        } else {
             return response()->json([
                 'status'  => false,
                 'message' => "操作失败！需要增加天数的用户数为{$users}"

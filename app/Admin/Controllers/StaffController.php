@@ -123,7 +123,7 @@ class StaffController extends Controller
                 return 'unique:staff,name';
             }
         });
-        $form->mobile('mobile', '电话');
+        $form->mobile('mobile', '电话')->rules('required');
 
         return $form;
     }
