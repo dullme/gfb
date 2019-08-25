@@ -20,6 +20,7 @@ use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use function PHPSTORM_META\type;
 use Predis\Client;
 
 class UserController extends Controller
@@ -593,12 +594,15 @@ class UserController extends Controller
 
     public function editExpiration(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'start_id'            => 'required|integer',
             'end_id'              => 'required|integer',
             'new_validity_period' => 'integer',
             'add_validity_period' => 'integer',
+            'type'                => 'required|integer|min:1',
         ]);
+
+        $type = $request->input('type');
 
         $start_id = $request->get('start_id');
         $end_id = $request->get('end_id');
@@ -638,12 +642,18 @@ class UserController extends Controller
                 $service = Service::all();
                 $guzzle = new \GuzzleHttp\Client();
 
-                $res = $users->map(function ($user) use ($new_validity_period, $add_validity_period, $service, $guzzle) {
+                $res = $users->map(function ($user) use ($new_validity_period, $add_validity_period, $service, $guzzle, $type) {
                     if ($add_validity_period > 0) {
 
                         if (!is_null($user->expiration_at)) {
-                            $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->expiration_at)->addDays($add_validity_period);
+                            if($type ==1){//增加
+                                $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->expiration_at)->addDays($add_validity_period);
+                            }else{
+                                $expiration_at = Carbon::createFromFormat('Y-m-d H:i:s', $user->expiration_at)->subDays($add_validity_period);
+                            }
+
                             $userUpdate = User::where('id', $user->id)->update([
+                                'validity_period' => $expiration_at->diffInDays($user->activation_at),
                                 'expiration_at' => $expiration_at
                             ]);
                         }
@@ -658,7 +668,7 @@ class UserController extends Controller
                         }
 
                         $userUpdate = User::where('id', $user->id)->update([
-                            'validity_period' => $new_validity_period,
+                            'validity_period' => $expiration_at->diffInDays($user->activation_at),
                             'expiration_at'   => $expiration_at
                         ]);
                     }
@@ -673,8 +683,14 @@ class UserController extends Controller
                     return $userUpdate;
                 });
 
+                if($type == 1){
+                    $text = '增加';
+                }else{
+                    $text = '减少';
+                }
+
                 if ($add_validity_period > 0) {
-                    $message = '成功为' . $res->sum() . '条记录的有效期增加了' . $add_validity_period . '天';
+                    $message = '成功为' . $res->sum() . '条记录的有效期'.$text.'了' . $add_validity_period . '天';
                 } else {
                     $message = '成功修改' . $res->sum() . '条记录的有效期为' . $new_validity_period . '个月';
                 }
@@ -714,14 +730,14 @@ class UserController extends Controller
         if ($type == 1) { //增加
             $type_text = '增加';
             $users = DB::update(
-                'update users set expiration_at= DATE_ADD(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
-                [$add_days, Carbon::now()]
+                'update users set expiration_at= DATE_ADD(expiration_at, INTERVAL ? DAY) where status = 2 and activation_at < ?',
+                [$add_days, Carbon::now()->subDay($add_days)]
             );
         } else { //减少
             $type_text = '减少';
             $users = DB::update(
-                'update users set expiration_at= DATE_SUB(expiration_at, INTERVAL ? DAY) where status = 2 and expiration_at > ?',
-                [$add_days, Carbon::now()]
+                'update users set expiration_at= DATE_SUB(expiration_at, INTERVAL ? DAY) where status = 2 and activation_at < ?',
+                [$add_days, Carbon::now()->subDay($add_days)]
             );
         }
 

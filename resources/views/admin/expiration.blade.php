@@ -31,7 +31,19 @@
                 </div>
 
                 <div class="form-group  ">
-                    <label for="validity_period" class="col-sm-2  control-label">增加有效期限/天</label>
+                    <label for="validity_period" class="col-sm-2  control-label">类型</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <select id="type_of_add" style="height: 34px;">
+                                <option value="1">增加</option>
+                                <option value="2">减少</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group  ">
+                    <label for="validity_period" class="col-sm-2  control-label">有效期限/天</label>
                     <div class="col-sm-8">
                         <div class="input-group">
                             <input style="width: 100px; text-align: center;" type="text" id="add_validity_period" name="add_validity_period" value="0" class="form-control validity_period initialized" placeholder="增加有效期限/天">
@@ -63,6 +75,7 @@
         var end_id = $('#end_id').val();
         var new_validity_period = $('#new_validity_period').val();
         var add_validity_period = $('#add_validity_period').val();
+        var type = $('#type_of_add').val();
         if(start_id == '' || end_id == ''){
             $('#check-expiration-message').html("开始或结束用户名不能为空");
             return false;
@@ -96,7 +109,8 @@
                     start_id: start_id,
                     end_id: end_id,
                     new_validity_period: new_validity_period,
-                    add_validity_period: add_validity_period
+                    add_validity_period: add_validity_period,
+                    type: type
                 })
                     .then(function (response) {
                         if(response.data.status){
