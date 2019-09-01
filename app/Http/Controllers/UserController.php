@@ -321,7 +321,7 @@ class UserController extends ResponseController
         return $this->responseSuccess(array_merge([
             "user_id" => $res2->user_id,
             "price"   => $res2->price / 10000,
-        ], $withdraw_info), '提现成功，7个工作日内到账');
+        ], $withdraw_info), '提现成功');
     }
 
     /**
