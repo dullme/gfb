@@ -273,13 +273,20 @@ class UserController extends ResponseController
             'withdraw' => 'required|integer|min:100',
         ]);
 
-        $user_today_amount = $this->redis->get('a_' . $user->id . '_' . date('Ymd'));
-        $user_today_amount = $user_today_amount ? $user_today_amount : 0;
+        $user_today_amount = $this->redis->get('a_' . $user->id . '_' . date('Ymd')); //当天缓存金额
+        $user_today_amount = $user_today_amount ? $user_today_amount : 0; //如果当天没有缓存金额，则为0
 
         $amount = ($user->amount + $user_today_amount) / 10000; //可用总金额
-        $can_withdraw_amount = $this->canWithdrawAmount($amount);
-
-        if ($request->get('withdraw') != $can_withdraw_amount) {
+        $can_withdraw_amount = $this->canWithdrawAmount($amount); //可提现金额
+        $withdraw_amount = $request->get('withdraw');
+        if ($withdraw_amount != $can_withdraw_amount) { //请求金额和可提现金额不一致则提示金额有误！
+            Log::warning("---------- START ----------");
+            Log::warning("用户ID:".$user->id);
+            Log::warning("当天缓存金额:{$user_today_amount}");
+            Log::warning("可用总金额:{$amount}");
+            Log::warning("可提现金额:{$can_withdraw_amount}");
+            Log::warning("请求金额:{$withdraw_amount}");
+            Log::warning("---------- END ----------");
             return $this->responseError('提现金额有误，请刷新页面后重试！');
         }
 
